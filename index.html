@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>মাদ্রাসা শিক্ষক নিবন্ধন প্রস্তুতি</title>
+<meta name="description" content="NTRCA মাদ্রাসা শিক্ষক নিয়োগ পরীক্ষার পূর্ণাঙ্গ অনলাইন প্রস্তুতি — কোর্স, লাইভ ক্লাস, মডেল টেস্ট।" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background:#0E211C; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .card-border { border:1px solid rgba(201,162,76,0.25); }
+</style>
+</head>
+<body class="sans-bn">
+
+  <!-- NAV -->
+  <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-4" style="background:rgba(14,33,28,0.92); border-bottom:1px solid rgba(201,162,76,0.25); backdrop-filter:blur(6px);">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center serif-bn text-lg" style="border:1px solid #C9A24C; color:#C9A24C;">জ্ঞ</div>
+      <span class="serif-bn text-lg" style="color:#F4EEDC;">মাদ্রাসা প্রস্তুতি</span>
+    </div>
+    <nav class="hidden sm:flex items-center gap-6 text-sm" style="color:#DCD3B6;">
+      <a href="#courses" class="hover:opacity-80">কোর্সসমূহ</a>
+      <a href="#features" class="hover:opacity-80">ফিচার</a>
+      <span id="nav-user" class="hidden px-4 py-1.5 rounded-full text-sm btn-gold"></span>
+      <button id="nav-login-btn" onclick="openAuth()" class="px-4 py-1.5 rounded-full text-sm btn-gold">লগইন</button>
+    </nav>
+    <button class="sm:hidden" style="color:#F4EEDC;" onclick="document.getElementById('mnav').classList.toggle('hidden')">☰</button>
+  </header>
+
+  <div id="mnav" class="hidden sm:hidden flex flex-col gap-3 px-5 py-4 text-sm" style="background:#16332B; color:#DCD3B6;">
+    <a href="#courses">কোর্সসমূহ</a>
+    <a href="#features">ফিচার</a>
+    <button onclick="openAuth()" class="text-left" style="color:#C9A24C;">লগইন / নিবন্ধন</button>
+  </div>
+
+  <!-- HERO -->
+  <section class="px-5 pt-12 pb-14 text-center">
+    <div class="max-w-xl mx-auto pb-8" style="border-bottom:1px solid rgba(201,162,76,0.35);">
+      <p class="text-xs tracking-widest mb-4" style="color:#C9A24C; letter-spacing:0.2em;">NTRCA মাদ্রাসা শিক্ষক নিবন্ধন</p>
+      <h1 class="serif-bn text-3xl sm:text-4xl leading-snug mb-4" style="color:#F4EEDC;">যাঁরা কিতাব ভালোবাসেন,<br />তাঁদের জন্য প্রস্তুতির খাতা</h1>
+      <p class="text-sm sm:text-base mb-7 max-w-md mx-auto" style="color:#DCD3B6;">অভিজ্ঞ মেন্টরদের সঠিক দিকনির্দেশনায় সাজানো লাইভ ক্লাস, লেকচার শিট ও মডেল টেস্ট — এক জায়গায়।</p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="#courses" class="px-6 py-2.5 rounded-full text-sm font-medium btn-gold">কোর্স দেখুন →</a>
+        <button onclick="openAuth()" class="px-6 py-2.5 rounded-full text-sm font-medium" style="border:1px solid #C9A24C; color:#C9A24C;">ফ্রি ভর্তি হোন</button>
+      </div>
+    </div>
+    <div class="max-w-xl mx-auto pt-7 flex justify-center gap-10">
+      <div class="text-center"><div class="serif-bn text-2xl" style="color:#C9A24C;">১৫+</div><div class="text-xs" style="color:#DCD3B6;">কোর্স</div></div>
+      <div class="text-center"><div class="serif-bn text-2xl" style="color:#C9A24C;">৩২০০+</div><div class="text-xs" style="color:#DCD3B6;">শিক্ষার্থী</div></div>
+      <div class="text-center"><div class="serif-bn text-2xl" style="color:#C9A24C;">৯৮%</div><div class="text-xs" style="color:#DCD3B6;">সফলতা</div></div>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section id="courses" class="px-5 py-10" style="background:#F4EEDC;">
+    <p class="text-xs tracking-widest mb-1" style="color:#4F7268; letter-spacing:0.2em;">ভর্তি খাতা</p>
+    <h2 class="serif-bn text-2xl mb-7" style="color:#0E211C;">জনপ্রিয় কোর্সসমূহ</h2>
+    <div id="course-list" class="max-w-2xl mx-auto flex flex-col"></div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features" class="px-5 py-12">
+    <h2 class="serif-bn text-2xl mb-7 text-center" style="color:#F4EEDC;">কোর্সভেদে যা যা পাচ্ছেন</h2>
+    <div class="max-w-2xl mx-auto grid grid-cols-2 gap-5">
+      <div class="p-4 rounded card-border"><h3 class="text-sm font-semibold mb-1" style="color:#F4EEDC;">প্রতি প্রশ্নে ব্যাখ্যা</h3><p class="text-xs" style="color:#DCD3B6;">প্রতিটি প্রশ্নের বিস্তারিত ব্যাখ্যা।</p></div>
+      <div class="p-4 rounded card-border"><h3 class="text-sm font-semibold mb-1" style="color:#F4EEDC;">এক্সক্লুসিভ লেকচার শিট</h3><p class="text-xs" style="color:#DCD3B6;">অভিজ্ঞ উস্তাদদের হাতে লেখা নোট।</p></div>
+      <div class="p-4 rounded card-border"><h3 class="text-sm font-semibold mb-1" style="color:#F4EEDC;">রুটিনভিত্তিক মডেল টেস্ট</h3><p class="text-xs" style="color:#DCD3B6;">নিয়মিত সময়সূচি মেনে পরীক্ষা।</p></div>
+      <div class="p-4 rounded card-border"><h3 class="text-sm font-semibold mb-1" style="color:#F4EEDC;">মেরিট লিস্টে অবস্থান</h3><p class="text-xs" style="color:#DCD3B6;">নিজের প্রস্তুতি যাচাই করুন।</p></div>
+    </div>
+  </section>
+
+  <footer class="px-5 py-6 text-center text-xs" style="color:#DCD3B6; border-top:1px solid rgba(201,162,76,0.2);">
+    © মাদ্রাসা প্রস্তুতি — Learn smartly, be smarter.
+  </footer>
+
+  <!-- AUTH MODAL -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center px-5" style="background:rgba(0,0,0,0.6);" onclick="if(event.target===this) closeAuth()">
+    <div class="w-full max-w-sm rounded-lg p-6 relative" style="background:#16332B; border:1px solid rgba(201,162,76,0.3);">
+      <button onclick="closeAuth()" class="absolute top-4 right-4" style="color:#DCD3B6;">✕</button>
+      <div class="flex gap-5 mb-6" style="border-bottom:1px solid rgba(201,162,76,0.2);">
+        <button id="tab-login" onclick="setTab('login')" class="text-sm pb-3" style="color:#C9A24C; border-bottom:2px solid #C9A24C;">লগইন</button>
+        <button id="tab-register" onclick="setTab('register')" class="text-sm pb-3" style="color:#DCD3B6; border-bottom:2px solid transparent;">নিবন্ধন</button>
+      </div>
+      <form id="auth-form" onsubmit="handleAuth(event)">
+        <label id="name-field" class="hidden block mb-4">
+          <span class="block text-sm mb-1.5" style="color:#DCD3B6;">পূর্ণ নাম</span>
+          <input id="f-name" type="text" placeholder="আপনার নাম" class="w-full px-4 py-2.5 rounded outline-none" style="background:rgba(244,238,220,0.06); border:1px solid #4F7268; color:#F4EEDC;">
+        </label>
+        <label class="block mb-4">
+          <span class="block text-sm mb-1.5" style="color:#DCD3B6;">মোবাইল নম্বর</span>
+          <input id="f-phone" type="text" placeholder="01XXXXXXXXX" class="w-full px-4 py-2.5 rounded outline-none" style="background:rgba(244,238,220,0.06); border:1px solid #4F7268; color:#F4EEDC;">
+        </label>
+        <label class="block mb-4">
+          <span class="block text-sm mb-1.5" style="color:#DCD3B6;">পাসওয়ার্ড</span>
+          <input id="f-pass" type="password" placeholder="••••••••" class="w-full px-4 py-2.5 rounded outline-none" style="background:rgba(244,238,220,0.06); border:1px solid #4F7268; color:#F4EEDC;">
+        </label>
+        <p id="auth-notice" class="hidden text-xs mb-3" style="color:#E08A6C;"></p>
+        <button type="submit" class="w-full py-2.5 rounded font-medium btn-gold" id="auth-submit-btn">লগইন করুন</button>
+      </form>
+    </div>
+  </div>
+
+<script>
+  const courses = [
+    {folio:"১", tag:"সহকারী মৌলভী", title:"সহকারী মৌলভী নিবন্ধন সম্পূর্ণ প্রস্তুতি", desc:"আরবি ব্যাকরণ, হাদিস, ফিকহ ও সাধারণ জ্ঞান — একসাথে সাজানো পূর্ণাঙ্গ কোর্স।", seats:"৪২০ জন ভর্তি", mode:"লাইভ + রেকর্ডেড", price:"১২৫০৳"},
+    {folio:"২", tag:"ইবতেদায়ি শিক্ষক", title:"ইবতেদায়ি সহকারী শিক্ষক প্রস্তুতি কোর্স", desc:"কুরআন মাজিদ, বাংলা, গণিত ও ইংরেজির ভিত্তি থেকে প্রশ্নব্যাংক পর্যন্ত।", seats:"৬১০ জন ভর্তি", mode:"রেকর্ডেড ক্লাস", price:"৯৫০৳"},
+    {folio:"৩", tag:"প্রভাষক (আরবি)", title:"প্রভাষক আরবি নিবন্ধন — অ্যাডভান্সড ব্যাচ", desc:"নাহু-সরফ, আরবি সাহিত্য ও পাণ্ডিত্যপূর্ণ ব্যাখ্যাসহ মডেল টেস্ট।", seats:"২৮০ জন ভর্তি", mode:"লাইভ ক্লাস", price:"১৪৫০৳"},
+    {folio:"৪", tag:"ক্বারী নিয়োগ", title:"ক্বারী পদে নিয়োগ প্রস্তুতি ব্যাচ", desc:"তাজবীদ, কিরাত ও মৌখিক পরীক্ষার অনুশীলনসহ সম্পূর্ণ গাইডলাইন।", seats:"১৯০ জন ভর্তি", mode:"লাইভ + রেকর্ডেড", price:"১১০০৳"}
+  ];
+
+  const list = document.getElementById('course-list');
+  courses.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'relative pl-8 py-5';
+    if (i < courses.length - 1) div.style.borderBottom = '1px solid #DCD3B6';
+    div.innerHTML = `
+      <span class="absolute left-0 top-5 serif-bn text-sm w-6 text-center" style="color:#C9A24C;">${c.folio}</span>
+      <div class="flex flex-wrap items-center gap-2 mb-1.5">
+        <span class="text-xs px-2.5 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${c.tag}</span>
+        <span class="text-xs" style="color:#4F7268;">${c.mode}</span>
+      </div>
+      <h3 class="serif-bn text-lg mb-1" style="color:#0E211C;">${c.title}</h3>
+      <p class="text-sm mb-2" style="color:#5B5340;">${c.desc}</p>
+      <div class="flex items-center justify-between">
+        <span class="text-xs" style="color:#4F7268;">${c.seats}</span>
+        <span class="text-sm font-medium" style="color:#0E211C;">${c.price} · বিস্তারিত →</span>
+      </div>`;
+    list.appendChild(div);
+  });
+
+  function openAuth(){ document.getElementById('auth-modal').classList.remove('hidden'); }
+  function closeAuth(){ document.getElementById('auth-modal').classList.add('hidden'); }
+  let currentTab = 'login';
+  function setTab(t){
+    currentTab = t;
+    document.getElementById('tab-login').style.color = t==='login' ? '#C9A24C' : '#DCD3B6';
+    document.getElementById('tab-login').style.borderBottomColor = t==='login' ? '#C9A24C' : 'transparent';
+    document.getElementById('tab-register').style.color = t==='register' ? '#C9A24C' : '#DCD3B6';
+    document.getElementById('tab-register').style.borderBottomColor = t==='register' ? '#C9A24C' : 'transparent';
+    document.getElementById('name-field').classList.toggle('hidden', t!=='register');
+    document.getElementById('auth-submit-btn').textContent = t==='login' ? 'লগইন করুন' : 'নিবন্ধন করুন';
+  }
+  function handleAuth(e){
+    e.preventDefault();
+    const notice = document.getElementById('auth-notice');
+    const name = document.getElementById('f-name').value.trim();
+    const phone = document.getElementById('f-phone').value.trim();
+    const pass = document.getElementById('f-pass').value.trim();
+    if (currentTab==='register' && !name){ notice.textContent='নাম লিখুন।'; notice.classList.remove('hidden'); return; }
+    if (!phone || !pass){ notice.textContent='ফোন নম্বর ও পাসওয়ার্ড দিন।'; notice.classList.remove('hidden'); return; }
+    notice.classList.add('hidden');
+    document.getElementById('nav-login-btn').classList.add('hidden');
+    const userSpan = document.getElementById('nav-user');
+    userSpan.textContent = currentTab==='register' ? name : phone;
+    userSpan.classList.remove('hidden');
+    closeAuth();
+  }
+</script>
+</body>
+</html>
