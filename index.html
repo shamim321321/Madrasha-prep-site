@@ -225,9 +225,17 @@
     if (!email || !pass){ notice.textContent='ইমেইল ও পাসওয়ার্ড দিন।'; notice.classList.remove('hidden'); return; }
     notice.classList.add('hidden');
     btn.textContent = 'অপেক্ষা করুন...';
+    const timeout = (ms) => new Promise((_, rej) => setTimeout(() => rej(new Error('সময় শেষ — ১০ সেকেন্ডে সাড়া মেলেনি')), ms));
     let result;
-    if (currentTab === 'register') { result = await nhSignUp(name, email, pass); }
-    else { result = await nhSignIn(email, pass); }
+    try {
+      const authCall = currentTab === 'register' ? nhSignUp(name, email, pass) : nhSignIn(email, pass);
+      result = await Promise.race([authCall, timeout(10000)]);
+    } catch (err) {
+      notice.textContent = 'নেটওয়ার্ক/সংযোগ এরর: ' + (err && err.message ? err.message : String(err));
+      notice.classList.remove('hidden');
+      btn.textContent = currentTab==='login' ? 'লগইন করুন' : 'নিবন্ধন করুন';
+      return;
+    }
     if (result.error) {
       notice.textContent = result.error.message.includes('already registered') ? 'এই ইমেইলে আগে থেকে একাউন্ট আছে, লগইন করুন।'
         : result.error.message.includes('Invalid login') ? 'ইমেইল বা পাসওয়ার্ড ভুল।'
