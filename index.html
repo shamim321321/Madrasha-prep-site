@@ -23,9 +23,8 @@
 </head>
 <body class="sans-bn pb-20">
 
-  <!-- NAV -->
   <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
-    <div class="flex items-center gap-2.5">
+    <a href="index.html" class="flex items-center gap-2.5">
       <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#C9A24C,#8B6B2A);">
         <i data-lucide="feather" class="w-5 h-5" style="color:#0E211C;"></i>
       </div>
@@ -33,7 +32,7 @@
         <div class="serif-bn text-lg leading-tight" style="color:#F4EEDC;">নিবন্ধন হাব</div>
         <div class="text-[10px] leading-tight" style="color:#C9A24C;">প্রস্তুতি যেখানে সহজ হয়</div>
       </div>
-    </div>
+    </a>
     <div class="flex items-center gap-3">
       <button class="relative p-1.5" style="color:#DCD3B6;">
         <i data-lucide="bell" class="w-5 h-5"></i>
@@ -46,28 +45,27 @@
   </header>
 
   <div id="mnav" class="hidden flex flex-col gap-3 px-5 py-4 text-sm" style="background:#16332B; color:#DCD3B6;">
-    <a href="#courses">কোর্সসমূহ</a>
-    <a href="#features">ফিচার</a>
+    <a href="courses.html">সব কোর্স</a>
+    <a href="free-classes.html">ফ্রি ক্লাস ও শিট</a>
+    <a href="index.html#features">ফিচার</a>
     <button onclick="openAuth()" class="text-left" style="color:#C9A24C;">লগইন / নিবন্ধন</button>
   </div>
 
-  <!-- HERO -->
   <section class="hero-grad px-5 pt-8 pb-9 mx-4 mt-4 rounded-3xl relative overflow-hidden">
     <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full" style="background:rgba(201,162,76,0.08);"></div>
     <p class="text-xs tracking-widest mb-2 relative" style="color:#C9A24C; letter-spacing:0.15em;">NTRCA মাদ্রাসা শিক্ষক নিবন্ধন</p>
     <h1 class="serif-bn text-2xl leading-snug mb-2 relative" style="color:#F4EEDC;">পূর্ণাঙ্গ প্রস্তুতি,<br/>বিশ্বস্ত পথনির্দেশনায়</h1>
     <p class="text-sm mb-5 relative max-w-xs" style="color:#CBD9D2;">অভিজ্ঞ মেন্টরদের সঠিক দিকনির্দেশনায় আপনার স্বপ্ন পূরণের যাত্রা হোক এখন থেকে।</p>
     <div class="flex gap-3 relative">
-      <a href="#courses" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5 btn-gold">
+      <a href="free-classes.html" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5 btn-gold">
         <i data-lucide="play-circle" class="w-4 h-4"></i> ফ্রি ক্লাস ও শিট
       </a>
-      <a href="#" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5" style="border:1px solid rgba(201,162,76,0.5); color:#F4EEDC;">
-        <i data-lucide="file-check-2" class="w-4 h-4"></i> ফ্রি পরীক্ষা
+      <a href="courses.html" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5" style="border:1px solid rgba(201,162,76,0.5); color:#F4EEDC;">
+        <i data-lucide="file-check-2" class="w-4 h-4"></i> সব কোর্স
       </a>
     </div>
   </section>
 
-  <!-- STATS -->
   <section class="px-4 mt-5 grid grid-cols-3 gap-3">
     <div class="rounded-2xl p-3 text-center" style="background:#fff;" >
       <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="monitor-play" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
@@ -86,23 +84,20 @@
     </div>
   </section>
 
-  <!-- COURSES -->
   <section id="courses" class="px-4 mt-8">
     <div class="flex items-center justify-between mb-4">
       <h2 class="serif-bn text-xl" style="color:#0E211C;">জনপ্রিয় কোর্সসমূহ</h2>
-      <a href="#" class="text-xs font-medium flex items-center gap-0.5" style="color:#8B6B2A;">সব দেখুন <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></a>
+      <a href="courses.html" class="text-xs font-medium flex items-center gap-0.5" style="color:#8B6B2A;">সব দেখুন <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></a>
     </div>
     <div id="course-list" class="flex flex-col gap-4"></div>
   </section>
 
-  <!-- FEATURES -->
   <section id="features" class="px-4 mt-9">
     <h2 class="serif-bn text-xl mb-1" style="color:#0E211C;">স্পেশাল ফিচার</h2>
     <p class="text-xs mb-4" style="color:#5B5340;">কোর্সভেদে যা যা পাচ্ছেন</p>
     <div class="grid grid-cols-2 gap-3" id="feature-grid"></div>
   </section>
 
-  <!-- TESTIMONIAL -->
   <section class="px-4 mt-9">
     <div class="rounded-2xl p-5 text-center" style="background:#16332B;">
       <div class="flex justify-center gap-1 mb-3">
@@ -121,16 +116,14 @@
     © নিবন্ধন হাব — প্রস্তুতি যেখানে সহজ হয়।
   </footer>
 
-  <!-- BOTTOM NAV -->
   <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee;">
-    <button class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="home" class="w-5 h-5"></i>হোম</button>
-    <a href="#courses" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="play-circle" class="w-5 h-5"></i>কোর্স</a>
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="home" class="w-5 h-5"></i>হোম</a>
+    <a href="courses.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="play-circle" class="w-5 h-5"></i>কোর্স</a>
     <button class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="users" class="w-5 h-5"></i>কমিউনিটি</button>
-    <button class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>বই</button>
+    <a href="free-classes.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>বই</a>
     <button onclick="openAuth()" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="layout-grid" class="w-5 h-5"></i>ড্যাশবোর্ড</button>
   </nav>
 
-  <!-- AUTH MODAL -->
   <div id="auth-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center px-5" style="background:rgba(0,0,0,0.6);" onclick="if(event.target===this) closeAuth()">
     <div class="w-full max-w-sm rounded-2xl p-6 relative" style="background:#16332B; border:1px solid rgba(201,162,76,0.3);">
       <button onclick="closeAuth()" class="absolute top-4 right-4" style="color:#DCD3B6;"><i data-lucide="x" class="w-4 h-4"></i></button>
@@ -157,18 +150,13 @@
     </div>
   </div>
 
+<script src="data.js"></script>
 <script>
-  const courses = [
-    {tag:"সহকারী মৌলভী", title:"সহকারী মৌলভী নিবন্ধন সম্পূর্ণ প্রস্তুতি", meta:"৩৬ ক্লাস · ৩৬ লেকচার শিট", seats:"৪২০ জন", price:"১২৫০৳", icon:"book-marked"},
-    {tag:"ইবতেদায়ি শিক্ষক", title:"ইবতেদায়ি সহকারী শিক্ষক প্রস্তুতি কোর্স", meta:"২৮ ক্লাস · ৩০ লেকচার শিট", seats:"৬১০ জন", price:"৯৫০৳", icon:"book-marked"},
-    {tag:"প্রভাষক (আরবি)", title:"প্রভাষক আরবি নিবন্ধন — অ্যাডভান্সড ব্যাচ", meta:"৪০ ক্লাস · ৪৫ লেকচার শিট", seats:"২৮০ জন", price:"১৪৫০৳", icon:"book-marked"},
-    {tag:"ক্বারী নিয়োগ", title:"ক্বারী পদে নিয়োগ প্রস্তুতি ব্যাচ", meta:"২২ ক্লাস · ২৫ লেকচার শিট", seats:"১৯০ জন", price:"১১০০৳", icon:"book-marked"}
-  ];
-
   const list = document.getElementById('course-list');
   courses.forEach((c) => {
-    const div = document.createElement('div');
-    div.className = 'rounded-2xl p-4 relative overflow-hidden';
+    const div = document.createElement('a');
+    div.href = `course.html?id=${c.id}`;
+    div.className = 'block rounded-2xl p-4 relative overflow-hidden';
     div.style.background = '#fff';
     div.style.borderLeft = '4px solid #C9A24C';
     div.innerHTML = `
@@ -184,7 +172,7 @@
       </div>
       <div class="flex items-center justify-between mt-3 pt-3" style="border-top:1px solid #F0EAD8;">
         <span class="text-xs flex items-center gap-1" style="color:#4F7268;"><i data-lucide="users" class="w-3.5 h-3.5"></i>${c.seats} ভর্তি</span>
-        <button class="px-4 py-1.5 rounded-full text-xs font-semibold btn-gold">${c.price} · প্রবেশ করুন</button>
+        <span class="px-4 py-1.5 rounded-full text-xs font-semibold btn-gold">${c.price} · বিস্তারিত</span>
       </div>`;
     list.appendChild(div);
   });
@@ -239,4 +227,4 @@
   lucide.createIcons();
 </script>
 </body>
-  </html>
+</html>

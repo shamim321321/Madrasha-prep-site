@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ফ্রি ক্লাস ও শিট — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+  .bottom-nav { box-shadow:0 -2px 10px rgba(0,0,0,0.06); }
+</style>
+</head>
+<body class="sans-bn pb-20">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">ফ্রি ক্লাস ও শিট</div>
+  </header>
+
+  <p class="px-5 mt-5 text-xs" style="color:#5B5340;">রেজিস্ট্রেশন ছাড়াই বিনামূল্যে দেখুন ও ডাউনলোড করুন — নিয়মিত নতুন কনটেন্ট যোগ হয়।</p>
+
+  <section class="px-4 mt-5">
+    <div id="free-list" class="flex flex-col gap-3"></div>
+  </section>
+
+  <footer class="px-5 py-8 mt-9 text-center text-xs" style="color:#8A8266;">© নিবন্ধন হাব</footer>
+
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee;">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>হোম</a>
+    <a href="courses.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="play-circle" class="w-5 h-5"></i>কোর্স</a>
+    <button class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="users" class="w-5 h-5"></i>কমিউনিটি</button>
+    <a href="free-classes.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="book-open" class="w-5 h-5"></i>বই</a>
+    <button class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="layout-grid" class="w-5 h-5"></i>ড্যাশবোর্ড</button>
+  </nav>
+
+  <!-- COMING SOON NOTICE -->
+  <div id="notice-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center px-5" style="background:rgba(0,0,0,0.6);" onclick="if(event.target===this) closeNotice()">
+    <div class="w-full max-w-sm rounded-2xl p-6 relative text-center" style="background:#16332B; border:1px solid rgba(201,162,76,0.3);">
+      <button onclick="closeNotice()" class="absolute top-4 right-4" style="color:#DCD3B6;"><i data-lucide="x" class="w-4 h-4"></i></button>
+      <i data-lucide="clock" class="w-8 h-8 mx-auto mb-3" style="color:#C9A24C;"></i>
+      <p class="text-sm" style="color:#F4EEDC;">এই কনটেন্টটি শীঘ্রই আপলোড হবে।</p>
+    </div>
+  </div>
+
+<script src="data.js"></script>
+<script>
+  const list = document.getElementById('free-list');
+  freeItems.forEach((item) => {
+    const isVideo = item.type === 'video';
+    const div = document.createElement('button');
+    div.onclick = openNotice;
+    div.className = 'text-left rounded-2xl p-4 flex items-center gap-3';
+    div.style.background = '#fff';
+    div.innerHTML = `
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 icon-badge">
+        <i data-lucide="${isVideo ? 'play-circle' : 'file-text'}" class="w-5 h-5" style="color:#8B6B2A;"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <span class="text-[11px] px-2 py-0.5 rounded-full font-medium" style="background:#0E211C; color:#E4C97A;">${item.tag}</span>
+        <h3 class="text-sm font-semibold mt-1.5 mb-0.5" style="color:#0E211C;">${item.title}</h3>
+        <p class="text-xs" style="color:#5B5340;">${item.desc}</p>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4 shrink-0" style="color:#8A8266;"></i>`;
+    list.appendChild(div);
+  });
+
+  function openNotice(){ document.getElementById('notice-modal').classList.remove('hidden'); }
+  function closeNotice(){ document.getElementById('notice-modal').classList.add('hidden'); }
+
+  lucide.createIcons();
+</script>
+</body>
+</html>
