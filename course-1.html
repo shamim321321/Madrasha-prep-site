@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>কোর্স বিস্তারিত — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .btn-navy { background:#0E211C; color:#F4EEDC; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+  .tab-btn.active { background:#0E211C; color:#F4EEDC; }
+  .tab-btn { background:#fff; color:#5B5340; }
+  ::-webkit-scrollbar{ display:none; }
+</style>
+</head>
+<body class="sans-bn pb-8">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="courses.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div id="course-name" class="serif-bn text-base leading-snug" style="color:#F4EEDC;">কোর্স বিস্তারিত</div>
+  </header>
+
+  <div id="content" class="px-4 mt-5"></div>
+
+  <div class="flex gap-2 px-4 mt-5 overflow-x-auto pb-1" id="tabs">
+    <button class="tab-btn active shrink-0 px-4 py-2 rounded-full text-xs font-medium flex items-center gap-1.5" data-tab="plan"><i data-lucide="list" class="w-3.5 h-3.5"></i>কোর্স প্ল্যান</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-full text-xs font-medium flex items-center gap-1.5" data-tab="pdf"><i data-lucide="file-text" class="w-3.5 h-3.5"></i>PDF শিট</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-full text-xs font-medium flex items-center gap-1.5" data-tab="video"><i data-lucide="play-circle" class="w-3.5 h-3.5"></i>ভিডিও</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-full text-xs font-medium flex items-center gap-1.5" data-tab="exam"><i data-lucide="file-check-2" class="w-3.5 h-3.5"></i>পরীক্ষা</button>
+    <button class="tab-btn shrink-0 px-4 py-2 rounded-full text-xs font-medium flex items-center gap-1.5" data-tab="merit"><i data-lucide="trophy" class="w-3.5 h-3.5"></i>মেরিট লিস্ট</button>
+  </div>
+
+  <div class="px-4 mt-5">
+    <div class="tab-panel" id="panel-plan"><div id="syllabus-list" class="flex flex-col gap-2.5"></div></div>
+    <div class="tab-panel hidden" id="panel-pdf"><div id="pdf-groups" class="flex flex-col gap-2"></div></div>
+    <div class="tab-panel hidden" id="panel-video"><div id="video-groups" class="flex flex-col gap-2"></div></div>
+    <div class="tab-panel hidden" id="panel-exam"><div id="exam-groups" class="flex flex-col gap-5"></div></div>
+    <div class="tab-panel hidden" id="panel-merit">
+      <div class="rounded-2xl overflow-hidden" style="background:#fff;"><div id="merit-list"></div></div>
+    </div>
+  </div>
+
+  <div id="cta-bar" class="hidden fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between px-5 py-4" style="background:#fff; border-top:1px solid #eee;">
+    <div>
+      <div class="text-[11px]" style="color:#5B5340;">কোর্স ফি</div>
+      <div id="cta-price" class="serif-bn text-lg" style="color:#0E211C;"></div>
+    </div>
+    <button onclick="openAuth()" class="px-6 py-2.5 rounded-full text-sm font-semibold btn-gold flex items-center gap-1.5">
+      <i data-lucide="log-in" class="w-4 h-4"></i> ভর্তি হোন
+    </button>
+  </div>
+  <div class="h-24"></div>
+
+  <div id="auth-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center px-5" style="background:rgba(0,0,0,0.6);" onclick="if(event.target===this) closeAuth()">
+    <div class="w-full max-w-sm rounded-2xl p-6 relative text-center" style="background:#16332B; border:1px solid rgba(201,162,76,0.3);">
+      <button onclick="closeAuth()" class="absolute top-4 right-4" style="color:#DCD3B6;"><i data-lucide="x" class="w-4 h-4"></i></button>
+      <i data-lucide="lock" class="w-8 h-8 mx-auto mb-3" style="color:#C9A24C;"></i>
+      <p class="text-sm" style="color:#F4EEDC;">ভর্তি ও ভিডিও/পরীক্ষা সিস্টেম শীঘ্রই চালু হচ্ছে। এখন শুধু কোর্সের কাঠামো দেখা যাচ্ছে।</p>
+    </div>
+  </div>
+
+<script src="data.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = parseInt(params.get('id'));
+  const course = courses.find(c => c.id === id);
+  const content = document.getElementById('content');
+
+  const pdfGroups = [
+    { name: "আরবি সাহিত্য", items: ["মাকামাতুল কুফিয়্যাহ- ১ম পার্ট", "মাকামাতুল কুফিয়্যাহ- ২য় পার্ট", "সাদরাসাতুল বানাত- ১ম পার্ট", "কাসিদাতুল বুরদাহ"] },
+    { name: "কুরআন", items: ["সূরা আল বাকারা — ইউনিট ১", "সূরা আলে ইমরান — ইউনিট ২", "সূরা আন নিসা — ইউনিট ৩"] },
+    { name: "হাদিস", items: ["রিয়াদুস সালেহীন — অধ্যায় ১", "রিয়াদুস সালেহীন — অধ্যায় ২"] },
+    { name: "ফিকহ", items: ["কিতাবুস সাওম", "কিতাবুল হজ্জ"] }
+  ];
+  const videoGroups = [
+    { name: "আরবি সাহিত্য", items: ["মাকামাতুল কুফিয়্যাহ পরিচিতি", "নাহু-সরফ মূল আলোচনা", "সবচেয়ে সহজ নিয়মে হরকত: পার্ট ১", "সবচেয়ে সহজ নিয়মে হরকত: পার্ট ২"] },
+    { name: "কুরআন তিলাওয়াত", items: ["তাজবীদের মূলনীতি", "মাখরাজ পরিচিতি"] },
+    { name: "হাদিস", items: ["হাদিসের পরিভাষা পরিচিতি"] }
+  ];
+  const examGroups = [
+    { month: "জুন ২০২৬", items: [
+      { date: "১৮ জুন, ২০২৬", title: "ক্লাস টেস্ট: ১৩", marks: 20, duration: "১৩ মিনিট", topic: "কিতাবুস সাওম, খুতবাতুর রাসূল (স)" },
+      { date: "১২ জুন, ২০২৬", title: "ক্লাস টেস্ট: ১২", marks: 20, duration: "১৩ মিনিট", topic: "নাহু, সূরা আন নূর" }
+    ]},
+    { month: "মে ২০২৬", items: [
+      { date: "১৭ মে, ২০২৬", title: "ক্লাস টেস্ট: ১০", marks: 20, duration: "১৩ মিনিট", topic: "মুআল্লাকাতু জুহাইর, আরবি কাওয়ায়েদ" }
+    ]}
+  ];
+  const meritList = [
+    { rank: 1, name: "Md. Mujahidul Islam", score: 57.5, exams: 3, avg: "95.8%" },
+    { rank: 2, name: "Mohammad Aman Ullah", score: 48.75, exams: 3, avg: "81.3%" },
+    { rank: 3, name: "Raihan Library", score: 48.75, exams: 3, avg: "81.3%" },
+    { rank: 4, name: "Maksuda Akter", score: 46.75, exams: 3, avg: "77.9%" },
+    { rank: 5, name: "Abu Saleh", score: 45.25, exams: 3, avg: "75.4%" }
+  ];
+
+  if (!course) {
+    content.innerHTML = `<p class="text-sm" style="color:#5B5340;">কোর্সটি খুঁজে পাওয়া যায়নি। <a href="courses.html" style="color:#8B6B2A;">সব কোর্সে ফিরে যান</a>।</p>`;
+  } else {
+    document.getElementById('course-name').textContent = course.title;
+    content.innerHTML = `
+      <span class="text-[11px] px-2.5 py-1 rounded-full font-medium" style="background:#0E211C; color:#E4C97A;">${course.tag}</span>
+      <h1 class="serif-bn text-2xl mt-3 mb-2 leading-snug" style="color:#0E211C;">${course.title}</h1>
+      <p class="text-sm mb-4" style="color:#5B5340;">${course.longDesc}</p>
+      <div class="flex flex-wrap gap-2">
+        <span class="text-xs px-3 py-1.5 rounded-full flex items-center gap-1" style="background:#fff;"><i data-lucide="layers" class="w-3.5 h-3.5" style="color:#8B6B2A;"></i>${course.meta}</span>
+        <span class="text-xs px-3 py-1.5 rounded-full flex items-center gap-1" style="background:#fff;"><i data-lucide="users" class="w-3.5 h-3.5" style="color:#8B6B2A;"></i>${course.seats} ভর্তি</span>
+        <span class="text-xs px-3 py-1.5 rounded-full flex items-center gap-1" style="background:#fff;"><i data-lucide="radio" class="w-3.5 h-3.5" style="color:#8B6B2A;"></i>${course.mode}</span>
+      </div>`;
+
+    document.getElementById('syllabus-list').innerHTML = course.syllabus.map(s => `
+      <div class="flex items-center gap-3 rounded-xl p-3" style="background:#fff;">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 icon-badge"><i data-lucide="check" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
+        <span class="text-sm" style="color:#0E211C;">${s}</span>
+      </div>`).join('');
+
+    document.getElementById('pdf-groups').innerHTML = pdfGroups.map((g, gi) => `
+      <div class="rounded-xl overflow-hidden" style="background:#fff;">
+        <button class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold" style="color:#0E211C;" onclick="toggleGroup('pdf-${gi}')">
+          <span>${g.name} (${g.items.length})</span>
+          <i data-lucide="chevron-down" class="w-4 h-4"></i>
+        </button>
+        <div id="pdf-${gi}" class="hidden flex flex-col" style="border-top:1px solid #F0EAD8;">
+          ${g.items.map(it => `
+            <button onclick="openNotice()" class="flex items-center gap-2.5 px-4 py-3 text-left text-sm" style="border-top:1px solid #F0EAD8; color:#0E211C;">
+              <i data-lucide="file-text" class="w-4 h-4 shrink-0" style="color:#8B6B2A;"></i>${it}
+            </button>`).join('')}
+        </div>
+      </div>`).join('');
+
+    document.getElementById('video-groups').innerHTML = videoGroups.map((g, gi) => `
+      <div class="rounded-xl overflow-hidden" style="background:#fff;">
+        <button class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold" style="color:#0E211C;" onclick="toggleGroup('vid-${gi}')">
+          <span>${g.name} (০/${g.items.length})</span>
+          <i data-lucide="chevron-down" class="w-4 h-4"></i>
+        </button>
+        <div id="vid-${gi}" class="hidden flex flex-col" style="border-top:1px solid #F0EAD8;">
+          ${g.items.map(it => `
+            <button onclick="openNotice()" class="flex items-center gap-2.5 px-4 py-3 text-left text-sm" style="border-top:1px solid #F0EAD8; color:#0E211C;">
+              <i data-lucide="play-circle" class="w-4 h-4 shrink-0" style="color:#8B6B2A;"></i>${it}
+            </button>`).join('')}
+        </div>
+      </div>`).join('');
+
+    document.getElementById('exam-groups').innerHTML = examGroups.map(g => `
+      <div>
+        <p class="text-xs font-semibold mb-2.5" style="color:#5B5340;">${g.month}</p>
+        <div class="flex flex-col gap-3">
+          ${g.items.map(e => `
+            <div class="rounded-xl p-4" style="background:#fff;">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs" style="color:#8A8266;">${e.date}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-medium btn-gold">মেরিট লিস্ট</span>
+              </div>
+              <h4 class="text-sm font-semibold mb-1" style="color:#0E211C;">${e.title}</h4>
+              <p class="text-xs mb-1" style="color:#5B5340;">পূর্ণমান: ${e.marks} · সময়: ${e.duration}</p>
+              <p class="text-xs mb-3" style="color:#5B5340;">টপিক: ${e.topic}</p>
+              <div class="flex gap-2">
+                <button onclick="openNotice()" class="flex-1 py-2 rounded-full text-xs font-medium" style="border:1px solid #C9A24C; color:#8B6B2A;">উত্তরপত্র দেখুন</button>
+                <button onclick="openNotice()" class="flex-1 py-2 rounded-full text-xs font-medium btn-navy">পরীক্ষা দিন</button>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+
+    document.getElementById('merit-list').innerHTML = meritList.map((m, i) => `
+      <div class="flex items-center gap-3 px-4 py-3" style="${i>0 ? 'border-top:1px solid #F0EAD8;':''}">
+        <span class="w-6 text-sm font-bold text-center" style="color:${m.rank<=3 ? '#C9A24C' : '#8A8266'};">${m.rank}</span>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style="background:#0E211C; color:#E4C97A;">${m.name.charAt(0)}</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate" style="color:#0E211C;">${m.name}</p>
+          <p class="text-[11px]" style="color:#8A8266;">${m.exams}টি পরীক্ষা · গড় ${m.avg}</p>
+        </div>
+        <span class="text-sm font-bold" style="color:#0E211C;">${m.score}</span>
+      </div>`).join('');
+
+    document.getElementById('cta-price').textContent = course.price;
+    document.getElementById('cta-bar').classList.remove('hidden');
+  }
+
+  function toggleGroup(id){ document.getElementById(id).classList.toggle('hidden'); lucide.createIcons(); }
+  function openAuth(){ document.getElementById('auth-modal').classList.remove('hidden'); }
+  function closeAuth(){ document.getElementById('auth-modal').classList.add('hidden'); }
+  function openNotice(){ openAuth(); }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById('panel-' + btn.dataset.tab).classList.remove('hidden');
+    });
+  });
+
+  lucide.createIcons();
+</script>
+</body>
+</html>

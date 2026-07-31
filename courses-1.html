@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>সব কোর্স — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+  .bottom-nav { box-shadow:0 -2px 10px rgba(0,0,0,0.06); }
+  .chip.active { background:#0E211C !important; color:#F4EEDC !important; }
+  ::-webkit-scrollbar{ display:none; }
+</style>
+</head>
+<body class="sans-bn pb-20">
+
+  <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <div class="flex items-center gap-3">
+      <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+      <div class="serif-bn text-lg" style="color:#F4EEDC;">সব কোর্স</div>
+    </div>
+    <a href="free-exam.html" class="text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-1 btn-gold"><i data-lucide="file-check-2" class="w-3.5 h-3.5"></i>ফ্রি পরীক্ষা</a>
+  </header>
+
+  <section class="px-4 mt-5">
+    <p class="text-xs font-semibold mb-2.5" style="color:#5B5340;">বিষয় নির্বাচন করুন</p>
+    <div class="flex gap-2 overflow-x-auto pb-1" id="subject-chips"></div>
+
+    <div class="flex gap-2 mt-3 overflow-x-auto pb-1" id="status-chips">
+      <button class="chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5" style="background:#fff; color:#5B5340;" data-status="লাইভ"><span class="w-1.5 h-1.5 rounded-full" style="background:#D14343;"></span>লাইভ</button>
+      <button class="chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5" style="background:#fff; color:#5B5340;" data-status="এক্সাম"><span class="w-1.5 h-1.5 rounded-full" style="background:#C9A24C;"></span>এক্সাম</button>
+      <button class="chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5" style="background:#fff; color:#5B5340;" data-status="রেকর্ডেড"><span class="w-1.5 h-1.5 rounded-full" style="background:#6B5FC9;"></span>রেকর্ডেড</button>
+    </div>
+  </section>
+
+  <section class="px-4 mt-6">
+    <div id="course-list" class="flex flex-col gap-4"></div>
+    <p id="empty-msg" class="hidden text-sm text-center py-8" style="color:#8A8266;">এই ফিল্টারে কোনো কোর্স পাওয়া যায়নি।</p>
+  </section>
+
+  <footer class="px-5 py-8 mt-9 text-center text-xs" style="color:#8A8266;">© নিবন্ধন হাব</footer>
+
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee;">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>হোম</a>
+    <a href="courses.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="play-circle" class="w-5 h-5"></i>কোর্স</a>
+    <button class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="users" class="w-5 h-5"></i>কমিউনিটি</button>
+    <a href="free-classes.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>বই</a>
+    <button class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="layout-grid" class="w-5 h-5"></i>ড্যাশবোর্ড</button>
+  </nav>
+
+<script src="data.js"></script>
+<script>
+  let activeSubject = 'সব';
+  let activeStatus = null;
+
+  const subjects = ['সব', ...new Set(courses.map(c => c.tag))];
+  const subjectWrap = document.getElementById('subject-chips');
+  subjects.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'chip shrink-0 px-3.5 py-2 rounded-xl text-xs font-medium';
+    b.style.background = '#fff';
+    b.style.color = '#0E211C';
+    b.textContent = s;
+    b.dataset.subject = s;
+    if (s === 'সব') b.classList.add('active');
+    b.onclick = () => { activeSubject = s; render(); updateChips(); };
+    subjectWrap.appendChild(b);
+  });
+
+  document.querySelectorAll('#status-chips .chip').forEach(b => {
+    b.onclick = () => {
+      activeStatus = activeStatus === b.dataset.status ? null : b.dataset.status;
+      render(); updateChips();
+    };
+  });
+
+  function updateChips(){
+    subjectWrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b.dataset.subject === activeSubject));
+    document.querySelectorAll('#status-chips .chip').forEach(b => b.classList.toggle('active', b.dataset.status === activeStatus));
+  }
+
+  function render(){
+    const list = document.getElementById('course-list');
+    const filtered = courses.filter(c =>
+      (activeSubject === 'সব' || c.tag === activeSubject) &&
+      (!activeStatus || c.mode.includes(activeStatus === 'লাইভ' ? 'লাইভ' : activeStatus === 'এক্সাম' ? 'এক্সাম' : 'রেকর্ডেড'))
+    );
+    document.getElementById('empty-msg').classList.toggle('hidden', filtered.length > 0);
+    list.innerHTML = filtered.map(c => `
+      <a href="course.html?id=${c.id}" class="block rounded-2xl p-4 relative overflow-hidden" style="background:#fff; border-left:4px solid #C9A24C;">
+        <div class="flex items-start gap-3">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge">
+            <i data-lucide="${c.icon}" class="w-5 h-5" style="color:#8B6B2A;"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="text-[11px] px-2 py-0.5 rounded-full font-medium" style="background:#0E211C; color:#E4C97A;">${c.tag}</span>
+            <h3 class="serif-bn text-[15px] mt-1.5 mb-1 leading-snug" style="color:#0E211C;">${c.title}</h3>
+            <p class="text-xs" style="color:#5B5340;">${c.shortDesc}</p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between mt-3 pt-3" style="border-top:1px solid #F0EAD8;">
+          <span class="text-xs flex items-center gap-1" style="color:#4F7268;"><i data-lucide="users" class="w-3.5 h-3.5"></i>${c.seats} ভর্তি · ${c.mode}</span>
+          <span class="px-4 py-1.5 rounded-full text-xs font-semibold btn-gold">${c.price}</span>
+        </div>
+      </a>`).join('');
+    lucide.createIcons();
+  }
+
+  render();
+  lucide.createIcons();
+</script>
+</body>
+</html>
