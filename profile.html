@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>প্রোফাইল — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+</style>
+</head>
+<body class="sans-bn pb-16">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">প্রোফাইল</div>
+  </header>
+
+  <div id="loading-msg" class="text-center text-sm py-10" style="color:#5B5340;">লোড হচ্ছে...</div>
+
+  <div id="profile-wrap" class="hidden px-5 mt-6">
+
+    <!-- AVATAR -->
+    <div class="flex flex-col items-center mb-6">
+      <div class="relative">
+        <div id="avatar-preview" class="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden" style="background:#0E211C;">
+          <i data-lucide="user" class="w-10 h-10" style="color:#C9A24C;"></i>
+        </div>
+        <button onclick="document.getElementById('avatar-input').click()" class="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center btn-gold" style="border:2px solid #F4EEDC;">
+          <i data-lucide="camera" class="w-4 h-4"></i>
+        </button>
+        <input id="avatar-input" type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
+      </div>
+      <p id="avatar-status" class="text-xs mt-2" style="color:#5B5340;"></p>
+    </div>
+
+    <!-- FORM -->
+    <form id="profile-form" class="flex flex-col gap-4" onsubmit="handleSave(event)">
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">পূর্ণ নাম</label>
+        <input id="f-name" type="text" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+      </div>
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ইমেইল</label>
+        <input id="f-email" type="email" disabled class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#EFE9D6; border:1px solid #E4DAB8; color:#8A8266;">
+      </div>
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">মোবাইল নম্বর</label>
+        <input id="f-phone" type="text" placeholder="01XXXXXXXXX" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+      </div>
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ঠিকানা</label>
+        <textarea id="f-address" rows="2" placeholder="গ্রাম/এলাকা, উপজেলা, জেলা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;"></textarea>
+      </div>
+
+      <p class="text-xs font-semibold mt-2" style="color:#8B6B2A;">সোশ্যাল মিডিয়া লিংক</p>
+
+      <div class="flex items-center gap-2">
+        <i data-lucide="facebook" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+        <input id="f-facebook" type="text" placeholder="ফেসবুক প্রোফাইল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+      </div>
+      <div class="flex items-center gap-2">
+        <i data-lucide="youtube" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+        <input id="f-youtube" type="text" placeholder="ইউটিউব চ্যানেল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+      </div>
+      <div class="flex items-center gap-2">
+        <i data-lucide="message-circle" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+        <input id="f-whatsapp" type="text" placeholder="হোয়াটসঅ্যাপ নম্বর" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+      </div>
+
+      <p id="save-notice" class="hidden text-xs" style="color:#2F7A4F;"></p>
+
+      <button type="submit" id="save-btn" class="mt-2 py-3 rounded-full text-sm font-semibold btn-gold">প্রোফাইল সেভ করুন</button>
+    </form>
+
+    <button onclick="nhSignOut()" class="w-full mt-4 py-3 rounded-full text-sm font-medium flex items-center justify-center gap-1.5" style="border:1px solid #D14343; color:#D14343;">
+      <i data-lucide="log-out" class="w-4 h-4"></i> লগআউট
+    </button>
+  </div>
+
+<script src="auth.js"></script>
+<script>
+  let currentUser = null;
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session || !session.user) {
+      window.location.href = 'index.html';
+      return;
+    }
+    currentUser = session.user;
+    const m = currentUser.user_metadata || {};
+    document.getElementById('f-name').value = m.full_name || '';
+    document.getElementById('f-email').value = currentUser.email || '';
+    document.getElementById('f-phone').value = m.phone_number || '';
+    document.getElementById('f-address').value = m.address || '';
+    document.getElementById('f-facebook').value = m.facebook || '';
+    document.getElementById('f-youtube').value = m.youtube || '';
+    document.getElementById('f-whatsapp').value = m.whatsapp || '';
+    if (m.avatar_url) {
+      document.getElementById('avatar-preview').innerHTML = `<img src="${m.avatar_url}" class="w-full h-full object-cover">`;
+    }
+    document.getElementById('loading-msg').classList.add('hidden');
+    document.getElementById('profile-wrap').classList.remove('hidden');
+    lucide.createIcons();
+  }
+
+  async function handleAvatarChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const status = document.getElementById('avatar-status');
+    status.textContent = 'আপলোড হচ্ছে...';
+    const { error, avatarUrl } = await nhUploadAvatar(file, currentUser.id);
+    if (error) {
+      status.textContent = 'আপলোড ব্যর্থ: ' + error.message;
+      return;
+    }
+    document.getElementById('avatar-preview').innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover">`;
+    status.textContent = 'ছবি আপডেট হয়েছে ✓';
+  }
+
+  async function handleSave(e) {
+    e.preventDefault();
+    const btn = document.getElementById('save-btn');
+    const notice = document.getElementById('save-notice');
+    btn.textContent = 'সেভ হচ্ছে...';
+    const { error } = await nhUpdateProfile({
+      full_name: document.getElementById('f-name').value.trim(),
+      phone_number: document.getElementById('f-phone').value.trim(),
+      address: document.getElementById('f-address').value.trim(),
+      facebook: document.getElementById('f-facebook').value.trim(),
+      youtube: document.getElementById('f-youtube').value.trim(),
+      whatsapp: document.getElementById('f-whatsapp').value.trim()
+    });
+    btn.textContent = 'প্রোফাইল সেভ করুন';
+    if (error) {
+      notice.style.color = '#D14343';
+      notice.textContent = 'সেভ করতে সমস্যা হয়েছে: ' + error.message;
+    } else {
+      notice.style.color = '#2F7A4F';
+      notice.textContent = 'প্রোফাইল সফলভাবে সেভ হয়েছে ✓';
+    }
+    notice.classList.remove('hidden');
+  }
+
+  init();
+  lucide.createIcons();
+</script>
+</body>
+</html>
