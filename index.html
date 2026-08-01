@@ -123,7 +123,7 @@
     <a href="courses.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="play-circle" class="w-5 h-5"></i>কোর্স</a>
     <button class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="users" class="w-5 h-5"></i>কমিউনিটি</button>
     <a href="free-classes.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>বই</a>
-    <button onclick="openAuth()" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="layout-grid" class="w-5 h-5"></i>ড্যাশবোর্ড</button>
+    <button onclick="goDashboard()" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="layout-grid" class="w-5 h-5"></i>ড্যাশবোর্ড</button>
   </nav>
 
   <div id="auth-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center px-5" style="background:rgba(0,0,0,0.6);" onclick="if(event.target===this) closeAuth()">
@@ -205,6 +205,11 @@
 
   function openAuth(){ document.getElementById('auth-modal').classList.remove('hidden'); }
   function closeAuth(){ document.getElementById('auth-modal').classList.add('hidden'); }
+  async function goDashboard(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user) { window.location.href = 'profile.html'; }
+    else { openAuth(); }
+  }
   let currentTab = 'login';
   function setTab(t){
     currentTab = t;
