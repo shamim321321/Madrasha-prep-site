@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>প্রোফাইল — নিবন্ধন হাব</title>
+<title>ড্যাশবোর্ড — নিবন্ধন হাব</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -13,75 +13,135 @@
   body { background:#F4EEDC; }
   .serif-bn { font-family:'Tiro Bangla', serif; }
   .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
   .btn-gold { background:#C9A24C; color:#0E211C; }
   .icon-badge { background:rgba(201,162,76,0.12); }
+  .card-grad { background:linear-gradient(135deg,#0E211C 0%,#1B4740 60%,#2E6B5E 100%); }
 </style>
 </head>
 <body class="sans-bn pb-16">
 
   <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
     <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-    <div class="serif-bn text-lg" style="color:#F4EEDC;">প্রোফাইল</div>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">ড্যাশবোর্ড</div>
   </header>
 
   <div id="loading-msg" class="text-center text-sm py-10" style="color:#5B5340;">লোড হচ্ছে...</div>
 
-  <div id="profile-wrap" class="hidden px-5 mt-6">
+  <div id="page" class="hidden">
 
-    <!-- AVATAR -->
-    <div class="flex flex-col items-center mb-6">
-      <div class="relative">
-        <div id="avatar-preview" class="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden" style="background:#0E211C;">
-          <i data-lucide="user" class="w-10 h-10" style="color:#C9A24C;"></i>
+    <!-- PROFILE CARD -->
+    <section class="px-4 mt-5">
+      <div class="card-grad rounded-3xl p-5 relative overflow-hidden">
+        <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full" style="background:rgba(201,162,76,0.08);"></div>
+        <div class="flex items-start justify-between relative">
+          <div class="flex-1 min-w-0 pr-3">
+            <h1 id="d-name" class="serif-bn text-xl mb-2.5 leading-snug" style="color:#F4EEDC;">—</h1>
+            <div class="flex flex-col gap-1.5 text-xs" style="color:#CBD9D2;">
+              <div class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-phone">—</span></div>
+              <div class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-email">—</span></div>
+              <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-address">—</span></div>
+              <div class="flex items-center gap-2"><i data-lucide="building-2" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-institution">—</span></div>
+              <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-joined">—</span></div>
+            </div>
+          </div>
+          <div class="relative shrink-0">
+            <div id="avatar-preview" class="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden" style="background:#16332B; border:2px solid #C9A24C;">
+              <i data-lucide="user" class="w-8 h-8" style="color:#C9A24C;"></i>
+            </div>
+            <button onclick="document.getElementById('avatar-input').click()" class="absolute bottom-0 right-0 w-7 h-7 rounded-full flex items-center justify-center btn-gold" style="border:2px solid #16332B;">
+              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+            </button>
+            <input id="avatar-input" type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
+          </div>
         </div>
-        <button onclick="document.getElementById('avatar-input').click()" class="absolute bottom-0 right-0 w-8 h-8 rounded-full flex items-center justify-center btn-gold" style="border:2px solid #F4EEDC;">
-          <i data-lucide="camera" class="w-4 h-4"></i>
-        </button>
-        <input id="avatar-input" type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
       </div>
-      <p id="avatar-status" class="text-xs mt-2" style="color:#5B5340;"></p>
-    </div>
+      <p id="avatar-status" class="text-xs mt-2 text-center" style="color:#5B5340;"></p>
+    </section>
 
-    <!-- FORM -->
-    <form id="profile-form" class="flex flex-col gap-4" onsubmit="handleSave(event)">
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">পূর্ণ নাম</label>
-        <input id="f-name" type="text" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+    <!-- STATS -->
+    <section class="px-4 mt-4 grid grid-cols-3 gap-3">
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="book-open" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
+        <div class="num-bn text-lg" style="color:#0E211C;">০</div>
+        <div class="text-[11px]" style="color:#5B5340;">কোর্স</div>
       </div>
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ইমেইল</label>
-        <input id="f-email" type="email" disabled class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#EFE9D6; border:1px solid #E4DAB8; color:#8A8266;">
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="check-circle-2" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
+        <div class="num-bn text-lg" style="color:#0E211C;">—</div>
+        <div class="text-[11px]" style="color:#5B5340;">পাশ</div>
       </div>
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">মোবাইল নম্বর</label>
-        <input id="f-phone" type="text" placeholder="01XXXXXXXXX" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="trophy" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
+        <div class="num-bn text-lg" style="color:#0E211C;">—</div>
+        <div class="text-[11px]" style="color:#5B5340;">সর্বোচ্চ</div>
       </div>
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ঠিকানা</label>
-        <textarea id="f-address" rows="2" placeholder="গ্রাম/এলাকা, উপজেলা, জেলা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;"></textarea>
-      </div>
+    </section>
 
-      <p class="text-xs font-semibold mt-2" style="color:#8B6B2A;">সোশ্যাল মিডিয়া লিংক</p>
-
-      <div class="flex items-center gap-2">
-        <i data-lucide="facebook" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
-        <input id="f-facebook" type="text" placeholder="ফেসবুক প্রোফাইল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+    <!-- UPCOMING -->
+    <section class="px-4 mt-8">
+      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="clock" class="w-4 h-4" style="color:#C9A24C;"></i>সামনে যা আছে</h2>
+      <div class="rounded-2xl p-5 text-center" style="background:#fff;">
+        <p class="text-sm" style="color:#5B5340;">এখনো কোনো আসন্ন পরীক্ষা বা ক্লাস নেই।</p>
       </div>
-      <div class="flex items-center gap-2">
-        <i data-lucide="youtube" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
-        <input id="f-youtube" type="text" placeholder="ইউটিউব চ্যানেল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+    </section>
+
+    <!-- MY COURSES -->
+    <section class="px-4 mt-8">
+      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="graduation-cap" class="w-4 h-4" style="color:#C9A24C;"></i>আমার কোর্সসমূহ</h2>
+      <div class="rounded-2xl p-5 text-center" style="background:#fff;">
+        <p class="text-sm mb-3" style="color:#5B5340;">আপনি এখনো কোনো কোর্সে ভর্তি হননি।</p>
+        <a href="courses.html" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold btn-gold">কোর্স ব্রাউজ করুন <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
       </div>
-      <div class="flex items-center gap-2">
-        <i data-lucide="message-circle" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
-        <input id="f-whatsapp" type="text" placeholder="হোয়াটসঅ্যাপ নম্বর" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; color:#0E211C;">
+    </section>
+
+    <!-- EDIT PROFILE (toggle) -->
+    <section class="px-4 mt-9">
+      <button onclick="toggleEdit()" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold" style="background:#fff; color:#0E211C;">
+        <span class="flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4" style="color:#8B6B2A;"></i>প্রোফাইলের তথ্য পরিবর্তন করুন</span>
+        <i data-lucide="chevron-down" class="w-4 h-4" id="edit-chevron"></i>
+      </button>
+
+      <div id="edit-panel" class="hidden mt-3 rounded-2xl p-4" style="background:#fff;">
+        <form id="profile-form" class="flex flex-col gap-3" onsubmit="handleSave(event)">
+          <div>
+            <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">পূর্ণ নাম</label>
+            <input id="f-name" type="text" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">মোবাইল নম্বর</label>
+            <input id="f-phone" type="text" placeholder="01XXXXXXXXX" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ঠিকানা</label>
+            <textarea id="f-address" rows="2" placeholder="গ্রাম/এলাকা, উপজেলা, জেলা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রতিষ্ঠানের নাম</label>
+            <input id="f-institution" type="text" placeholder="যেমন: পালাখাল ছালেহিয়া আলিম মাদ্রাসা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+          </div>
+
+          <p class="text-xs font-semibold mt-1" style="color:#8B6B2A;">সোশ্যাল মিডিয়া লিংক</p>
+          <div class="flex items-center gap-2">
+            <i data-lucide="facebook" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+            <input id="f-facebook" type="text" placeholder="ফেসবুক প্রোফাইল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+          </div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="youtube" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+            <input id="f-youtube" type="text" placeholder="ইউটিউব চ্যানেল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+          </div>
+          <div class="flex items-center gap-2">
+            <i data-lucide="message-circle" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+            <input id="f-whatsapp" type="text" placeholder="হোয়াটসঅ্যাপ নম্বর" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+          </div>
+
+          <p id="save-notice" class="hidden text-xs"></p>
+          <button type="submit" id="save-btn" class="mt-1 py-3 rounded-full text-sm font-semibold btn-gold">সেভ করুন</button>
+        </form>
       </div>
+    </section>
 
-      <p id="save-notice" class="hidden text-xs" style="color:#2F7A4F;"></p>
-
-      <button type="submit" id="save-btn" class="mt-2 py-3 rounded-full text-sm font-semibold btn-gold">প্রোফাইল সেভ করুন</button>
-    </form>
-
-    <button onclick="nhSignOut()" class="w-full mt-4 py-3 rounded-full text-sm font-medium flex items-center justify-center gap-1.5" style="border:1px solid #D14343; color:#D14343;">
+    <button onclick="nhSignOut()" class="mx-4 mt-6 mb-8 py-3 rounded-full text-sm font-medium flex items-center justify-center gap-1.5" style="border:1px solid #D14343; color:#D14343; width:calc(100% - 2rem);">
       <i data-lucide="log-out" class="w-4 h-4"></i> লগআউট
     </button>
   </div>
@@ -92,25 +152,40 @@
 
   async function init() {
     const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session || !session.user) {
-      window.location.href = 'index.html';
-      return;
-    }
+    if (!session || !session.user) { window.location.href = 'index.html'; return; }
     currentUser = session.user;
     const m = currentUser.user_metadata || {};
+
+    document.getElementById('d-name').textContent = m.full_name || currentUser.email;
+    document.getElementById('d-phone').textContent = m.phone_number || 'যোগ করা হয়নি';
+    document.getElementById('d-email').textContent = currentUser.email || '—';
+    document.getElementById('d-address').textContent = m.address || 'যোগ করা হয়নি';
+    document.getElementById('d-institution').textContent = m.institution || 'যোগ করা হয়নি';
+    const joined = new Date(currentUser.created_at);
+    document.getElementById('d-joined').textContent = 'যোগদান: ' + joined.toLocaleDateString('bn-BD', { day:'numeric', month:'long', year:'numeric' });
+
     document.getElementById('f-name').value = m.full_name || '';
-    document.getElementById('f-email').value = currentUser.email || '';
     document.getElementById('f-phone').value = m.phone_number || '';
     document.getElementById('f-address').value = m.address || '';
+    document.getElementById('f-institution').value = m.institution || '';
     document.getElementById('f-facebook').value = m.facebook || '';
     document.getElementById('f-youtube').value = m.youtube || '';
     document.getElementById('f-whatsapp').value = m.whatsapp || '';
+
     if (m.avatar_url) {
       document.getElementById('avatar-preview').innerHTML = `<img src="${m.avatar_url}" class="w-full h-full object-cover">`;
     }
+
     document.getElementById('loading-msg').classList.add('hidden');
-    document.getElementById('profile-wrap').classList.remove('hidden');
+    document.getElementById('page').classList.remove('hidden');
     lucide.createIcons();
+  }
+
+  function toggleEdit(){
+    const panel = document.getElementById('edit-panel');
+    const chevron = document.getElementById('edit-chevron');
+    panel.classList.toggle('hidden');
+    chevron.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
   }
 
   async function handleAvatarChange(e) {
@@ -119,10 +194,7 @@
     const status = document.getElementById('avatar-status');
     status.textContent = 'আপলোড হচ্ছে...';
     const { error, avatarUrl } = await nhUploadAvatar(file, currentUser.id);
-    if (error) {
-      status.textContent = 'আপলোড ব্যর্থ: ' + error.message;
-      return;
-    }
+    if (error) { status.textContent = 'আপলোড ব্যর্থ: ' + error.message; return; }
     document.getElementById('avatar-preview').innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover">`;
     status.textContent = 'ছবি আপডেট হয়েছে ✓';
   }
@@ -136,19 +208,24 @@
       full_name: document.getElementById('f-name').value.trim(),
       phone_number: document.getElementById('f-phone').value.trim(),
       address: document.getElementById('f-address').value.trim(),
+      institution: document.getElementById('f-institution').value.trim(),
       facebook: document.getElementById('f-facebook').value.trim(),
       youtube: document.getElementById('f-youtube').value.trim(),
       whatsapp: document.getElementById('f-whatsapp').value.trim()
     });
-    btn.textContent = 'প্রোফাইল সেভ করুন';
+    btn.textContent = 'সেভ করুন';
+    notice.classList.remove('hidden');
     if (error) {
       notice.style.color = '#D14343';
       notice.textContent = 'সেভ করতে সমস্যা হয়েছে: ' + error.message;
     } else {
       notice.style.color = '#2F7A4F';
-      notice.textContent = 'প্রোফাইল সফলভাবে সেভ হয়েছে ✓';
+      notice.textContent = 'সফলভাবে সেভ হয়েছে ✓';
+      document.getElementById('d-name').textContent = document.getElementById('f-name').value.trim() || currentUser.email;
+      document.getElementById('d-phone').textContent = document.getElementById('f-phone').value.trim() || 'যোগ করা হয়নি';
+      document.getElementById('d-address').textContent = document.getElementById('f-address').value.trim() || 'যোগ করা হয়নি';
+      document.getElementById('d-institution').textContent = document.getElementById('f-institution').value.trim() || 'যোগ করা হয়নি';
     }
-    notice.classList.remove('hidden');
   }
 
   init();
