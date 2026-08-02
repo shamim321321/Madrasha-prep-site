@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>যোগাযোগ — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+</style>
+</head>
+<body class="sans-bn pb-10">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">যোগাযোগ</div>
+  </header>
+
+  <div class="px-5 mt-6">
+    <p class="text-sm mb-6" style="color:#5B5340;">কোনো প্রশ্ন বা সহায়তা দরকার হলে নিচের যেকোনো মাধ্যমে যোগাযোগ করুন — সাধারণত কয়েক ঘণ্টার মধ্যেই সাড়া পাবেন।</p>
+
+    <div class="flex flex-col gap-3">
+
+      <a href="https://wa.me/8801866005870" target="_blank" class="flex items-center gap-3 rounded-2xl p-4" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:#25D36622;">
+          <i data-lucide="message-circle" class="w-5 h-5" style="color:#25D366;"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold" style="color:#0E211C;">হোয়াটসঅ্যাপ</p>
+          <p class="text-xs" style="color:#5B5340;">01866-005870</p>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+      </a>
+
+      <a href="https://www.facebook.com/prof355or" target="_blank" class="flex items-center gap-3 rounded-2xl p-4" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:#1877F222;">
+          <i data-lucide="facebook" class="w-5 h-5" style="color:#1877F2;"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold" style="color:#0E211C;">ফেসবুক</p>
+          <p class="text-xs" style="color:#5B5340;">facebook.com/prof355or</p>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+      </a>
+
+      <a href="tel:+8801866005870" class="flex items-center gap-3 rounded-2xl p-4" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge">
+          <i data-lucide="phone" class="w-5 h-5" style="color:#8B6B2A;"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-semibold" style="color:#0E211C;">ফোন কল</p>
+          <p class="text-xs" style="color:#5B5340;">01866-005870</p>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+      </a>
+
+    </div>
+
+    <!-- MESSAGE FORM -->
+    <h2 class="serif-bn text-lg mt-8 mb-3" style="color:#0E211C;">সরাসরি মেসেজ পাঠান</h2>
+    <div class="rounded-2xl p-4" style="background:#fff;">
+      <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">আপনার নাম</label>
+      <input id="c-name" type="text" class="w-full px-4 py-2.5 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+
+      <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">মেসেজ</label>
+      <textarea id="c-message" rows="4" placeholder="আপনার প্রশ্ন বা মন্তব্য লিখুন..." class="w-full px-4 py-2.5 rounded-lg text-sm mb-4" style="background:#F9F6EC; border:1px solid #E4DAB8;"></textarea>
+
+      <div class="flex flex-col gap-2.5">
+        <button onclick="sendWhatsapp()" class="py-2.5 rounded-full text-sm font-semibold flex items-center justify-center gap-1.5" style="background:#25D366; color:#fff;">
+          <i data-lucide="message-circle" class="w-4 h-4"></i> হোয়াটসঅ্যাপে পাঠান
+        </button>
+        <button onclick="sendEmail()" class="py-2.5 rounded-full text-sm font-semibold" style="border:1px solid #C9A24C; color:#8B6B2A;">
+          ইমেইলে পাঠান
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  function sendWhatsapp(){
+    const name = document.getElementById('c-name').value.trim() || 'অজানা';
+    const msg = document.getElementById('c-message').value.trim();
+    if (!msg) { alert('মেসেজ লিখুন।'); return; }
+    const text = encodeURIComponent(`নাম: ${name}\nমেসেজ: ${msg}`);
+    window.open(`https://wa.me/8801866005870?text=${text}`, '_blank');
+  }
+  function sendEmail(){
+    const name = document.getElementById('c-name').value.trim() || 'অজানা';
+    const msg = document.getElementById('c-message').value.trim();
+    if (!msg) { alert('মেসেজ লিখুন।'); return; }
+    const subject = encodeURIComponent('নিবন্ধন হাব — মেসেজ');
+    const body = encodeURIComponent(`নাম: ${name}\n\n${msg}`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }
+  lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>কমিউনিটি — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+</style>
+</head>
+<body class="sans-bn pb-10">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">কমিউনিটি</div>
+  </header>
+
+  <div id="guest-notice" class="hidden mx-5 mt-5 rounded-2xl p-4 text-center" style="background:#fff;">
+    <p class="text-sm mb-3" style="color:#5B5340;">পোস্ট করতে বা লাইক/মন্তব্য করতে লগইন করুন।</p>
+    <a href="index.html" class="inline-block px-5 py-2 rounded-full text-xs font-semibold btn-gold">হোমে গিয়ে লগইন করুন</a>
+  </div>
+
+  <!-- COMPOSER -->
+  <div id="composer" class="hidden mx-4 mt-5 rounded-2xl p-4" style="background:#fff;">
+    <textarea id="post-content" rows="3" placeholder="কিছু লিখুন..." class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;"></textarea>
+    <div class="flex items-center justify-between">
+      <select id="post-privacy" class="px-3 py-1.5 rounded-lg text-xs" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">
+        <option value="public">🌐 সবাই দেখবে</option>
+        <option value="private">🔒 শুধু আমি দেখব</option>
+      </select>
+      <button onclick="submitPost()" class="px-5 py-2 rounded-full text-xs font-semibold btn-gold">পোস্ট করুন</button>
+    </div>
+  </div>
+
+  <div id="feed" class="px-4 mt-5 flex flex-col gap-4"></div>
+  <p id="empty-feed" class="hidden text-center text-sm py-10" style="color:#8A8266;">এখনো কোনো পোস্ট নেই — প্রথম পোস্টটি আপনিই করুন।</p>
+
+<script src="auth.js"></script>
+<script>
+  let currentUser = null;
+  let likedPostIds = new Set();
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session?.user || null;
+    document.getElementById('composer').classList.toggle('hidden', !currentUser);
+    document.getElementById('guest-notice').classList.toggle('hidden', !!currentUser);
+    await loadPosts();
+  }
+
+  async function loadPosts() {
+    const { data: posts, error } = await supabaseClient
+      .from('posts')
+      .select('*, post_likes(count), post_comments(count)')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      document.getElementById('feed').innerHTML = `<p class="text-sm text-center py-6" style="color:#D14343;">পোস্ট লোড করতে সমস্যা হয়েছে: ${error.message}</p>`;
+      return;
+    }
+
+    if (currentUser) {
+      const { data: likes } = await supabaseClient.from('post_likes').select('post_id').eq('user_id', currentUser.id);
+      likedPostIds = new Set((likes||[]).map(l => l.post_id));
+    }
+
+    document.getElementById('empty-feed').classList.toggle('hidden', posts.length > 0);
+    const feed = document.getElementById('feed');
+    feed.innerHTML = '';
+    posts.forEach(p => feed.appendChild(renderPost(p)));
+    lucide.createIcons();
+  }
+
+  function timeAgo(dateStr){
+    const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+    if (diff < 60) return 'এইমাত্র';
+    if (diff < 3600) return Math.floor(diff/60) + ' মিনিট আগে';
+    if (diff < 86400) return Math.floor(diff/3600) + ' ঘণ্টা আগে';
+    return Math.floor(diff/86400) + ' দিন আগে';
+  }
+
+  function renderPost(p) {
+    const isOwner = currentUser && p.user_id === currentUser.id;
+    const liked = likedPostIds.has(p.id);
+    const likeCount = p.post_likes?.[0]?.count || 0;
+    const commentCount = p.post_comments?.[0]?.count || 0;
+
+    const div = document.createElement('div');
+    div.className = 'rounded-2xl p-4';
+    div.style.background = '#fff';
+    div.innerHTML = `
+      <div class="flex items-start gap-2.5 mb-2.5">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style="background:#0E211C;">
+          ${p.author_avatar ? `<img src="${p.author_avatar}" class="w-full h-full object-cover">` : `<span class="text-xs font-bold" style="color:#C9A24C;">${(p.author_name||'?').charAt(0).toUpperCase()}</span>`}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold" style="color:#0E211C;">${p.author_name || 'ব্যবহারকারী'}</p>
+          <p class="text-[11px]" style="color:#8A8266;">${timeAgo(p.created_at)} ${p.privacy==='private' ? '· 🔒 শুধু আমি' : ''}${p.updated_at !== p.created_at ? ' · সম্পাদিত' : ''}</p>
+        </div>
+        ${isOwner ? `
+        <div class="relative">
+          <button onclick="toggleMenu('${p.id}')" style="color:#8A8266;"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+          <div id="menu-${p.id}" class="hidden absolute right-0 top-6 z-20 w-28 rounded-lg overflow-hidden" style="background:#16332B;">
+            <button onclick="editPost('${p.id}')" class="w-full text-left px-3 py-2 text-xs" style="color:#F4EEDC;">এডিট</button>
+            <button onclick="deletePost('${p.id}')" class="w-full text-left px-3 py-2 text-xs" style="color:#E08A6C; border-top:1px solid rgba(201,162,76,0.15);">ডিলিট</button>
+          </div>
+        </div>` : ''}
+      </div>
+
+      <p id="content-${p.id}" class="text-sm mb-3 whitespace-pre-wrap" style="color:#333;">${escapeHtml(p.content)}</p>
+
+      <div class="flex items-center gap-4 pt-2.5" style="border-top:1px solid #F0EAD8;">
+        <button onclick="toggleLike('${p.id}')" class="flex items-center gap-1.5 text-xs" style="color:${liked ? '#C9A24C' : '#5B5340'};">
+          <i data-lucide="heart" class="w-4 h-4" ${liked ? 'style="fill:#C9A24C;"' : ''}></i>
+          <span id="like-count-${p.id}">${likeCount}</span>
+        </button>
+        <button onclick="toggleComments('${p.id}')" class="flex items-center gap-1.5 text-xs" style="color:#5B5340;">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span id="comment-count-${p.id}">${commentCount}</span>
+        </button>
+      </div>
+
+      <div id="comments-${p.id}" class="hidden mt-3 pt-3 flex flex-col gap-3" style="border-top:1px solid #F0EAD8;"></div>
+    `;
+    return div;
+  }
+
+  function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+  function toggleMenu(id){ document.getElementById('menu-'+id).classList.toggle('hidden'); }
+
+  async function submitPost() {
+    if (!currentUser) return;
+    const content = document.getElementById('post-content').value.trim();
+    const privacy = document.getElementById('post-privacy').value;
+    if (!content) { alert('কিছু লিখুন।'); return; }
+    const m = currentUser.user_metadata || {};
+    const { error } = await supabaseClient.from('posts').insert({
+      user_id: currentUser.id,
+      author_name: m.full_name || currentUser.email,
+      author_avatar: m.avatar_url || null,
+      content, privacy
+    });
+    if (error) { alert('পোস্ট করতে সমস্যা: ' + error.message); return; }
+    document.getElementById('post-content').value = '';
+    loadPosts();
+  }
+
+  async function toggleLike(postId) {
+    if (!currentUser) { alert('লাইক করতে লগইন করুন।'); return; }
+    if (likedPostIds.has(postId)) {
+      await supabaseClient.from('post_likes').delete().eq('post_id', postId).eq('user_id', currentUser.id);
+      likedPostIds.delete(postId);
+    } else {
+      await supabaseClient.from('post_likes').insert({ post_id: postId, user_id: currentUser.id });
+      likedPostIds.add(postId);
+    }
+    loadPosts();
+  }
+
+  async function editPost(postId) {
+    const el = document.getElementById('content-' + postId);
+    const current = el.textContent;
+    const updated = prompt('পোস্ট এডিট করুন:', current);
+    if (updated === null || updated.trim() === '' || updated === current) return;
+    const { error } = await supabaseClient.from('posts').update({ content: updated.trim(), updated_at: new Date().toISOString() }).eq('id', postId);
+    if (error) { alert('এডিট করতে সমস্যা: ' + error.message); return; }
+    loadPosts();
+  }
+
+  async function deletePost(postId) {
+    if (!confirm('পোস্টটি ডিলিট করবেন?')) return;
+    const { error } = await supabaseClient.from('posts').delete().eq('id', postId);
+    if (error) { alert('ডিলিট করতে সমস্যা: ' + error.message); return; }
+    loadPosts();
+  }
+
+  async function toggleComments(postId) {
+    const wrap = document.getElementById('comments-' + postId);
+    const isHidden = wrap.classList.contains('hidden');
+    wrap.classList.toggle('hidden');
+    if (isHidden) await renderComments(postId, wrap);
+  }
+
+  async function renderComments(postId, wrap) {
+    wrap.innerHTML = `<p class="text-xs" style="color:#8A8266;">লোড হচ্ছে...</p>`;
+    const { data: comments, error } = await supabaseClient.from('post_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+    if (error) { wrap.innerHTML = `<p class="text-xs" style="color:#D14343;">লোড করতে সমস্যা হয়েছে</p>`; return; }
+
+    const topLevel = comments.filter(c => !c.parent_id);
+    const replies = comments.filter(c => c.parent_id);
+
+    wrap.innerHTML = '';
+    topLevel.forEach(c => wrap.appendChild(renderComment(c, replies.filter(r => r.parent_id === c.id), postId)));
+
+    if (currentUser) {
+      const formDiv = document.createElement('div');
+      formDiv.className = 'flex gap-2 mt-1';
+      formDiv.innerHTML = `
+        <input id="new-comment-${postId}" type="text" placeholder="মন্তব্য লিখুন..." class="flex-1 px-3 py-2 rounded-lg text-xs" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        <button onclick="submitComment('${postId}', null)" class="px-3 py-2 rounded-lg text-xs font-semibold btn-gold">পাঠান</button>`;
+      wrap.appendChild(formDiv);
+    }
+    lucide.createIcons();
+  }
+
+  function renderComment(c, childReplies, postId) {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="flex items-start gap-2">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style="background:#0E211C;">
+          ${c.author_avatar ? `<img src="${c.author_avatar}" class="w-full h-full object-cover">` : `<span class="text-[9px] font-bold" style="color:#C9A24C;">${(c.author_name||'?').charAt(0).toUpperCase()}</span>`}
+        </div>
+        <div class="flex-1">
+          <div class="rounded-xl px-3 py-2" style="background:#F9F6EC;">
+            <p class="text-xs font-semibold" style="color:#0E211C;">${c.author_name || 'ব্যবহারকারী'}</p>
+            <p class="text-xs" style="color:#333;">${escapeHtml(c.content)}</p>
+          </div>
+          <div class="flex gap-3 mt-1 ml-1">
+            <span class="text-[10px]" style="color:#8A8266;">${timeAgo(c.created_at)}</span>
+            ${currentUser ? `<button onclick="showReplyBox('${postId}','${c.id}')" class="text-[10px] font-medium" style="color:#8B6B2A;">রিপ্লাই</button>` : ''}
+          </div>
+          <div id="reply-box-${c.id}" class="hidden mt-1.5 flex gap-2"></div>
+          <div class="mt-2 flex flex-col gap-2 pl-2" style="border-left:2px solid #F0EAD8;">
+            ${childReplies.map(r => `
+              <div class="flex items-start gap-2">
+                <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style="background:#0E211C;">
+                  ${r.author_avatar ? `<img src="${r.author_avatar}" class="w-full h-full object-cover">` : `<span class="text-[8px] font-bold" style="color:#C9A24C;">${(r.author_name||'?').charAt(0).toUpperCase()}</span>`}
+                </div>
+                <div class="rounded-xl px-2.5 py-1.5 flex-1" style="background:#F9F6EC;">
+                  <p class="text-[11px] font-semibold" style="color:#0E211C;">${r.author_name || 'ব্যবহারকারী'}</p>
+                  <p class="text-[11px]" style="color:#333;">${escapeHtml(r.content)}</p>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    return div;
+  }
+
+  function showReplyBox(postId, commentId) {
+    const box = document.getElementById('reply-box-' + commentId);
+    box.classList.remove('hidden');
+    box.innerHTML = `
+      <input id="reply-input-${commentId}" type="text" placeholder="রিপ্লাই লিখুন..." class="flex-1 px-3 py-1.5 rounded-lg text-xs" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+      <button onclick="submitComment('${postId}', '${commentId}')" class="px-3 py-1.5 rounded-lg text-xs font-semibold btn-gold">পাঠান</button>`;
+  }
+
+  async function submitComment(postId, parentId) {
+    if (!currentUser) { alert('মন্তব্য করতে লগইন করুন।'); return; }
+    const inputId = parentId ? `reply-input-${parentId}` : `new-comment-${postId}`;
+    const input = document.getElementById(inputId);
+    const content = input.value.trim();
+    if (!content) return;
+    const m = currentUser.user_metadata || {};
+    const { error } = await supabaseClient.from('post_comments').insert({
+      post_id: postId, user_id: currentUser.id, parent_id: parentId,
+      author_name: m.full_name || currentUser.email, author_avatar: m.avatar_url || null,
+      content
+    });
+    if (error) { alert('মন্তব্য করতে সমস্যা: ' + error.message); return; }
+    input.value = '';
+    const wrap = document.getElementById('comments-' + postId);
+    await renderComments(postId, wrap);
+    loadPosts();
+  }
+
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('[id^="menu-"]').forEach(m => {
+      if (!m.contains(e.target) && !e.target.closest('[onclick^="toggleMenu"]')) m.classList.add('hidden');
+    });
+  });
+
+  init();
+  lucide.createIcons();
+</script>
+</body>
+</html>
