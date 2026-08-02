@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ফারায়েজ ক্যালকুলেটর — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  input[type=number]::-webkit-inner-spin-button { opacity:1; }
+</style>
+</head>
+<body class="sans-bn pb-10">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">ফারায়েজ ক্যালকুলেটর</div>
+  </header>
+
+  <div class="px-5 mt-5">
+    <div class="rounded-2xl p-4 mb-5 flex gap-2.5" style="background:#FBF0DC; border:1px solid #E8CE94;">
+      <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5" style="color:#8B6B2A;"></i>
+      <p class="text-xs leading-relaxed" style="color:#6B5A2E;">এই ক্যালকুলেটর সাধারণ ও সচরাচর ক্ষেত্রে (স্বামী/স্ত্রী, পিতা-মাতা, সন্তান, সহোদর ভাই-বোন) হিসাব করে। জটিল ক্ষেত্রে (দাদা-দাদি, বৈমাত্রেয় ভাইবোন, একাধিক স্তরের আত্মীয় ইত্যাদি) বা প্রকৃত সম্পত্তি বণ্টনের আগে অবশ্যই একজন যোগ্য আলেম/মুফতির পরামর্শ নিন।</p>
+    </div>
+
+    <form id="faraidh-form" onsubmit="calculate(event)" class="flex flex-col gap-4">
+
+      <div>
+        <label class="block text-xs font-semibold mb-2" style="color:#5B5340;">মৃত ব্যক্তি</label>
+        <div class="flex gap-2">
+          <button type="button" data-gender="male" class="gender-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#0E211C; color:#F4EEDC;">পুরুষ</button>
+          <button type="button" data-gender="female" class="gender-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#fff; color:#5B5340;">মহিলা</button>
+        </div>
+      </div>
+
+      <div id="spouse-male" class="">
+        <label class="block text-xs font-semibold mb-1.5" style="color:#5B5340;">স্ত্রীর সংখ্যা (জীবিত)</label>
+        <input id="wives" type="number" min="0" max="4" value="0" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+      </div>
+      <div id="spouse-female" class="hidden">
+        <label class="flex items-center gap-2.5 text-sm py-1"><input id="husband" type="checkbox" class="w-4 h-4">স্বামী জীবিত আছেন</label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <label class="flex items-center gap-2.5 text-sm"><input id="father" type="checkbox" class="w-4 h-4">পিতা জীবিত</label>
+        <label class="flex items-center gap-2.5 text-sm"><input id="mother" type="checkbox" class="w-4 h-4">মাতা জীবিত</label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold mb-1.5" style="color:#5B5340;">ছেলের সংখ্যা</label>
+          <input id="sons" type="number" min="0" value="0" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1.5" style="color:#5B5340;">মেয়ের সংখ্যা</label>
+          <input id="daughters" type="number" min="0" value="0" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+        </div>
+      </div>
+
+      <p class="text-[11px] -mt-1" style="color:#8A8266;">নিচের দুটি শুধু তখনই হিসাবে আসবে যখন পিতা ও কোনো সন্তান জীবিত নেই।</p>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold mb-1.5" style="color:#5B5340;">সহোদর ভাই সংখ্যা</label>
+          <input id="brothers" type="number" min="0" value="0" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1.5" style="color:#5B5340;">সহোদর বোন সংখ্যা</label>
+          <input id="sisters" type="number" min="0" value="0" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold mb-1.5" style="color:#5B5340;">মোট সম্পত্তির মূল্য (টাকা)</label>
+        <input id="estate" type="number" min="0" placeholder="যেমন: 1000000" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+      </div>
+
+      <button type="submit" class="py-3 rounded-full text-sm font-semibold btn-gold flex items-center justify-center gap-1.5">
+        <i data-lucide="calculator" class="w-4 h-4"></i> হিসাব করুন
+      </button>
+    </form>
+
+    <div id="result" class="hidden mt-7">
+      <h2 class="serif-bn text-lg mb-3" style="color:#0E211C;">বণ্টনের ফলাফল</h2>
+      <div id="result-list" class="flex flex-col gap-2.5"></div>
+      <div id="result-notes" class="mt-4 flex flex-col gap-2"></div>
+    </div>
+  </div>
+
+<script>
+  document.querySelectorAll('.gender-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.gender-btn').forEach(b => { b.style.background='#fff'; b.style.color='#5B5340'; });
+      btn.style.background = '#0E211C'; btn.style.color = '#F4EEDC';
+      const isMale = btn.dataset.gender === 'male';
+      document.getElementById('spouse-male').classList.toggle('hidden', !isMale);
+      document.getElementById('spouse-female').classList.toggle('hidden', isMale);
+    });
+  });
+
+  function fmt(n){ return n.toLocaleString('bn-BD', {maximumFractionDigits:2}); }
+
+  function calculate(e){
+    e.preventDefault();
+    const gender = document.querySelector('.gender-btn[style*="0E211C"]')?.dataset.gender || 'male';
+    const wives = gender==='male' ? Math.min(4, Math.max(0, parseInt(document.getElementById('wives').value)||0)) : 0;
+    const husband = gender==='female' && document.getElementById('husband').checked;
+    const father = document.getElementById('father').checked;
+    const mother = document.getElementById('mother').checked;
+    const sons = Math.max(0, parseInt(document.getElementById('sons').value)||0);
+    const daughters = Math.max(0, parseInt(document.getElementById('daughters').value)||0);
+    const brothers = Math.max(0, parseInt(document.getElementById('brothers').value)||0);
+    const sisters = Math.max(0, parseInt(document.getElementById('sisters').value)||0);
+    const estate = Math.max(0, parseFloat(document.getElementById('estate').value)||0);
+    const hasChildren = sons>0 || daughters>0;
+
+    let fixed = {};  // label -> fraction
+    let residuary = []; // {label, weight}
+    let notes = [];
+
+    // স্বামী/স্ত্রী
+    if (gender === 'male' && wives > 0) {
+      fixed['স্ত্রী (সকলে মিলে)'] = hasChildren ? 1/8 : 1/4;
+    }
+    if (gender === 'female' && husband) {
+      fixed['স্বামী'] = hasChildren ? 1/4 : 1/2;
+    }
+
+    // মাতা
+    const siblingCount = brothers + sisters;
+    if (mother) {
+      fixed['মাতা'] = (hasChildren || siblingCount >= 2) ? 1/6 : 1/3;
+    }
+
+    // পিতা ও সন্তান
+    if (father) {
+      if (hasChildren) {
+        fixed['পিতা'] = 1/6;
+        if (sons === 0 && daughters > 0) residuary.push({ label: 'পিতা (অবশিষ্টাংশ)', weight: 1, mergeWith: 'পিতা' });
+      } else {
+        residuary.push({ label: 'পিতা', weight: 1 });
+      }
+    }
+
+    if (hasChildren) {
+      if (sons > 0) {
+        residuary.push({ label: `ছেলে (${sons} জন)`, weight: sons * 2, count: sons, unit: 'জন প্রতি ছেলে' });
+        if (daughters > 0) residuary.push({ label: `মেয়ে (${daughters} জন)`, weight: daughters * 1, count: daughters, unit: 'জন প্রতি মেয়ে' });
+      } else if (daughters > 0) {
+        fixed[`মেয়ে (${daughters} জন)`] = daughters === 1 ? 1/2 : 2/3;
+      }
+    } else if (!father) {
+      // ভাই-বোন (পিতা ও সন্তান কেউ না থাকলে)
+      if (brothers > 0) {
+        residuary.push({ label: `সহোদর ভাই (${brothers} জন)`, weight: brothers * 2, count: brothers, unit: 'জন প্রতি ভাই' });
+        if (sisters > 0) residuary.push({ label: `সহোদর বোন (${sisters} জন)`, weight: sisters * 1, count: sisters, unit: 'জন প্রতি বোন' });
+      } else if (sisters > 0) {
+        fixed[`সহোদর বোন (${sisters} জন)`] = sisters === 1 ? 1/2 : 2/3;
+      }
+    } else if (siblingCount > 0) {
+      notes.push('পিতা জীবিত থাকায় ভাই-বোনেরা এই হিসাবে অংশ পাচ্ছেন না (পিতা তাদের বঞ্চিত করেন), যদিও মাতার অংশ নির্ধারণে তাদের সংখ্যা বিবেচনা করা হয়েছে।');
+    }
+
+    let totalFixed = Object.values(fixed).reduce((a,b)=>a+b, 0);
+    let finalShares = {}; // label -> fraction of estate
+
+    if (totalFixed > 1) {
+      // আউল (অংশ কমানো)
+      const scale = 1 / totalFixed;
+      for (const k in fixed) finalShares[k] = fixed[k] * scale;
+      notes.push('মোট নির্ধারিত অংশ ১-এর বেশি হয়ে যাওয়ায় "আউল" নিয়ম অনুযায়ী প্রতিটি অংশ সমানুপাতিক হারে কমানো হয়েছে।');
+    } else {
+      for (const k in fixed) finalShares[k] = fixed[k];
+      const remainder = 1 - totalFixed;
+      if (remainder > 0.0000001) {
+        if (residuary.length > 0) {
+          const totalWeight = residuary.reduce((a,b)=>a+b.weight, 0);
+          residuary.forEach(r => {
+            const share = remainder * (r.weight / totalWeight);
+            if (r.mergeWith && finalShares[r.mergeWith] !== undefined) {
+              finalShares[r.mergeWith] += share;
+            } else {
+              finalShares[r.label] = (finalShares[r.label]||0) + share;
+              if (r.count) finalShares[r.label + '__count'] = r.count;
+              if (r.unit) finalShares[r.label + '__unit'] = r.unit;
+            }
+          });
+        } else if (Object.keys(fixed).length > 0) {
+          notes.push('কোনো অবশিষ্টাংশভোগী (আসাবা) আত্মীয় পাওয়া যায়নি, তাই অবশিষ্ট অংশ ("রদ্দ") সম্পর্কে নির্দিষ্ট নিয়ম প্রযোজ্য — এই ক্ষেত্রে একজন আলেমের পরামর্শ নিয়ে চূড়ান্ত বণ্টন নির্ধারণ করুন।');
+        } else {
+          notes.push('কোনো ওয়ারিশের তথ্য দেওয়া হয়নি অথবা প্রবেশকৃত তথ্য অনুযায়ী কোনো অংশ নির্ধারণ করা যায়নি।');
+        }
+      }
+    }
+
+    // ফলাফল দেখানো
+    const list = document.getElementById('result-list');
+    list.innerHTML = '';
+    const entries = Object.keys(finalShares).filter(k => !k.includes('__count') && !k.includes('__unit'));
+    if (entries.length === 0) {
+      list.innerHTML = `<div class="rounded-xl p-4 text-sm text-center" style="background:#fff; color:#8A8266;">কোনো ওয়ারিশ নির্বাচিত হয়নি।</div>`;
+    }
+    entries.forEach(label => {
+      const frac = finalShares[label];
+      const amount = frac * estate;
+      const count = finalShares[label + '__count'];
+      const unit = finalShares[label + '__unit'];
+      let sub = '';
+      if (count && count > 1) {
+        sub = `<p class="text-xs mt-0.5" style="color:#5B5340;">প্রতিজন পাবেন: ৳ ${fmt(amount / count)}</p>`;
+      }
+      list.innerHTML += `
+        <div class="rounded-xl p-4" style="background:#fff;">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold" style="color:#0E211C;">${label}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${(frac*100).toFixed(2)}%</span>
+          </div>
+          <p class="text-sm mt-1" style="color:#8B6B2A;">৳ ${estate>0 ? fmt(amount) : '—'}</p>
+          ${sub}
+        </div>`;
+    });
+
+    const notesWrap = document.getElementById('result-notes');
+    notesWrap.innerHTML = notes.map(n => `
+      <div class="flex gap-2 rounded-lg p-3 text-xs" style="background:#FBF0DC; color:#6B5A2E;">
+        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 shrink-0 mt-0.5"></i><span>${n}</span>
+      </div>`).join('');
+
+    document.getElementById('result').classList.remove('hidden');
+    lucide.createIcons();
+    document.getElementById('result').scrollIntoView({ behavior:'smooth' });
+  }
+
+  lucide.createIcons();
+</script>
+</body>
+</html>
