@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>প্রশ্ন যোগ করুন — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+</style>
+</head>
+<body class="sans-bn pb-10">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">প্রশ্ন যোগ করুন (অ্যাডমিন)</div>
+  </header>
+
+  <div id="denied" class="hidden mx-5 mt-8 text-center text-sm" style="color:#5B5340;">এই পেজটি শুধু অ্যাডমিনের জন্য।</div>
+
+  <div id="admin-area" class="hidden">
+    <form id="q-form" onsubmit="submitQuestion(event)" class="px-5 mt-5 flex flex-col gap-3">
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">বিষয়</label>
+        <input id="q-subject" type="text" list="subject-list" placeholder="যেমন: আরবি, বাংলা, সাধারণ জ্ঞান" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+        <datalist id="subject-list"></datalist>
+      </div>
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">টপিক (ঐচ্ছিক)</label>
+        <input id="q-topic" type="text" placeholder="যেমন: সূরা বাকারা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+      </div>
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রশ্ন</label>
+        <textarea id="q-question" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center gap-2"><input type="radio" name="correct" value="a" class="w-4 h-4"><input id="opt-a" type="text" placeholder="অপশন ক" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+        <div class="flex items-center gap-2"><input type="radio" name="correct" value="b" class="w-4 h-4"><input id="opt-b" type="text" placeholder="অপশন খ" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+        <div class="flex items-center gap-2"><input type="radio" name="correct" value="c" class="w-4 h-4"><input id="opt-c" type="text" placeholder="অপশন গ" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+        <div class="flex items-center gap-2"><input type="radio" name="correct" value="d" class="w-4 h-4"><input id="opt-d" type="text" placeholder="অপশন ঘ" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+      </div>
+      <p class="text-[11px]" style="color:#8A8266;">রেডিও বাটনে ক্লিক করে সঠিক উত্তর নির্বাচন করুন</p>
+
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ব্যাখ্যা (ঐচ্ছিক)</label>
+        <textarea id="q-explanation" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></textarea>
+      </div>
+
+      <p id="notice" class="hidden text-xs"></p>
+      <button type="submit" id="submit-btn" class="py-3 rounded-full text-sm font-semibold btn-gold">প্রশ্ন যোগ করুন</button>
+    </form>
+
+    <div class="px-5 mt-8">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="serif-bn text-base" style="color:#0E211C;">সাম্প্রতিক প্রশ্নসমূহ</h2>
+        <span id="q-count" class="text-xs" style="color:#8A8266;"></span>
+      </div>
+      <div id="q-list" class="flex flex-col gap-2"></div>
+    </div>
+  </div>
+
+<script src="auth.js"></script>
+<script>
+  const OWNER_EMAIL = 'shinternet123@gmail.com';
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session?.user?.email !== OWNER_EMAIL) {
+      document.getElementById('denied').classList.remove('hidden');
+      return;
+    }
+    document.getElementById('admin-area').classList.remove('hidden');
+    loadSubjects();
+    loadRecent();
+  }
+
+  async function loadSubjects() {
+    const { data } = await supabaseClient.from('questions').select('subject');
+    const subjects = [...new Set((data||[]).map(q => q.subject))];
+    document.getElementById('subject-list').innerHTML = subjects.map(s => `<option value="${s}">`).join('');
+  }
+
+  async function loadRecent() {
+    const { data, count } = await supabaseClient.from('questions').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(15);
+    document.getElementById('q-count').textContent = `মোট ${count || 0}টি প্রশ্ন`;
+    document.getElementById('q-list').innerHTML = (data||[]).map(q => `
+      <div class="rounded-xl p-3 flex items-start justify-between gap-2" style="background:#fff;">
+        <div class="flex-1 min-w-0">
+          <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${q.subject}</span>
+          <p class="text-xs mt-1 truncate" style="color:#333;">${q.question}</p>
+        </div>
+        <button onclick="deleteQuestion('${q.id}')" style="color:#D14343;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>`).join('');
+    lucide.createIcons();
+  }
+
+  async function submitQuestion(e) {
+    e.preventDefault();
+    const subject = document.getElementById('q-subject').value.trim();
+    const topic = document.getElementById('q-topic').value.trim();
+    const question = document.getElementById('q-question').value.trim();
+    const a = document.getElementById('opt-a').value.trim();
+    const b = document.getElementById('opt-b').value.trim();
+    const c = document.getElementById('opt-c').value.trim();
+    const d = document.getElementById('opt-d').value.trim();
+    const explanation = document.getElementById('q-explanation').value.trim();
+    const correctEl = document.querySelector('input[name="correct"]:checked');
+    const notice = document.getElementById('notice');
+
+    if (!subject || !question || !a || !b || !c || !d || !correctEl) {
+      notice.textContent = 'বিষয়, প্রশ্ন, ৪টা অপশন ও সঠিক উত্তর — সবগুলো দিন।';
+      notice.style.color = '#D14343';
+      notice.classList.remove('hidden');
+      return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    btn.textContent = 'যোগ হচ্ছে...';
+    const { error } = await supabaseClient.from('questions').insert({
+      subject, topic: topic || null, question,
+      option_a: a, option_b: b, option_c: c, option_d: d,
+      correct: correctEl.value, explanation: explanation || null
+    });
+    btn.textContent = 'প্রশ্ন যোগ করুন';
+
+    if (error) {
+      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+      notice.style.color = '#D14343';
+      notice.classList.remove('hidden');
+      return;
+    }
+    notice.textContent = 'প্রশ্ন যোগ হয়েছে ✓';
+    notice.style.color = '#2F7A4F';
+    notice.classList.remove('hidden');
+    document.getElementById('q-form').reset();
+    loadSubjects();
+    loadRecent();
+  }
+
+  async function deleteQuestion(id) {
+    if (!confirm('প্রশ্নটি ডিলিট করবেন?')) return;
+    await supabaseClient.from('questions').delete().eq('id', id);
+    loadRecent();
+  }
+
+  init();
+  lucide.createIcons();
+</script>
+</body>
+</html>
