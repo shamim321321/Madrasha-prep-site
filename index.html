@@ -42,6 +42,7 @@
         <button id="nav-user" onclick="nhToggleUserMenu()" class="hidden w-9 h-9 rounded-full items-center justify-center text-xs font-bold overflow-hidden btn-gold"></button>
         <div id="user-menu" class="hidden absolute right-0 top-11 z-40 w-40 rounded-xl overflow-hidden" style="background:#16332B; border:1px solid rgba(201,162,76,0.3);">
           <a href="profile.html" class="block px-4 py-2.5 text-xs" style="color:#F4EEDC;">View Profile</a>
+          <a id="admin-link" href="admin.html" class="hidden block px-4 py-2.5 text-xs" style="color:#E4C97A; border-top:1px solid rgba(201,162,76,0.15);">Admin Panel</a>
           <button onclick="nhSignOut()" class="w-full text-left px-4 py-2.5 text-xs" style="color:#E08A6C; border-top:1px solid rgba(201,162,76,0.15);">Log Out</button>
         </div>
       </div>
@@ -272,10 +273,17 @@
     btn.textContent = currentTab==='login' ? 'লগইন করুন' : 'নিবন্ধন করুন';
     closeAuth();
     nhRenderAuthState();
+    checkAdmin();
+  }
+
+  async function checkAdmin(){
+    const isAdmin = await nhIsAdmin();
+    document.getElementById('admin-link').classList.toggle('hidden', !isAdmin);
   }
 
   lucide.createIcons();
   nhRenderAuthState();
+  checkAdmin();
 </script>
 </body>
 </html>

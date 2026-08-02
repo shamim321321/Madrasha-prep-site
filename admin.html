@@ -29,8 +29,9 @@
     <form id="q-form" onsubmit="submitQuestion(event)" class="px-5 mt-5 flex flex-col gap-3">
       <div>
         <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">বিষয়</label>
-        <input id="q-subject" type="text" list="subject-list" placeholder="যেমন: আরবি, বাংলা, সাধারণ জ্ঞান" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
-        <datalist id="subject-list"></datalist>
+        <select id="q-subject" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+          <option value="">বিষয় বেছে নিন</option>
+        </select>
       </div>
       <div>
         <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">টপিক (ঐচ্ছিক)</label>
@@ -69,11 +70,9 @@
 
 <script src="auth.js"></script>
 <script>
-  const OWNER_EMAIL = 'shinternet123@gmail.com';
-
   async function init() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (session?.user?.email !== OWNER_EMAIL) {
+    const isAdmin = await nhIsAdmin();
+    if (!isAdmin) {
       document.getElementById('denied').classList.remove('hidden');
       return;
     }
@@ -83,9 +82,9 @@
   }
 
   async function loadSubjects() {
-    const { data } = await supabaseClient.from('questions').select('subject');
-    const subjects = [...new Set((data||[]).map(q => q.subject))];
-    document.getElementById('subject-list').innerHTML = subjects.map(s => `<option value="${s}">`).join('');
+    const { data } = await supabaseClient.from('subjects').select('*').order('sort_order');
+    const sel = document.getElementById('q-subject');
+    sel.innerHTML = '<option value="">বিষয় বেছে নিন</option>' + (data||[]).map(s => `<option value="${s.name}">${s.name}</option>`).join('');
   }
 
   async function loadRecent() {

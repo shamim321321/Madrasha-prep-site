@@ -35,12 +35,10 @@
 
 <script src="auth.js"></script>
 <script>
-  const OWNER_EMAIL = 'shinternet123@gmail.com';
   let isOwner = false;
 
   async function init() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    isOwner = session?.user?.email === OWNER_EMAIL;
+    isOwner = await nhIsAdmin();
     document.getElementById('owner-composer').classList.toggle('hidden', !isOwner);
     await loadNotices();
   }

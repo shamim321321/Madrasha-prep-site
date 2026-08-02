@@ -92,3 +92,11 @@ async function nhUploadAvatar(file, userId) {
   const { data, error } = await nhUpdateProfile({ avatar_url: avatarUrl });
   return { data, error, avatarUrl };
 }
+
+// ---- বর্তমান ইউজার অ্যাডমিন/এডিটর কিনা চেক করা (admins টেবিল দেখে) ----
+async function nhIsAdmin() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session || !session.user) return false;
+  const { data } = await supabaseClient.from('admins').select('email').eq('email', session.user.email).maybeSingle();
+  return !!data;
+}

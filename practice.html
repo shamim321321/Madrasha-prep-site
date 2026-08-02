@@ -115,14 +115,22 @@
 
   async function showSubjectPicker(){
     showEl('subject-picker');
-    const { data } = await sb.from('questions').select('subject');
-    const subjects = [...new Set((data||[]).map(q => q.subject))];
+    const { data: subjectsData } = await sb.from('subjects').select('*').order('sort_order');
+    const { data: questionsData } = await sb.from('questions').select('subject');
+    const counts = {};
+    (questionsData||[]).forEach(q => { counts[q.subject] = (counts[q.subject]||0) + 1; });
+
     const wrap = document.getElementById('subject-list');
-    if (subjects.length === 0) { wrap.innerHTML = `<p class="text-sm text-center py-6" style="color:#8A8266;">এখনো কোনো প্রশ্ন যোগ করা হয়নি।</p>`; return; }
-    wrap.innerHTML = subjects.map(s => `
-      <button onclick="pickSubject('${s.replace(/'/g,"\\'")}')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-between" style="background:#fff; color:#0E211C;">
-        ${s} <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
-      </button>`).join('');
+    if (!subjectsData || subjectsData.length === 0) { wrap.innerHTML = `<p class="text-sm text-center py-6" style="color:#8A8266;">এখনো কোনো বিষয় যোগ করা হয়নি।</p>`; return; }
+    wrap.innerHTML = subjectsData.map(s => {
+      const count = counts[s.name] || 0;
+      const disabled = count === 0;
+      return `
+      <button ${disabled ? 'disabled' : `onclick="pickSubject('${s.name.replace(/'/g,"\\'")}')"`} class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-between" style="background:#fff; color:${disabled ? '#B8B096' : '#0E211C'};">
+        <span>${s.name}</span>
+        <span class="text-xs font-normal flex items-center gap-1" style="color:#8A8266;">${count > 0 ? count + 'টি প্রশ্ন' : 'শীঘ্রই আসছে'} <i data-lucide="chevron-right" class="w-4 h-4"></i></span>
+      </button>`;
+    }).join('');
     lucide.createIcons();
   }
 
