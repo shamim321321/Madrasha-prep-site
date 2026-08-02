@@ -37,12 +37,22 @@
       </div>
       <textarea id="post-content" rows="2" placeholder="What's on your mind?" class="w-full px-4 py-2.5 rounded-2xl text-sm" style="background:#F0EAD8; border:none; resize:none;"></textarea>
     </div>
+    <div id="image-preview-wrap" class="hidden mt-3 relative">
+      <img id="image-preview" class="w-full rounded-xl max-h-56 object-cover">
+      <button onclick="clearImage()" class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center" style="background:rgba(0,0,0,0.6); color:#fff;"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
     <div class="flex items-center justify-between mt-3 pt-3" style="border-top:1px solid #F0EAD8;">
-      <select id="post-privacy" class="px-3 py-1.5 rounded-full text-xs" style="background:#F0EAD8; border:none; color:#5B5340;">
-        <option value="public">🌐 Public</option>
-        <option value="private">🔒 Only me</option>
-      </select>
-      <button onclick="submitPost()" class="px-6 py-2 rounded-full text-xs font-semibold btn-gold">Post</button>
+      <div class="flex items-center gap-2">
+        <select id="post-privacy" class="px-3 py-1.5 rounded-full text-xs" style="background:#F0EAD8; border:none; color:#5B5340;">
+          <option value="public">🌐 Public</option>
+          <option value="private">🔒 Only me</option>
+        </select>
+        <button type="button" onclick="document.getElementById('image-input').click()" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:#F0EAD8; color:#4F7268;">
+          <i data-lucide="image" class="w-4 h-4"></i>
+        </button>
+        <input id="image-input" type="file" accept="image/*" class="hidden" onchange="handleImagePick(event)">
+      </div>
+      <button onclick="submitPost()" id="post-submit-btn" class="px-6 py-2 rounded-full text-xs font-semibold btn-gold">Post</button>
     </div>
   </div>
 
@@ -128,6 +138,7 @@
       </div>
 
       <p id="content-${p.id}" class="text-sm mb-3 whitespace-pre-wrap" style="color:#333;">${escapeHtml(p.content)}</p>
+      ${p.image_url ? `<img src="${p.image_url}" class="w-full rounded-xl mb-3 max-h-96 object-cover">` : ''}
 
       <div class="flex items-center gap-4 pt-2.5" style="border-top:1px solid #F0EAD8;">
         <button onclick="toggleLike('${p.id}')" class="flex items-center gap-1.5 text-xs" style="color:${liked ? '#C9A24C' : '#5B5340'};">
@@ -149,20 +160,48 @@
 
   function toggleMenu(id){ document.getElementById('menu-'+id).classList.toggle('hidden'); }
 
+  let pickedImageFile = null;
+  function handleImagePick(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    pickedImageFile = file;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      document.getElementById('image-preview').src = ev.target.result;
+      document.getElementById('image-preview-wrap').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+  function clearImage() {
+    pickedImageFile = null;
+    document.getElementById('image-input').value = '';
+    document.getElementById('image-preview-wrap').classList.add('hidden');
+  }
+
   async function submitPost() {
     if (!currentUser) return;
     const content = document.getElementById('post-content').value.trim();
     const privacy = document.getElementById('post-privacy').value;
-    if (!content) { alert('Please write something.'); return; }
+    if (!content && !pickedImageFile) { alert('Please write something or add a photo.'); return; }
+    const btn = document.getElementById('post-submit-btn');
+    btn.textContent = 'Posting...';
+    let imageUrl = null;
+    if (pickedImageFile) {
+      const { error: imgErr, imageUrl: url } = await nhUploadPostImage(pickedImageFile, currentUser.id);
+      if (imgErr) { alert('Failed to upload photo: ' + imgErr.message); btn.textContent = 'Post'; return; }
+      imageUrl = url;
+    }
     const m = currentUser.user_metadata || {};
     const { error } = await supabaseClient.from('posts').insert({
       user_id: currentUser.id,
       author_name: m.full_name || currentUser.email,
       author_avatar: m.avatar_url || null,
-      content, privacy
+      content, privacy, image_url: imageUrl
     });
+    btn.textContent = 'Post';
     if (error) { alert('Failed to post: ' + error.message); return; }
     document.getElementById('post-content').value = '';
+    clearImage();
     loadPosts();
   }
 

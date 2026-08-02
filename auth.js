@@ -71,6 +71,16 @@ async function nhUpdateProfile(fields) {
   return { data, error };
 }
 
+// ---- পোস্টের ছবি আপলোড করা (Supabase Storage-এ "post-images" নামের বাকেট লাগবে) ----
+async function nhUploadPostImage(file, userId) {
+  const ext = file.name.split('.').pop();
+  const path = `${userId}/${Date.now()}.${ext}`;
+  const { error: uploadError } = await supabaseClient.storage.from('post-images').upload(path, file);
+  if (uploadError) return { error: uploadError };
+  const { data: publicUrlData } = supabaseClient.storage.from('post-images').getPublicUrl(path);
+  return { imageUrl: publicUrlData.publicUrl };
+}
+
 // ---- প্রোফাইল ছবি আপলোড করা (Supabase Storage-এ "avatars" নামের বাকেট লাগবে) ----
 async function nhUploadAvatar(file, userId) {
   const ext = file.name.split('.').pop();
