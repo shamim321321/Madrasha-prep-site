@@ -39,7 +39,13 @@
         <i data-lucide="bell" class="w-5 h-5"></i>
         <span class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] flex items-center justify-center btn-gold font-bold">৩</span>
       </button>
-      <span id="nav-user" class="hidden px-3 py-1.5 rounded-full text-xs font-medium max-w-[90px] truncate btn-gold"></span>
+      <div class="relative">
+        <button id="nav-user" onclick="nhToggleUserMenu()" class="hidden w-9 h-9 rounded-full items-center justify-center text-xs font-bold overflow-hidden btn-gold"></button>
+        <div id="user-menu" class="hidden absolute right-0 top-11 z-40 w-40 rounded-xl overflow-hidden" style="background:#16332B; border:1px solid rgba(201,162,76,0.3);">
+          <a href="profile.html" class="block px-4 py-2.5 text-xs" style="color:#F4EEDC;">ভিউ প্রোফাইল</a>
+          <button onclick="nhSignOut()" class="w-full text-left px-4 py-2.5 text-xs" style="color:#E08A6C; border-top:1px solid rgba(201,162,76,0.15);">লগ আউট</button>
+        </div>
+      </div>
       <button id="nav-login-btn" onclick="openAuth()" class="px-3 py-1.5 rounded-full text-xs font-medium btn-gold">লগইন</button>
       <button onclick="document.getElementById('mnav').classList.toggle('hidden')" style="color:#DCD3B6;">
         <i data-lucide="menu" class="w-5 h-5"></i>

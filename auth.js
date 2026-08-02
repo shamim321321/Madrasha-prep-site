@@ -38,15 +38,32 @@ async function nhRenderAuthState() {
 
   if (session && session.user) {
     const name = session.user.user_metadata?.full_name || session.user.email;
-    userChip.textContent = name;
+    const avatarUrl = session.user.user_metadata?.avatar_url;
+    userChip.innerHTML = avatarUrl
+      ? `<img src="${avatarUrl}" class="w-full h-full object-cover">`
+      : `<span>${(name || '?').trim().charAt(0).toUpperCase()}</span>`;
     userChip.classList.remove('hidden');
-    userChip.onclick = () => { window.location.href = 'profile.html'; };
+    userChip.classList.add('flex');
     loginBtn.classList.add('hidden');
   } else {
     userChip.classList.add('hidden');
+    userChip.classList.remove('flex');
     loginBtn.classList.remove('hidden');
   }
 }
+
+// ---- ছবি/অ্যাভাটারে ক্লিক করলে ড্রপডাউন মেনু খোলা-বন্ধ করা ----
+function nhToggleUserMenu() {
+  const menu = document.getElementById('user-menu');
+  if (menu) menu.classList.toggle('hidden');
+}
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('user-menu');
+  const btn = document.getElementById('nav-user');
+  if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+    menu.classList.add('hidden');
+  }
+});
 
 // ---- প্রোফাইলের তথ্য (নাম, ফোন, ঠিকানা, সোশ্যাল লিংক) আপডেট করা ----
 async function nhUpdateProfile(fields) {
