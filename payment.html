@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ভর্তি ফি পরিশোধ — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+</style>
+</head>
+<body class="sans-bn pb-10">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="course.html" id="back-link" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">ভর্তি ফি পরিশোধ</div>
+  </header>
+
+  <div id="content" class="px-5 mt-5"></div>
+
+<script src="data.js"></script>
+<script src="auth.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const courseId = parseInt(params.get('course'));
+  const course = courses.find(c => c.id === courseId);
+  const content = document.getElementById('content');
+  const PAY_NUMBER = '01866005870';
+
+  async function init() {
+    if (course) document.getElementById('back-link').href = `course.html?id=${course.id}`;
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!course) {
+      content.innerHTML = `<p class="text-sm" style="color:#5B5340;">কোর্সটি খুঁজে পাওয়া যায়নি। <a href="courses.html" style="color:#8B6B2A;">সব কোর্সে ফিরে যান</a>।</p>`;
+      return;
+    }
+    if (!session || !session.user) {
+      content.innerHTML = `
+        <div class="rounded-2xl p-5 text-center" style="background:#fff;">
+          <p class="text-sm mb-3" style="color:#5B5340;">ভর্তি ফি জমা দিতে আগে লগইন করুন।</p>
+          <a href="index.html" class="inline-block px-5 py-2 rounded-full text-xs font-semibold btn-gold">হোমে গিয়ে লগইন করুন</a>
+        </div>`;
+      return;
+    }
+
+    // আগে জমা দেওয়া থাকলে তার অবস্থা দেখাও
+    const { data: existing } = await supabaseClient.from('enrollments').select('*').eq('user_id', session.user.id).eq('course_id', course.id).order('created_at', { ascending: false }).limit(1);
+    if (existing && existing.length > 0) {
+      renderStatus(existing[0]);
+      return;
+    }
+
+    renderForm(course, session.user);
+  }
+
+  function renderStatus(enr) {
+    const statusMap = {
+      pending: { label: 'যাচাই চলছে', color: '#8B6B2A', icon: 'clock' },
+      verified: { label: 'ভর্তি নিশ্চিত হয়েছে ✓', color: '#2F7A4F', icon: 'check-circle-2' },
+      rejected: { label: 'যাচাই ব্যর্থ হয়েছে', color: '#D14343', icon: 'x-circle' }
+    };
+    const s = statusMap[enr.status] || statusMap.pending;
+    content.innerHTML = `
+      <div class="rounded-2xl p-5 text-center" style="background:#fff;">
+        <i data-lucide="${s.icon}" class="w-10 h-10 mx-auto mb-3" style="color:${s.color};"></i>
+        <p class="text-sm font-semibold mb-1" style="color:${s.color};">${s.label}</p>
+        <p class="text-xs mb-1" style="color:#5B5340;">কোর্স: ${enr.course_title}</p>
+        <p class="text-xs" style="color:#5B5340;">ট্রানজেকশন আইডি: ${enr.transaction_id}</p>
+        ${enr.status === 'pending' ? `<p class="text-[11px] mt-3" style="color:#8A8266;">সাধারণত ২৪ ঘণ্টার মধ্যে যাচাই সম্পন্ন হয়।</p>` : ''}
+        ${enr.status === 'rejected' ? `<button onclick="location.reload()" class="mt-3 px-5 py-2 rounded-full text-xs font-semibold btn-gold">আবার চেষ্টা করুন</button>` : ''}
+      </div>`;
+    lucide.createIcons();
+  }
+
+  function renderForm(course, user) {
+    content.innerHTML = `
+      <div class="rounded-2xl p-4 mb-4" style="background:#fff;">
+        <p class="text-xs" style="color:#5B5340;">কোর্স</p>
+        <h2 class="serif-bn text-base mb-1" style="color:#0E211C;">${course.title}</h2>
+        <p class="text-lg font-bold" style="color:#8B6B2A;">${course.price}</p>
+      </div>
+
+      <div class="rounded-2xl p-4 mb-4" style="background:#FBF0DC; border:1px solid #E8CE94;">
+        <p class="text-xs font-semibold mb-2" style="color:#6B5A2E;">নিচের ধাপ অনুসরণ করুন:</p>
+        <ol class="text-xs flex flex-col gap-1.5 list-decimal pl-4" style="color:#6B5A2E;">
+          <li>বিকাশ বা নগদ অ্যাপ থেকে <b>"Send Money"</b> অপশনে যান</li>
+          <li>নিচের নাম্বারে <b>${course.price}</b> টাকা পাঠান</li>
+          <li>পেমেন্টের পর যে ট্রানজেকশন আইডি পাবেন সেটা নিচে বসিয়ে জমা দিন</li>
+        </ol>
+        <div class="flex items-center justify-between mt-3 px-3 py-2.5 rounded-xl" style="background:#fff;">
+          <span class="text-sm font-bold num-bn" style="color:#0E211C;">${PAY_NUMBER}</span>
+          <button onclick="copyNumber()" class="text-xs font-medium px-3 py-1 rounded-full" style="background:#0E211C; color:#E4C97A;">কপি</button>
+        </div>
+      </div>
+
+      <form id="pay-form" onsubmit="submitPayment(event)" class="rounded-2xl p-4 flex flex-col gap-3" style="background:#fff;">
+        <div>
+          <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">যে নাম্বার থেকে টাকা পাঠিয়েছেন</label>
+          <input id="sender-number" type="text" placeholder="01XXXXXXXXX" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ট্রানজেকশন আইডি</label>
+          <input id="txn-id" type="text" placeholder="যেমন: 8N7A6B5C4D" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        </div>
+        <p id="pay-notice" class="hidden text-xs"></p>
+        <button type="submit" id="pay-btn" class="py-3 rounded-full text-sm font-semibold btn-gold">জমা দিন</button>
+      </form>
+    `;
+    lucide.createIcons();
+  }
+
+  function copyNumber() {
+    navigator.clipboard.writeText(PAY_NUMBER);
+    alert('নাম্বার কপি হয়েছে: ' + PAY_NUMBER);
+  }
+
+  async function submitPayment(e) {
+    e.preventDefault();
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const sender = document.getElementById('sender-number').value.trim();
+    const txn = document.getElementById('txn-id').value.trim();
+    const notice = document.getElementById('pay-notice');
+    const btn = document.getElementById('pay-btn');
+    if (!sender || !txn) { notice.textContent = 'দুটো তথ্যই দিন।'; notice.style.color = '#D14343'; notice.classList.remove('hidden'); return; }
+
+    btn.textContent = 'জমা হচ্ছে...';
+    const amount = parseFloat((course.price || '').replace(/[^\d.]/g, '')) || 0;
+    const { error } = await supabaseClient.from('enrollments').insert({
+      user_id: session.user.id,
+      course_id: course.id,
+      course_title: course.title,
+      amount,
+      transaction_id: txn,
+      sender_number: sender
+    });
+    btn.textContent = 'জমা দিন';
+    if (error) {
+      notice.textContent = 'জমা দিতে সমস্যা হয়েছে: ' + error.message;
+      notice.style.color = '#D14343';
+      notice.classList.remove('hidden');
+      return;
+    }
+    init();
+  }
+
+  init();
+  lucide.createIcons();
+</script>
+</body>
+</html>

@@ -30,6 +30,13 @@
   </header>
 
   <section class="px-4 mt-5">
+    <div class="relative">
+      <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2" style="color:#8A8266;"></i>
+      <input id="search-input" type="text" placeholder="কোর্স খুঁজুন..." oninput="render()" class="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+    </div>
+  </section>
+
+  <section class="px-4 mt-5">
     <p class="text-xs font-semibold mb-2.5" style="color:#5B5340;">বিষয় নির্বাচন করুন</p>
     <div class="flex gap-2 overflow-x-auto pb-1" id="subject-chips"></div>
 
@@ -88,9 +95,11 @@
 
   function render(){
     const list = document.getElementById('course-list');
+    const q = (document.getElementById('search-input')?.value || '').trim().toLowerCase();
     const filtered = courses.filter(c =>
       (activeSubject === 'সব' || c.tag === activeSubject) &&
-      (!activeStatus || c.mode.includes(activeStatus === 'লাইভ' ? 'লাইভ' : activeStatus === 'এক্সাম' ? 'এক্সাম' : 'রেকর্ডেড'))
+      (!activeStatus || c.mode.includes(activeStatus === 'লাইভ' ? 'লাইভ' : activeStatus === 'এক্সাম' ? 'এক্সাম' : 'রেকর্ডেড')) &&
+      (!q || c.title.toLowerCase().includes(q) || c.shortDesc.toLowerCase().includes(q) || c.tag.toLowerCase().includes(q))
     );
     document.getElementById('empty-msg').classList.toggle('hidden', filtered.length > 0);
     list.innerHTML = filtered.map(c => `

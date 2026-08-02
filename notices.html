@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>নোটিশ — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+</style>
+</head>
+<body class="sans-bn pb-10">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">নোটিশ</div>
+  </header>
+
+  <div id="owner-composer" class="hidden mx-4 mt-5 rounded-2xl p-4" style="background:#fff;">
+    <input id="n-title" type="text" placeholder="নোটিশের শিরোনাম" class="w-full px-4 py-2.5 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+    <textarea id="n-content" rows="3" placeholder="বিস্তারিত লিখুন..." class="w-full px-4 py-2.5 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;"></textarea>
+    <button onclick="postNotice()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">নোটিশ প্রকাশ করুন</button>
+  </div>
+
+  <div id="notice-list" class="px-4 mt-5 flex flex-col gap-3"></div>
+  <p id="empty-msg" class="hidden text-center text-sm py-10" style="color:#8A8266;">এখনো কোনো নোটিশ প্রকাশ করা হয়নি।</p>
+
+<script src="auth.js"></script>
+<script>
+  const OWNER_EMAIL = 'shinternet123@gmail.com';
+  let isOwner = false;
+
+  async function init() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    isOwner = session?.user?.email === OWNER_EMAIL;
+    document.getElementById('owner-composer').classList.toggle('hidden', !isOwner);
+    await loadNotices();
+  }
+
+  function timeAgo(dateStr){
+    const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+    if (diff < 3600) return Math.floor(diff/60) + ' মিনিট আগে';
+    if (diff < 86400) return Math.floor(diff/3600) + ' ঘণ্টা আগে';
+    return Math.floor(diff/86400) + ' দিন আগে';
+  }
+  function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+  async function loadNotices() {
+    const { data: notices, error } = await supabaseClient.from('notices').select('*').order('created_at', { ascending: false });
+    const list = document.getElementById('notice-list');
+    if (error) { list.innerHTML = `<p class="text-sm text-center py-6" style="color:#D14343;">লোড করতে সমস্যা: ${error.message}</p>`; return; }
+    document.getElementById('empty-msg').classList.toggle('hidden', notices.length > 0);
+    list.innerHTML = notices.map(n => `
+      <div class="rounded-2xl p-4 relative" style="background:#fff; border-left:4px solid #C9A24C;">
+        <div class="flex items-start justify-between mb-1">
+          <h3 class="serif-bn text-base pr-2" style="color:#0E211C;">${escapeHtml(n.title)}</h3>
+          ${isOwner ? `<button onclick="deleteNotice('${n.id}')" style="color:#D14343;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+        </div>
+        <p class="text-sm mb-2 whitespace-pre-wrap" style="color:#333;">${escapeHtml(n.content)}</p>
+        <p class="text-[11px]" style="color:#8A8266;">${timeAgo(n.created_at)}</p>
+      </div>`).join('');
+    lucide.createIcons();
+  }
+
+  async function postNotice() {
+    const title = document.getElementById('n-title').value.trim();
+    const content = document.getElementById('n-content').value.trim();
+    if (!title || !content) { alert('শিরোনাম ও বিস্তারিত দুটোই লিখুন।'); return; }
+    const { error } = await supabaseClient.from('notices').insert({ title, content });
+    if (error) { alert('প্রকাশ করতে সমস্যা: ' + error.message); return; }
+    document.getElementById('n-title').value = '';
+    document.getElementById('n-content').value = '';
+    loadNotices();
+  }
+
+  async function deleteNotice(id) {
+    if (!confirm('নোটিশটি ডিলিট করবেন?')) return;
+    const { error } = await supabaseClient.from('notices').delete().eq('id', id);
+    if (error) { alert('ডিলিট করতে সমস্যা: ' + error.message); return; }
+    loadNotices();
+  }
+
+  init();
+  lucide.createIcons();
+</script>
+</body>
+</html>
