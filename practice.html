@@ -36,7 +36,7 @@
       </div>
       <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
     </button>
-    <button onclick="showSubjectPicker()" class="w-full flex items-center gap-3 rounded-2xl p-4" style="background:#fff;">
+    <button onclick="showSubjectPicker()" class="w-full flex items-center gap-3 rounded-2xl p-4 mb-3" style="background:#fff;">
       <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(201,162,76,0.12);"><i data-lucide="layers" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
       <div class="text-left flex-1">
         <p class="text-sm font-semibold" style="color:#0E211C;">বিষয়ভিত্তিক অনুশীলন</p>
@@ -44,6 +44,32 @@
       </div>
       <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
     </button>
+    <button onclick="showAIPicker()" class="w-full flex items-center gap-3 rounded-2xl p-4" style="background:#fff;">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(201,162,76,0.12);"><i data-lucide="sparkles" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+      <div class="text-left flex-1">
+        <p class="text-sm font-semibold" style="color:#0E211C;">AI দিয়ে প্রশ্ন তৈরি করুন</p>
+        <p class="text-xs" style="color:#5B5340;">যেকোনো টপিক লিখলেই তাৎক্ষণিক নতুন প্রশ্ন</p>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+    </button>
+  </div>
+
+  <!-- AI PICKER -->
+  <div id="ai-picker" class="hidden px-5 mt-6">
+    <h2 class="serif-bn text-lg mb-4" style="color:#0E211C;">কোন টপিকে প্রশ্ন চান?</h2>
+    <input id="ai-topic" type="text" placeholder="যেমন: সূরা ইউসুফ, ইসলামের ইতিহাস, নাহু-সরফ..." class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:#fff; border:1px solid #E4DAB8;">
+    <p class="text-xs mb-4" style="color:#8A8266;">⚠️ AI-জেনারেটেড প্রশ্নে মাঝেমধ্যে ভুল থাকতে পারে — নিশ্চিত তথ্যের জন্য উস্তাদ বা বইয়ের সাথে মিলিয়ে নিন।</p>
+    <div class="grid grid-cols-3 gap-3">
+      <button onclick="startAIQuiz(10)" class="py-4 rounded-2xl text-sm font-semibold" style="background:#fff; color:#0E211C;">১০টি</button>
+      <button onclick="startAIQuiz(20)" class="py-4 rounded-2xl text-sm font-semibold" style="background:#fff; color:#0E211C;">২০টি</button>
+      <button onclick="startAIQuiz(30)" class="py-4 rounded-2xl text-sm font-semibold" style="background:#fff; color:#0E211C;">৩০টি</button>
+    </div>
+  </div>
+
+  <!-- AI LOADING -->
+  <div id="ai-loading" class="hidden px-5 mt-16 text-center">
+    <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-3 animate-spin" style="color:#C9A24C;"></i>
+    <p class="text-sm" style="color:#5B5340;">AI প্রশ্ন তৈরি করছে, একটু অপেক্ষা করুন...</p>
   </div>
 
   <!-- SUBJECT PICKER -->
@@ -72,8 +98,11 @@
       <div id="progress-bar" class="h-1.5 rounded-full" style="background:#C9A24C; width:0%;"></div>
     </div>
     <div class="rounded-2xl p-4 mb-4" style="background:#fff;">
-      <span id="q-subject-tag" class="text-[11px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;"></span>
-      <p id="q-text" class="text-base mt-2.5 leading-relaxed" style="color:#0E211C;"></p>
+      <div class="flex items-center justify-between mb-2.5">
+        <span id="q-subject-tag" class="text-[11px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;"></span>
+        <button id="lang-toggle" onclick="toggleLang()" class="hidden text-[11px] px-2.5 py-1 rounded-full font-semibold" style="background:#F0EAD8; color:#5B5340;">العربية</button>
+      </div>
+      <p id="q-text" class="text-base leading-relaxed" style="color:#0E211C;"></p>
     </div>
     <div id="options-wrap" class="flex flex-col gap-2.5"></div>
     <div id="explanation-box" class="hidden mt-4 rounded-xl p-3.5" style="background:#FBF0DC; border:1px solid #E8CE94;">
@@ -84,13 +113,40 @@
   </div>
 
   <!-- RESULT -->
-  <div id="result-area" class="hidden px-5 mt-10 text-center">
-    <i data-lucide="trophy" class="w-12 h-12 mx-auto mb-3" style="color:#C9A24C;"></i>
-    <h2 class="serif-bn text-2xl mb-1" style="color:#0E211C;"><span id="final-score"></span></h2>
-    <p class="text-sm mb-6" style="color:#5B5340;">সঠিক উত্তর</p>
+  <div id="result-area" class="hidden px-5 mt-8">
+    <div class="text-center mb-5">
+      <i id="result-icon" data-lucide="trophy" class="w-12 h-12 mx-auto mb-3" style="color:#C9A24C;"></i>
+      <h2 id="pass-status" class="serif-bn text-xl mb-1" style="color:#0E211C;"></h2>
+      <p id="result-compliment" class="text-sm" style="color:#5B5340;"></p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="num-bn text-xl" style="color:#2F7A4F;" id="stat-correct"></div>
+        <div class="text-[11px]" style="color:#5B5340;">সঠিক উত্তর</div>
+      </div>
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="num-bn text-xl" style="color:#D14343;" id="stat-wrong"></div>
+        <div class="text-[11px]" style="color:#5B5340;">ভুল উত্তর</div>
+      </div>
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="num-bn text-xl" style="color:#0E211C;" id="stat-marks"></div>
+        <div class="text-[11px]" style="color:#5B5340;">প্রাপ্ত মার্ক (কাটমার্ক ধরে)</div>
+      </div>
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="num-bn text-xl" style="color:#0E211C;" id="stat-percent"></div>
+        <div class="text-[11px]" style="color:#5B5340;">শতকরা হার</div>
+      </div>
+    </div>
+
+    <div id="weak-topics" class="hidden rounded-2xl p-4 mb-5" style="background:#FBF0DC; border:1px solid #E8CE94;">
+      <p class="text-xs font-semibold mb-2" style="color:#6B5A2E;">যেসব টপিকে আরও অনুশীলন দরকার</p>
+      <div id="weak-topics-list" class="flex flex-col gap-1.5"></div>
+    </div>
+
     <div class="flex flex-col gap-3">
       <button onclick="location.reload()" class="py-3 rounded-full text-sm font-semibold btn-gold">আবার অনুশীলন করুন</button>
-      <a href="index.html" class="py-3 rounded-full text-sm font-semibold" style="border:1px solid #C9A24C; color:#8B6B2A;">হোমে ফিরুন</a>
+      <a href="index.html" class="py-3 rounded-full text-sm font-semibold text-center" style="border:1px solid #C9A24C; color:#8B6B2A;">হোমে ফিরুন</a>
     </div>
   </div>
 
@@ -105,8 +161,10 @@
   let quizQuestions = [];
   let currentIndex = 0;
   let score = 0;
+  let wrongCount = 0;
+  let wrongTopics = [];
 
-  function showEl(id){ document.querySelectorAll('#mode-select,#subject-picker,#count-picker,#quiz-area,#result-area,#no-questions').forEach(e=>e.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+  function showEl(id){ document.querySelectorAll('#mode-select,#subject-picker,#count-picker,#quiz-area,#result-area,#no-questions,#ai-picker,#ai-loading').forEach(e=>e.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 
   function goBack(){
     if (!document.getElementById('mode-select').classList.contains('hidden')) { window.location.href = 'index.html'; }
@@ -144,6 +202,39 @@
     showEl('count-picker');
   }
 
+  function showAIPicker(){
+    showEl('ai-picker');
+  }
+
+  async function startAIQuiz(count){
+    const topic = document.getElementById('ai-topic').value.trim();
+    if (!topic) { alert('একটা টপিক লিখুন।'); return; }
+    showEl('ai-loading');
+    try {
+      const res = await fetch('/api/generate-mcq', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject: topic, count })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.questions) {
+        alert('প্রশ্ন তৈরি করতে সমস্যা হয়েছে: ' + (data.error || 'অজানা এরর'));
+        showEl('ai-picker');
+        return;
+      }
+      quizQuestions = data.questions.map(q => ({ ...q, subject: topic, topic: 'AI জেনারেটেড' }));
+      currentIndex = 0;
+      score = 0;
+      wrongCount = 0;
+      wrongTopics = [];
+      showEl('quiz-area');
+      renderQuestion();
+    } catch (err) {
+      alert('সংযোগে সমস্যা হয়েছে: ' + err.message);
+      showEl('ai-picker');
+    }
+  }
+
   async function startQuiz(count){
     let query = sb.from('questions').select('*');
     if (selectedSubject) query = query.eq('subject', selectedSubject);
@@ -154,9 +245,13 @@
     quizQuestions = shuffled.slice(0, count);
     currentIndex = 0;
     score = 0;
+    wrongCount = 0;
+    wrongTopics = [];
     showEl('quiz-area');
     renderQuestion();
   }
+
+  let showArabic = false;
 
   function renderQuestion(){
     const q = quizQuestions[currentIndex];
@@ -164,15 +259,44 @@
     document.getElementById('q-score').textContent = `স্কোর: ${score}`;
     document.getElementById('progress-bar').style.width = `${(currentIndex/quizQuestions.length)*100}%`;
     document.getElementById('q-subject-tag').textContent = q.subject + (q.topic ? ' · ' + q.topic : '');
-    document.getElementById('q-text').textContent = q.question;
 
-    const options = [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]];
-    const wrap = document.getElementById('options-wrap');
-    wrap.innerHTML = options.map(([key,text]) => `
-      <button data-key="${key}" onclick="selectAnswer('${key}')" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm">${text}</button>`).join('');
+    showArabic = false;
+    const langBtn = document.getElementById('lang-toggle');
+    langBtn.classList.toggle('hidden', !q.arabic_question);
+    langBtn.textContent = 'العربية';
+    renderQuestionText();
 
     document.getElementById('explanation-box').classList.add('hidden');
     document.getElementById('next-btn').classList.add('hidden');
+    lucide.createIcons();
+  }
+
+  function renderQuestionText(){
+    const q = quizQuestions[currentIndex];
+    const qText = document.getElementById('q-text');
+    if (showArabic && q.arabic_question) {
+      qText.textContent = q.arabic_question;
+      qText.setAttribute('dir', 'rtl');
+      qText.style.fontFamily = "'Traditional Arabic', serif";
+    } else {
+      qText.textContent = q.question;
+      qText.setAttribute('dir', 'auto');
+      qText.style.fontFamily = '';
+    }
+
+    const useAr = showArabic && q.arabic_option_a;
+    const options = useAr
+      ? [['a',q.arabic_option_a],['b',q.arabic_option_b],['c',q.arabic_option_c],['d',q.arabic_option_d]]
+      : [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]];
+    const wrap = document.getElementById('options-wrap');
+    wrap.innerHTML = options.map(([key,text]) => `
+      <button data-key="${key}" onclick="selectAnswer('${key}')" dir="${useAr ? 'rtl' : 'auto'}" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm">${text}</button>`).join('');
+  }
+
+  function toggleLang(){
+    showArabic = !showArabic;
+    document.getElementById('lang-toggle').textContent = showArabic ? 'বাংলা' : 'العربية';
+    renderQuestionText();
     lucide.createIcons();
   }
 
@@ -184,7 +308,8 @@
       if (k === q.correct) { btn.style.background = '#DFF3E3'; btn.style.borderColor = '#2F7A4F'; btn.style.color = '#1E5C36'; }
       else if (k === key) { btn.style.background = '#FBE2E2'; btn.style.borderColor = '#D14343'; btn.style.color = '#8C2020'; }
     });
-    if (key === q.correct) score++;
+    if (key === q.correct) { score++; }
+    else { wrongCount++; wrongTopics.push(q.topic || q.subject); }
     document.getElementById('q-score').textContent = `স্কোর: ${score}`;
 
     if (q.explanation) {
@@ -197,12 +322,59 @@
   function nextQuestion(){
     currentIndex++;
     if (currentIndex >= quizQuestions.length) {
-      document.getElementById('final-score').textContent = `${score} / ${quizQuestions.length}`;
-      showEl('result-area');
-      lucide.createIcons();
+      showResults();
       return;
     }
     renderQuestion();
+  }
+
+  function showResults(){
+    const total = quizQuestions.length;
+    const marks = Math.max(0, score - (wrongCount * 0.25));
+    const percent = (marks / total) * 100;
+    const passed = percent >= 40;
+
+    document.getElementById('stat-correct').textContent = score;
+    document.getElementById('stat-wrong').textContent = wrongCount;
+    document.getElementById('stat-marks').textContent = marks.toFixed(2) + ' / ' + total;
+    document.getElementById('stat-percent').textContent = percent.toFixed(1) + '%';
+
+    const icon = document.getElementById('result-icon');
+    const statusEl = document.getElementById('pass-status');
+    const complimentEl = document.getElementById('result-compliment');
+
+    if (percent >= 80) {
+      icon.setAttribute('data-lucide', 'trophy'); icon.style.color = '#C9A24C';
+      statusEl.textContent = 'চমৎকার হয়েছে! 🎉'; statusEl.style.color = '#2F7A4F';
+      complimentEl.textContent = 'অসাধারণ প্রস্তুতি! এভাবেই চালিয়ে যান।';
+    } else if (percent >= 60) {
+      icon.setAttribute('data-lucide', 'thumbs-up'); icon.style.color = '#2F7A4F';
+      statusEl.textContent = 'পাশ করেছেন ✓'; statusEl.style.color = '#2F7A4F';
+      complimentEl.textContent = 'ভালো করেছেন! আরেকটু অনুশীলনে আরও ভালো হবে।';
+    } else if (percent >= 40) {
+      icon.setAttribute('data-lucide', 'check-circle'); icon.style.color = '#8B6B2A';
+      statusEl.textContent = 'পাশ করেছেন ✓'; statusEl.style.color = '#8B6B2A';
+      complimentEl.textContent = 'পাশ করেছেন, তবে আরও অনুশীলন করলে ফলাফল আরও ভালো হবে।';
+    } else {
+      icon.setAttribute('data-lucide', 'refresh-ccw'); icon.style.color = '#D14343';
+      statusEl.textContent = 'এবার পাশ মার্ক আসেনি'; statusEl.style.color = '#D14343';
+      complimentEl.textContent = 'হতাশ হবেন না — ভুল প্রশ্নগুলোর ব্যাখ্যা আবার পড়ুন এবং আবার চেষ্টা করুন।';
+    }
+
+    if (wrongTopics.length > 0) {
+      const counts = {};
+      wrongTopics.forEach(t => { counts[t] = (counts[t]||0) + 1; });
+      const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 4);
+      document.getElementById('weak-topics').classList.remove('hidden');
+      document.getElementById('weak-topics-list').innerHTML = sorted.map(([topic, count]) => `
+        <div class="flex items-center justify-between text-xs" style="color:#6B5A2E;">
+          <span>${topic}</span>
+          <span class="font-semibold">${count}টি ভুল</span>
+        </div>`).join('') + `<p class="text-[11px] mt-2" style="color:#8B6B2A;">এই বিষয়গুলো আবার পড়ে পরে আবার অনুশীলন করুন।</p>`;
+    }
+
+    showEl('result-area');
+    lucide.createIcons();
   }
 
   lucide.createIcons();

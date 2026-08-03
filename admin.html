@@ -38,15 +38,19 @@
         <input id="q-topic" type="text" placeholder="যেমন: সূরা বাকারা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
       </div>
       <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রশ্ন</label>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রশ্ন (বাংলা)</label>
         <textarea id="q-question" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রশ্ন (আরবি) — ঐচ্ছিক</label>
+        <textarea id="q-question-ar" dir="rtl" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; font-family:'Traditional Arabic', serif;"></textarea>
       </div>
 
       <div class="grid grid-cols-1 gap-2">
-        <div class="flex items-center gap-2"><input type="radio" name="correct" value="a" class="w-4 h-4"><input id="opt-a" type="text" placeholder="অপশন ক" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
-        <div class="flex items-center gap-2"><input type="radio" name="correct" value="b" class="w-4 h-4"><input id="opt-b" type="text" placeholder="অপশন খ" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
-        <div class="flex items-center gap-2"><input type="radio" name="correct" value="c" class="w-4 h-4"><input id="opt-c" type="text" placeholder="অপশন গ" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
-        <div class="flex items-center gap-2"><input type="radio" name="correct" value="d" class="w-4 h-4"><input id="opt-d" type="text" placeholder="অপশন ঘ" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+        <div class="flex items-center gap-2"><input type="radio" name="correct" value="a" class="w-4 h-4"><input id="opt-a" type="text" placeholder="অপশন ক (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-a-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+        <div class="flex items-center gap-2"><input type="radio" name="correct" value="b" class="w-4 h-4"><input id="opt-b" type="text" placeholder="অপশন খ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-b-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+        <div class="flex items-center gap-2"><input type="radio" name="correct" value="c" class="w-4 h-4"><input id="opt-c" type="text" placeholder="অপশন গ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-c-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+        <div class="flex items-center gap-2"><input type="radio" name="correct" value="d" class="w-4 h-4"><input id="opt-d" type="text" placeholder="অপশন ঘ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-d-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
       </div>
       <p class="text-[11px]" style="color:#8A8266;">রেডিও বাটনে ক্লিক করে সঠিক উত্তর নির্বাচন করুন</p>
 
@@ -106,10 +110,15 @@
     const subject = document.getElementById('q-subject').value.trim();
     const topic = document.getElementById('q-topic').value.trim();
     const question = document.getElementById('q-question').value.trim();
+    const questionAr = document.getElementById('q-question-ar').value.trim();
     const a = document.getElementById('opt-a').value.trim();
     const b = document.getElementById('opt-b').value.trim();
     const c = document.getElementById('opt-c').value.trim();
     const d = document.getElementById('opt-d').value.trim();
+    const aAr = document.getElementById('opt-a-ar').value.trim();
+    const bAr = document.getElementById('opt-b-ar').value.trim();
+    const cAr = document.getElementById('opt-c-ar').value.trim();
+    const dAr = document.getElementById('opt-d-ar').value.trim();
     const explanation = document.getElementById('q-explanation').value.trim();
     const correctEl = document.querySelector('input[name="correct"]:checked');
     const notice = document.getElementById('notice');
@@ -125,7 +134,9 @@
     btn.textContent = 'যোগ হচ্ছে...';
     const { error } = await supabaseClient.from('questions').insert({
       subject, topic: topic || null, question,
+      arabic_question: questionAr || null,
       option_a: a, option_b: b, option_c: c, option_d: d,
+      arabic_option_a: aAr || null, arabic_option_b: bAr || null, arabic_option_c: cAr || null, arabic_option_d: dAr || null,
       correct: correctEl.value, explanation: explanation || null
     });
     btn.textContent = 'প্রশ্ন যোগ করুন';
