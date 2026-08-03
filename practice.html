@@ -57,13 +57,20 @@
   <!-- AI PICKER -->
   <div id="ai-picker" class="hidden px-5 mt-6">
     <h2 class="serif-bn text-lg mb-4" style="color:#0E211C;">কোন টপিকে প্রশ্ন চান?</h2>
+
+    <label class="block text-xs font-semibold mb-2" style="color:#5B5340;">ভাষা</label>
+    <div class="flex gap-2 mb-4">
+      <button type="button" data-lang="bn" class="ai-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#0E211C; color:#F4EEDC;">বাংলা</button>
+      <button type="button" data-lang="ar" class="ai-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#fff; color:#5B5340;">العربية (আরবি টু আরবি)</button>
+    </div>
+
     <input id="ai-topic" type="text" placeholder="যেমন: সূরা ইউসুফ, ইসলামের ইতিহাস, নাহু-সরফ..." class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:#fff; border:1px solid #E4DAB8;">
     <p class="text-xs mb-4" style="color:#8A8266;">⚠️ AI-জেনারেটেড প্রশ্নে মাঝেমধ্যে ভুল থাকতে পারে — নিশ্চিত তথ্যের জন্য উস্তাদ বা বইয়ের সাথে মিলিয়ে নিন।</p>
     <input id="ai-count-input" type="number" min="1" max="30" placeholder="কয়টি প্রশ্ন? (যেমন: ১৫)" class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:#fff; border:1px solid #E4DAB8;">
     <div class="grid grid-cols-3 gap-2 mb-4">
-      <button onclick="document.getElementById('ai-count-input').value=10" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">১০</button>
-      <button onclick="document.getElementById('ai-count-input').value=20" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">২০</button>
-      <button onclick="document.getElementById('ai-count-input').value=30" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">৩০</button>
+      <button onclick="document.getElementById('ai-count-input').value=10" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">10</button>
+      <button onclick="document.getElementById('ai-count-input').value=20" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">20</button>
+      <button onclick="document.getElementById('ai-count-input').value=30" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">30</button>
     </div>
     <button onclick="confirmAICount()" class="w-full py-3 rounded-full text-sm font-semibold btn-gold">প্রশ্ন তৈরি করুন</button>
   </div>
@@ -85,9 +92,9 @@
     <h2 class="serif-bn text-lg mb-4" style="color:#0E211C;">কয়টি প্রশ্ন?</h2>
     <input id="count-input" type="number" min="1" max="100" placeholder="সংখ্যা লিখুন (যেমন: ১৫)" class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:#fff; border:1px solid #E4DAB8;">
     <div class="grid grid-cols-3 gap-2 mb-4">
-      <button onclick="document.getElementById('count-input').value=10" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">১০</button>
-      <button onclick="document.getElementById('count-input').value=20" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">২০</button>
-      <button onclick="document.getElementById('count-input').value=30" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">৩০</button>
+      <button onclick="document.getElementById('count-input').value=10" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">10</button>
+      <button onclick="document.getElementById('count-input').value=20" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">20</button>
+      <button onclick="document.getElementById('count-input').value=30" class="py-2 rounded-full text-xs font-medium" style="background:#fff; color:#5B5340; border:1px solid #E4DAB8;">30</button>
     </div>
     <button onclick="confirmCount()" class="w-full py-3 rounded-full text-sm font-semibold btn-gold">শুরু করুন</button>
   </div>
@@ -167,6 +174,15 @@
   let score = 0;
   let wrongCount = 0;
   let wrongTopics = [];
+  let selectedAILang = 'bn';
+
+  document.querySelectorAll('.ai-lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ai-lang-btn').forEach(b => { b.style.background = '#fff'; b.style.color = '#5B5340'; });
+      btn.style.background = '#0E211C'; btn.style.color = '#F4EEDC';
+      selectedAILang = btn.dataset.lang;
+    });
+  });
 
   function showEl(id){ document.querySelectorAll('#mode-select,#subject-picker,#count-picker,#quiz-area,#result-area,#no-questions,#ai-picker,#ai-loading').forEach(e=>e.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 
@@ -232,7 +248,7 @@
       const res = await fetch('/api/generate-mcq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject: topic, count })
+        body: JSON.stringify({ subject: topic, count, lang: selectedAILang })
       });
       const data = await res.json();
       if (!res.ok || !data.questions) {
@@ -240,7 +256,7 @@
         showEl('ai-picker');
         return;
       }
-      quizQuestions = data.questions.map(q => ({ ...q, subject: topic, topic: 'AI জেনারেটেড' }));
+      quizQuestions = data.questions.map(q => ({ ...q, subject: topic, isArabic: selectedAILang === 'ar' }));
       currentIndex = 0;
       score = 0;
       wrongCount = 0;
@@ -280,7 +296,7 @@
 
     showArabic = false;
     const langBtn = document.getElementById('lang-toggle');
-    langBtn.classList.toggle('hidden', !q.arabic_question);
+    langBtn.classList.toggle('hidden', q.isArabic || !q.arabic_question);
     langBtn.textContent = 'العربية';
     renderQuestionText();
 
@@ -292,7 +308,11 @@
   function renderQuestionText(){
     const q = quizQuestions[currentIndex];
     const qText = document.getElementById('q-text');
-    if (showArabic && q.arabic_question) {
+    if (q.isArabic) {
+      qText.textContent = q.question;
+      qText.setAttribute('dir', 'rtl');
+      qText.style.fontFamily = "'Traditional Arabic', serif";
+    } else if (showArabic && q.arabic_question) {
       qText.textContent = q.arabic_question;
       qText.setAttribute('dir', 'rtl');
       qText.style.fontFamily = "'Traditional Arabic', serif";
@@ -302,13 +322,15 @@
       qText.style.fontFamily = '';
     }
 
-    const useAr = showArabic && q.arabic_option_a;
-    const options = useAr
-      ? [['a',q.arabic_option_a],['b',q.arabic_option_b],['c',q.arabic_option_c],['d',q.arabic_option_d]]
-      : [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]];
+    const useAr = q.isArabic || (showArabic && q.arabic_option_a);
+    const options = q.isArabic
+      ? [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]]
+      : (showArabic && q.arabic_option_a)
+        ? [['a',q.arabic_option_a],['b',q.arabic_option_b],['c',q.arabic_option_c],['d',q.arabic_option_d]]
+        : [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]];
     const wrap = document.getElementById('options-wrap');
     wrap.innerHTML = options.map(([key,text]) => `
-      <button data-key="${key}" onclick="selectAnswer('${key}')" dir="${useAr ? 'rtl' : 'auto'}" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm">${text}</button>`).join('');
+      <button data-key="${key}" onclick="selectAnswer('${key}')" dir="${useAr ? 'rtl' : 'auto'}" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm" style="${q.isArabic ? "font-family:'Traditional Arabic', serif;" : ''}">${text}</button>`).join('');
   }
 
   function toggleLang(){
@@ -331,7 +353,26 @@
     document.getElementById('q-score').textContent = `স্কোর: ${score}`;
 
     if (q.explanation) {
-      document.getElementById('explanation-text').textContent = q.explanation;
+      const expEl = document.getElementById('explanation-text');
+      expEl.innerHTML = '';
+      if (q.isArabic && q.explanation_bn) {
+        const arSpan = document.createElement('span');
+        arSpan.textContent = q.explanation;
+        arSpan.setAttribute('dir', 'rtl');
+        arSpan.style.fontFamily = "'Traditional Arabic', serif";
+        arSpan.style.display = 'block';
+        const bnSpan = document.createElement('span');
+        bnSpan.textContent = q.explanation_bn;
+        bnSpan.setAttribute('dir', 'auto');
+        bnSpan.style.display = 'block';
+        bnSpan.style.marginTop = '6px';
+        expEl.appendChild(arSpan);
+        expEl.appendChild(bnSpan);
+      } else {
+        expEl.textContent = q.explanation;
+        expEl.setAttribute('dir', q.isArabic ? 'rtl' : 'auto');
+        expEl.style.fontFamily = q.isArabic ? "'Traditional Arabic', serif" : '';
+      }
       document.getElementById('explanation-box').classList.remove('hidden');
     }
     document.getElementById('next-btn').classList.remove('hidden');

@@ -79,17 +79,17 @@
   <section class="px-4 mt-5 grid grid-cols-3 gap-3">
     <div class="rounded-2xl p-3 text-center" style="background:#fff;" >
       <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="monitor-play" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-      <div class="num-bn text-lg" style="color:#0E211C;">১৫+</div>
+      <div class="num-bn text-lg" style="color:#0E211C;">15+</div>
       <div class="text-[11px]" style="color:#5B5340;">কোর্স</div>
     </div>
     <div class="rounded-2xl p-3 text-center" style="background:#fff;">
       <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="graduation-cap" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-      <div class="num-bn text-lg" style="color:#0E211C;">৩২০০+</div>
+      <div class="num-bn text-lg" style="color:#0E211C;">3200+</div>
       <div class="text-[11px]" style="color:#5B5340;">শিক্ষার্থী</div>
     </div>
     <div class="rounded-2xl p-3 text-center" style="background:#fff;">
       <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="award" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-      <div class="num-bn text-lg" style="color:#0E211C;">৯৮%</div>
+      <div class="num-bn text-lg" style="color:#0E211C;">98%</div>
       <div class="text-[11px]" style="color:#5B5340;">সফলতা</div>
     </div>
   </section>
@@ -251,7 +251,7 @@
     if (!email || !pass){ notice.textContent='ইমেইল ও পাসওয়ার্ড দিন।'; notice.classList.remove('hidden'); return; }
     notice.classList.add('hidden');
     btn.textContent = 'অপেক্ষা করুন...';
-    const timeout = (ms) => new Promise((_, rej) => setTimeout(() => rej(new Error('সময় শেষ — ১০ সেকেন্ডে সাড়া মেলেনি')), ms));
+    const timeout = (ms) => new Promise((_, rej) => setTimeout(() => rej(new Error('সময় শেষ — 10 সেকেন্ডে সাড়া মেলেনি')), ms));
     let result;
     try {
       const authCall = currentTab === 'register' ? nhSignUp(name, email, pass) : nhSignIn(email, pass);

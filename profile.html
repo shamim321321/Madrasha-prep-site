@@ -162,7 +162,7 @@
     document.getElementById('d-address').textContent = m.address || 'যোগ করা হয়নি';
     document.getElementById('d-institution').textContent = m.institution || 'যোগ করা হয়নি';
     const joined = new Date(currentUser.created_at);
-    document.getElementById('d-joined').textContent = 'যোগদান: ' + joined.toLocaleDateString('bn-BD', { day:'numeric', month:'long', year:'numeric' });
+    document.getElementById('d-joined').textContent = 'যোগদান: ' + joined.toLocaleDateString('bn-BD-u-nu-latn', { day:'numeric', month:'long', year:'numeric' });
 
     document.getElementById('f-name').value = m.full_name || '';
     document.getElementById('f-phone').value = m.phone_number || '';
