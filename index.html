@@ -15,43 +15,11 @@
   .serif-bn { font-family:'Tiro Bangla', serif; }
   .sans-bn { font-family:'Hind Siliguri', sans-serif; }
   .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
-  .btn-gold {
-    background: linear-gradient(180deg, #E0BD70 0%, #C9A24C 55%, #A8822E 100%);
-    color:#0E211C;
-    border: 1px solid rgba(139,107,42,0.4);
-    box-shadow: 0 3px 0 #8B6B2A, 0 5px 10px rgba(14,33,28,0.25), inset 0 1px 0 rgba(255,255,255,0.35);
-    transition: transform .08s ease, box-shadow .08s ease;
-  }
-  .btn-gold:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 0 #8B6B2A, 0 2px 5px rgba(14,33,28,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
-  }
-  .btn-outline-3d {
-    background: linear-gradient(180deg, rgba(201,162,76,0.28), rgba(201,162,76,0.12));
-    border: 1.5px solid #C9A24C;
-    box-shadow: 0 3px 0 rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
-    transition: transform .08s ease, box-shadow .08s ease;
-  }
-  .btn-outline-3d:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 0 rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
-  }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
   .card-border { border:1px solid rgba(201,162,76,0.25); }
-  .hero-grad {
-    background:
-      radial-gradient(circle at 88% 12%, rgba(201,162,76,0.22) 0%, transparent 42%),
-      radial-gradient(circle at 8% 92%, rgba(46,107,94,0.45) 0%, transparent 50%),
-      radial-gradient(circle at 1px 1px, rgba(244,238,220,0.14) 1px, transparent 0) 0 0/22px 22px,
-      linear-gradient(135deg,#0E211C 0%,#1B4740 55%,#2E6B5E 100%);
-  }
+  .hero-grad { background:linear-gradient(135deg,#0E211C 0%,#1B4740 55%,#2E6B5E 100%); }
   .icon-badge { background:rgba(201,162,76,0.12); }
-  .hero-dots {
-    background-image: radial-gradient(rgba(201,162,76,0.45) 1px, transparent 1.6px);
-    background-size: 16px 16px;
-    opacity: 0.55;
-    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 70% 35%, #000 40%, transparent 85%);
-            mask-image: radial-gradient(ellipse 90% 80% at 70% 35%, #000 40%, transparent 85%);
-  }
+  .bottom-nav { box-shadow:0 -2px 10px rgba(0,0,0,0.06); }
 </style>
 </head>
 <body class="sans-bn pb-20">
@@ -94,14 +62,7 @@
   </div>
 
   <section class="hero-grad px-5 pt-8 pb-9 mx-4 mt-4 rounded-3xl relative overflow-hidden">
-    <div class="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
-      <i data-lucide="book-open" class="absolute w-8 h-8" style="top:7%; left:5%; color:#F4EEDC; opacity:0.14; transform:rotate(-10deg);"></i>
-      <i data-lucide="lightbulb" class="absolute w-8 h-8" style="top:6%; right:8%; color:#C9A24C; opacity:0.18; transform:rotate(8deg);"></i>
-      <i data-lucide="play-circle" class="absolute w-7 h-7" style="bottom:18%; left:8%; color:#F4EEDC; opacity:0.12; transform:rotate(6deg);"></i>
-      <i data-lucide="graduation-cap" class="absolute w-12 h-12" style="top:38%; right:6%; color:#C9A24C; opacity:0.16; transform:rotate(-6deg);"></i>
-      <i data-lucide="clipboard-check" class="absolute w-7 h-7" style="bottom:8%; right:24%; color:#F4EEDC; opacity:0.13; transform:rotate(-8deg);"></i>
-      <i data-lucide="trophy" class="absolute w-7 h-7" style="bottom:6%; right:4%; color:#C9A24C; opacity:0.15; transform:rotate(7deg);"></i>
-    </div>
+    <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full" style="background:rgba(201,162,76,0.08);"></div>
     <p class="text-xs tracking-widest mb-2 relative" style="color:#C9A24C; letter-spacing:0.15em;">AI POWERED EXAM PRACTICE</p>
     <h1 class="serif-bn text-2xl leading-snug mb-2 relative" style="color:#F4EEDC;">শিখুন, অনুশীলন করুন,<br/>নিজেকে যাচাই করুন</h1>
     <p class="text-sm mb-5 relative max-w-xs" style="color:#CBD9D2;">AI দিয়ে যেকোনো টপিক শিখুন এবং তাৎক্ষণিক অনুশীলনের মাধ্যমে নিজের প্রস্তুতি যাচাই করুন।</p>
@@ -109,9 +70,19 @@
       <a href="practice.html" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5 btn-gold">
         <i data-lucide="zap" class="w-4 h-4"></i> Start Practice
       </a>
-      <a href="ai.html" class="btn-outline-3d px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5" style="color:#F0D48A;">
+      <a href="ai.html" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5" style="border:1px solid rgba(201,162,76,0.5); color:#F4EEDC;">
         <i data-lucide="sparkles" class="w-4 h-4"></i> AI Features
       </a>
+    </div>
+  </section>
+
+  <section class="px-4 mt-5">
+    <div class="rounded-2xl p-5 flex items-center gap-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="database" class="w-6 h-6" style="color:#8B6B2A;"></i></div>
+      <div>
+        <p id="qbank-count" class="num-bn text-2xl leading-tight" style="color:#0E211C;">০</p>
+        <p class="text-xs mt-0.5" style="color:#5B5340;">প্রশ্ন ব্যাংকে মোট প্রশ্ন জমা হয়েছে</p>
+      </div>
     </div>
   </section>
 
@@ -262,9 +233,39 @@
     document.getElementById('admin-link').classList.toggle('hidden', !isAdmin);
   }
 
+  function toBanglaDigits(n){
+    const map = {'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'};
+    return n.toString().split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
+  }
+
+  function animateCount(el, target, duration){
+    const start = performance.now();
+    function tick(now){
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out
+      const value = Math.round(eased * target);
+      el.textContent = toBanglaDigits(value);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  async function loadQuestionBankCount(){
+    const el = document.getElementById('qbank-count');
+    if (!el) return;
+    try {
+      const { count, error } = await supabaseClient.from('questions').select('*', { count: 'exact', head: true });
+      if (error || count === null) { el.textContent = '—'; return; }
+      animateCount(el, count, 1400);
+    } catch (e) {
+      el.textContent = '—';
+    }
+  }
+
   lucide.createIcons();
   nhRenderAuthState();
   checkAdmin();
+  loadQuestionBankCount();
 </script>
 </body>
 </html>
