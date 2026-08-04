@@ -56,12 +56,14 @@
 
   <!-- AI PICKER -->
   <div id="ai-picker" class="hidden px-5 mt-6">
-    <h2 class="serif-bn text-lg mb-4" style="color:#0E211C;">কোন টপিকে প্রশ্ন চান?</h2>
+    <h2 class="serif-bn text-lg mb-1" style="color:#0E211C;">কোন টপিকে প্রশ্ন চান?</h2>
+    <p id="ai-selected-subject" class="text-xs mb-4" style="color:#8B6B2A;"></p>
 
     <label class="block text-xs font-semibold mb-2" style="color:#5B5340;">ভাষা</label>
     <div class="flex gap-2 mb-4">
       <button type="button" data-lang="bn" class="ai-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#0E211C; color:#F4EEDC;">বাংলা</button>
-      <button type="button" data-lang="ar" class="ai-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#fff; color:#5B5340;">العربية (আরবি টু আরবি)</button>
+      <button type="button" data-lang="ar" class="ai-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#fff; color:#5B5340;">العربية</button>
+      <button type="button" data-lang="en" class="ai-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#fff; color:#5B5340;">English</button>
     </div>
 
     <input id="ai-topic" type="text" placeholder="যেমন: সূরা ইউসুফ, ইসলামের ইতিহাস, নাহু-সরফ..." class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:#fff; border:1px solid #E4DAB8;">
@@ -79,6 +81,27 @@
   <div id="ai-loading" class="hidden px-5 mt-16 text-center">
     <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-3 animate-spin" style="color:#C9A24C;"></i>
     <p class="text-sm" style="color:#5B5340;">AI প্রশ্ন তৈরি করছে, একটু অপেক্ষা করুন...</p>
+  </div>
+
+  <!-- CATEGORY PICKER (আরবী রিলেটেড / জেনারেল) -->
+  <div id="category-picker" class="hidden px-5 mt-6">
+    <h2 class="serif-bn text-lg mb-4" style="color:#0E211C;">কোন ধরনের বিষয়?</h2>
+    <button onclick="pickCategory('arabic')" class="w-full flex items-center gap-3 rounded-2xl p-4 mb-3" style="background:#fff;">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(201,162,76,0.12);"><i data-lucide="book-marked" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+      <div class="text-left flex-1">
+        <p class="text-sm font-semibold" style="color:#0E211C;">আরবী রিলেটেড</p>
+        <p class="text-xs" style="color:#5B5340;">কুরআন, ফিকহ, নাহু-সরফ ইত্যাদি</p>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+    </button>
+    <button onclick="pickCategory('general')" class="w-full flex items-center gap-3 rounded-2xl p-4" style="background:#fff;">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(201,162,76,0.12);"><i data-lucide="layers" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+      <div class="text-left flex-1">
+        <p class="text-sm font-semibold" style="color:#0E211C;">জেনারেল</p>
+        <p class="text-xs" style="color:#5B5340;">বাংলা, ইংরেজি, গণিত ইত্যাদি</p>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+    </button>
   </div>
 
   <!-- SUBJECT PICKER -->
@@ -103,6 +126,7 @@
   <div id="quiz-area" class="hidden px-5 mt-5">
     <div class="flex items-center justify-between mb-3">
       <span id="q-progress" class="text-xs font-medium" style="color:#5B5340;"></span>
+      <span id="q-timer" class="text-xs font-semibold" style="color:#D14343;"></span>
       <span id="q-score" class="text-xs font-medium" style="color:#8B6B2A;"></span>
     </div>
     <div class="w-full rounded-full h-1.5 mb-5" style="background:#E4DAB8;">
@@ -177,12 +201,15 @@
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let selectedSubject = null;
+  let selectedAISubject = null;
+  let subjectFlowContext = 'practice'; // 'practice' | 'ai'
   let quizQuestions = [];
   let currentIndex = 0;
   let score = 0;
   let wrongCount = 0;
   let wrongTopics = [];
   let selectedAILang = 'bn';
+  let timerInterval = null;
 
   document.querySelectorAll('.ai-lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -192,37 +219,74 @@
     });
   });
 
-  function showEl(id){ document.querySelectorAll('#mode-select,#subject-picker,#count-picker,#quiz-area,#result-area,#no-questions,#ai-picker,#ai-loading').forEach(e=>e.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+  function showEl(id){ document.querySelectorAll('#mode-select,#category-picker,#subject-picker,#count-picker,#quiz-area,#result-area,#no-questions,#ai-picker,#ai-loading').forEach(e=>e.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 
   function goBack(){
     if (!document.getElementById('mode-select').classList.contains('hidden')) { window.location.href = 'index.html'; }
     else { showEl('mode-select'); }
   }
 
-  async function showSubjectPicker(){
-    showEl('subject-picker');
-    const { data: subjectsData } = await sb.from('subjects').select('*').order('sort_order');
-    const { data: questionsData } = await sb.from('questions').select('subject');
-    const counts = {};
-    (questionsData||[]).forEach(q => { counts[q.subject] = (counts[q.subject]||0) + 1; });
+  // ==== ধাপ ১: ক্যাটাগরি (আরবী রিলেটেড / জেনারেল) ====
+  function showSubjectPicker(){
+    subjectFlowContext = 'practice';
+    showEl('category-picker');
+  }
 
+  function showAIPicker(){
+    subjectFlowContext = 'ai';
+    showEl('category-picker');
+  }
+
+  function pickCategory(category){
+    loadSubjectsForCategory(category);
+  }
+
+  // ==== ধাপ ২: ওই ক্যাটাগরির বিষয়গুলো দেখানো ====
+  async function loadSubjectsForCategory(category){
+    showEl('subject-picker');
+    const { data: subjectsData } = await sb.from('subjects').select('*').eq('category', category).order('sort_order');
     const wrap = document.getElementById('subject-list');
-    if (!subjectsData || subjectsData.length === 0) { wrap.innerHTML = `<p class="text-sm text-center py-6" style="color:#8A8266;">এখনো কোনো বিষয় যোগ করা হয়নি।</p>`; return; }
-    wrap.innerHTML = subjectsData.map(s => {
-      const count = counts[s.name] || 0;
-      const disabled = count === 0;
-      return `
-      <button ${disabled ? 'disabled' : `onclick="pickSubject('${s.name.replace(/'/g,"\\'")}')"`} class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-between" style="background:#fff; color:${disabled ? '#B8B096' : '#0E211C'};">
-        <span>${s.name}</span>
-        <span class="text-xs font-normal flex items-center gap-1" style="color:#8A8266;">${count > 0 ? count + 'টি প্রশ্ন' : 'শীঘ্রই আসছে'} <i data-lucide="chevron-right" class="w-4 h-4"></i></span>
-      </button>`;
-    }).join('');
+
+    if (!subjectsData || subjectsData.length === 0) {
+      wrap.innerHTML = `<p class="text-sm text-center py-6" style="color:#8A8266;">এখনো কোনো বিষয় যোগ করা হয়নি।</p>`;
+      return;
+    }
+
+    if (subjectFlowContext === 'ai') {
+      // AI মোডে সব বিষয়ই ক্লিকযোগ্য — নতুন প্রশ্ন AI বানিয়ে দেবে
+      wrap.innerHTML = subjectsData.map(s => `
+        <button onclick="pickAISubject('${s.name.replace(/'/g,"\\'")}')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-between" style="background:#fff; color:#0E211C;">
+          <span>${s.name}</span>
+          <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+        </button>`).join('');
+    } else {
+      // প্র্যাকটিস মোডে শুধু যেসব বিষয়ে প্রশ্ন আছে সেগুলো ক্লিকযোগ্য
+      const { data: questionsData } = await sb.from('questions').select('subject');
+      const counts = {};
+      (questionsData||[]).forEach(q => { counts[q.subject] = (counts[q.subject]||0) + 1; });
+      wrap.innerHTML = subjectsData.map(s => {
+        const count = counts[s.name] || 0;
+        const disabled = count === 0;
+        return `
+        <button ${disabled ? 'disabled' : `onclick="pickSubject('${s.name.replace(/'/g,"\\'")}')"`} class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center justify-between" style="background:#fff; color:${disabled ? '#B8B096' : '#0E211C'};">
+          <span>${s.name}</span>
+          <span class="text-xs font-normal flex items-center gap-1" style="color:#8A8266;">${count > 0 ? count + 'টি প্রশ্ন' : 'শীঘ্রই আসছে'} <i data-lucide="chevron-right" class="w-4 h-4"></i></span>
+        </button>`;
+      }).join('');
+    }
     lucide.createIcons();
   }
 
   function pickSubject(subject){
     selectedSubject = subject;
     showCountPicker('subject');
+  }
+
+  function pickAISubject(subject){
+    selectedAISubject = subject;
+    document.getElementById('ai-selected-subject').textContent = `বিষয়: ${subject}`;
+    document.getElementById('ai-count-input').value = '';
+    showEl('ai-picker');
   }
 
   function showCountPicker(mode){
@@ -237,11 +301,6 @@
     startQuiz(Math.min(100, val));
   }
 
-  function showAIPicker(){
-    document.getElementById('ai-count-input').value = '';
-    showEl('ai-picker');
-  }
-
   function confirmAICount(){
     const val = parseInt(document.getElementById('ai-count-input').value);
     if (!val || val < 1) { alert('সঠিক একটা সংখ্যা লিখুন।'); return; }
@@ -250,13 +309,14 @@
 
   async function startAIQuiz(count){
     const topic = document.getElementById('ai-topic').value.trim();
+    if (!selectedAISubject) { alert('একটা বিষয় বেছে নিন।'); showEl('category-picker'); return; }
     if (!topic) { alert('একটা টপিক লিখুন।'); return; }
     showEl('ai-loading');
     try {
       const res = await fetch('/api/generate-mcq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject: topic, count, lang: selectedAILang })
+        body: JSON.stringify({ subjectName: selectedAISubject, topic, count, lang: selectedAILang })
       });
       const data = await res.json();
       if (!res.ok || !data.questions) {
@@ -264,12 +324,13 @@
         showEl('ai-picker');
         return;
       }
-      quizQuestions = data.questions.map(q => ({ ...q, subject: topic, isArabic: selectedAILang === 'ar' }));
+      quizQuestions = data.questions.map(q => ({ ...q, subject: selectedAISubject, topic, isArabic: selectedAILang === 'ar' }));
       currentIndex = 0;
       score = 0;
       wrongCount = 0;
       wrongTopics = [];
       showEl('quiz-area');
+      startQuizTimer(quizQuestions.length);
       renderQuestion();
     } catch (err) {
       alert('সংযোগে সমস্যা হয়েছে: ' + err.message);
@@ -290,7 +351,32 @@
     wrongCount = 0;
     wrongTopics = [];
     showEl('quiz-area');
+    startQuizTimer(quizQuestions.length);
     renderQuestion();
+  }
+
+  // ==== টাইমার: প্রতি ১০টা প্রশ্নে ৬ মিনিট (প্রশ্নপ্রতি ৩৬ সেকেন্ড) ====
+  function startQuizTimer(numQuestions){
+    clearInterval(timerInterval);
+    let totalSeconds = Math.round(numQuestions * 36);
+    updateTimerDisplay(totalSeconds);
+    timerInterval = setInterval(() => {
+      totalSeconds--;
+      if (totalSeconds <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('q-timer').textContent = '⏱ ০০:০০';
+        showResults();
+        return;
+      }
+      updateTimerDisplay(totalSeconds);
+    }, 1000);
+  }
+
+  function updateTimerDisplay(seconds){
+    const m = Math.floor(seconds/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    const el = document.getElementById('q-timer');
+    if (el) el.textContent = `⏱ ${m}:${s}`;
   }
 
   let showArabic = false;
@@ -396,6 +482,7 @@
   }
 
   function showResults(){
+    clearInterval(timerInterval);
     const total = quizQuestions.length;
     const marks = Math.max(0, score - (wrongCount * 0.25));
     const percent = (marks / total) * 100;
