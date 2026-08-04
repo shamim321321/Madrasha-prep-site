@@ -175,7 +175,7 @@ The "correct" field must contain only one letter: a, b, c, or d.`
     let saved = 0;
     let dbError = null;
 
-    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseUrl = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
     if (supabaseUrl && supabaseKey) {
