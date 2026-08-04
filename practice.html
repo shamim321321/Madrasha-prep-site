@@ -329,6 +329,10 @@
       score = 0;
       wrongCount = 0;
       wrongTopics = [];
+      // ডিবাগ: ডাটাবেইজে সেভ করতে সমস্যা হলে জানিয়ে দেবে (সমাধান হয়ে গেলে এই অংশ সরিয়ে দেওয়া যাবে)
+      if (data.dbError) {
+        alert('⚠️ প্রশ্ন জেনারেট হয়েছে কিন্তু ডাটাবেইজে সেভ হয়নি:\n' + data.dbError);
+      }
       showEl('quiz-area');
       startQuizTimer(quizQuestions.length);
       renderQuestion();
