@@ -62,9 +62,16 @@ module.exports = async (req, res) => {
 ]
 "correct" ফিল্ডে শুধু a, b, c অথবা d এর একটা অক্ষর থাকবে।`;
 
-  try {
+  // মডেল ওভারলোডেড (503/"high demand") হলে এই ক্রমে চেষ্টা করা হবে
+  const MODELS = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.6-flash'];
+  const MAX_ATTEMPTS_PER_MODEL = 2;
+  const RETRY_DELAY_MS = 1200;
+
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  async function callGemini(model) {
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,14 +81,49 @@ module.exports = async (req, res) => {
         })
       }
     );
-
     const data = await geminiRes.json();
+    return { ok: geminiRes.ok, status: geminiRes.status, data };
+  }
 
-    if (!geminiRes.ok) {
-      res.status(502).json({ error: 'Gemini API এরর: ' + (data?.error?.message || geminiRes.statusText) });
+  function isOverloaded(result) {
+    // 503 বা "high demand"/"overloaded" জাতীয় মেসেজ হলে retry/fallback যোগ্য বলে ধরা হবে
+    if (result.status === 503) return true;
+    const msg = (result.data?.error?.message || '').toLowerCase();
+    return msg.includes('high demand') || msg.includes('overload');
+  }
+
+  try {
+    let result = null;
+    let lastError = null;
+
+    outer:
+    for (const model of MODELS) {
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS_PER_MODEL; attempt++) {
+        result = await callGemini(model);
+
+        if (result.ok) break outer;
+
+        lastError = result.data?.error?.message || 'অজানা এরর';
+
+        if (isOverloaded(result)) {
+          // ওভারলোডেড হলে সামান্য অপেক্ষা করে হয় আবার একই মডেলে, নয়তো পরের মডেলে চেষ্টা
+          await sleep(RETRY_DELAY_MS);
+          continue;
+        }
+
+        // অন্য ধরনের এরর (যেমন ৪০০/৪০১) হলে retry করে লাভ নেই, সরাসরি বের হয়ে যাওয়া
+        break outer;
+      }
+    }
+
+    if (!result || !result.ok) {
+      res.status(502).json({
+        error: 'Gemini API এরর: ' + (lastError || 'সব মডেলে চেষ্টা করার পরও ব্যর্থ হয়েছে। একটু পর আবার চেষ্টা করুন।')
+      });
       return;
     }
 
+    const { data } = result;
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     let questions;
     try {
