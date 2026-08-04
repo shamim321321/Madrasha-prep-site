@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Library — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+  .bottom-nav { box-shadow:0 -2px 10px rgba(0,0,0,0.06); }
+</style>
+</head>
+<body class="sans-bn pb-20">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">Library</div>
+  </header>
+
+  <div class="px-5 mt-5">
+    <p class="text-sm mb-5" style="color:#5B5340;">বেসিক লার্নিং রিসোর্স — শীঘ্রই যোগ হবে।</p>
+    <div class="flex flex-col gap-3">
+      <div class="rounded-2xl p-4 flex items-center gap-3 opacity-60" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="file-text" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <div><p class="text-sm font-semibold" style="color:#0E211C;">PDF Notes</p><p class="text-xs" style="color:#8A8266;">শীঘ্রই আসছে</p></div>
+      </div>
+      <div class="rounded-2xl p-4 flex items-center gap-3 opacity-60" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="history" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <div><p class="text-sm font-semibold" style="color:#0E211C;">Previous Questions</p><p class="text-xs" style="color:#8A8266;">শীঘ্রই আসছে</p></div>
+      </div>
+      <div class="rounded-2xl p-4 flex items-center gap-3 opacity-60" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="list-checks" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <div><p class="text-sm font-semibold" style="color:#0E211C;">Syllabus</p><p class="text-xs" style="color:#8A8266;">শীঘ্রই আসছে</p></div>
+      </div>
+      <div class="rounded-2xl p-4 flex items-center gap-3 opacity-60" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="star" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <div><p class="text-sm font-semibold" style="color:#0E211C;">Important Notes</p><p class="text-xs" style="color:#8A8266;">শীঘ্রই আসছে</p></div>
+      </div>
+      <div class="rounded-2xl p-4 flex items-center gap-3 opacity-60" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="bookmark" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <div><p class="text-sm font-semibold" style="color:#0E211C;">Short Notes</p><p class="text-xs" style="color:#8A8266;">শীঘ্রই আসছে</p></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee;">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
+    <a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
+    <a href="ai.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="sparkles" class="w-5 h-5"></i>AI</a>
+    <a href="profile.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+  </nav>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

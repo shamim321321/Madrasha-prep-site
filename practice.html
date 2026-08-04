@@ -18,7 +18,7 @@
   .opt-btn { background:#fff; border:1px solid #E4DAB8; }
 </style>
 </head>
-<body class="sans-bn pb-10">
+<body class="sans-bn pb-24">
 
   <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
     <button onclick="goBack()" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
@@ -162,6 +162,14 @@
   </div>
 
   <p id="no-questions" class="hidden px-5 mt-10 text-center text-sm" style="color:#8A8266;">এই বিভাগে এখনো কোনো প্রশ্ন যোগ করা হয়নি।</p>
+
+  <nav class="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee; box-shadow:0 -2px 10px rgba(0,0,0,0.06);">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
+    <a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
+    <a href="ai.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="sparkles" class="w-5 h-5"></i>AI</a>
+    <a href="profile.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+  </nav>
 
 <script>
   const SUPABASE_URL = "https://laujqfawcirnwsmvhaif.supabase.co";
@@ -437,6 +445,7 @@
   }
 
   lucide.createIcons();
+  if (new URLSearchParams(window.location.search).get('mode') === 'ai') { showAIPicker(); }
 </script>
 </body>
 </html>
