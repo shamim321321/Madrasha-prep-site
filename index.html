@@ -15,7 +15,27 @@
   .serif-bn { font-family:'Tiro Bangla', serif; }
   .sans-bn { font-family:'Hind Siliguri', sans-serif; }
   .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
-  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .btn-gold {
+    background: linear-gradient(180deg, #E0BD70 0%, #C9A24C 55%, #A8822E 100%);
+    color:#0E211C;
+    border: 1px solid rgba(139,107,42,0.4);
+    box-shadow: 0 3px 0 #8B6B2A, 0 5px 10px rgba(14,33,28,0.25), inset 0 1px 0 rgba(255,255,255,0.35);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-gold:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #8B6B2A, 0 2px 5px rgba(14,33,28,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .btn-outline-3d {
+    background: linear-gradient(180deg, rgba(244,238,220,0.10), rgba(244,238,220,0.02));
+    border: 1px solid rgba(201,162,76,0.5);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-outline-3d:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
   .card-border { border:1px solid rgba(201,162,76,0.25); }
   .hero-grad { background:linear-gradient(135deg,#0E211C 0%,#1B4740 55%,#2E6B5E 100%); }
   .icon-badge { background:rgba(201,162,76,0.12); }
@@ -72,7 +92,7 @@
       <a href="practice.html" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5 btn-gold">
         <i data-lucide="zap" class="w-4 h-4"></i> Start Practice
       </a>
-      <a href="ai.html" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5" style="border:1px solid rgba(201,162,76,0.5); color:#F4EEDC;">
+      <a href="ai.html" class="btn-outline-3d px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5" style="color:#F4EEDC;">
         <i data-lucide="sparkles" class="w-4 h-4"></i> AI Features
       </a>
     </div>
