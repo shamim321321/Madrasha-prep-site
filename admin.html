@@ -52,6 +52,22 @@
       </div>
     </div>
 
+    <!-- ALL USERS -->
+    <div class="px-5 mt-5">
+      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="users" class="w-4 h-4" style="color:#8B6B2A;"></i>
+            <span class="text-sm font-semibold" style="color:#0E211C;">সব ইউজার</span>
+          </div>
+          <span id="user-count" class="text-xs" style="color:#8A8266;"></span>
+        </div>
+        <input id="user-search" oninput="renderUsers()" type="text" placeholder="ইমেইল দিয়ে খুঁজুন..." class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        <div id="user-list" class="flex flex-col gap-2 max-h-80 overflow-y-auto"></div>
+        <p id="user-list-notice" class="hidden text-xs mt-2 text-center" style="color:#8A8266;"></p>
+      </div>
+    </div>
+
     <!-- BLOCK USER -->
     <div class="px-5 mt-4">
       <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
@@ -129,10 +145,63 @@
     loadRecent();
     loadMaintenanceInfo();
     loadBlockedList();
+    loadUsers();
+  }
+
+  let allUsers = [];
+  let blockedEmailsSet = new Set();
+
+  async function loadUsers() {
+    const notice = document.getElementById('user-list-notice');
+    notice.classList.add('hidden');
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const res = await fetch('/api/list-users', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${session.access_token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        notice.textContent = data.error || 'ইউজার লিস্ট আনতে সমস্যা হয়েছে।';
+        notice.classList.remove('hidden');
+        return;
+      }
+      allUsers = data.users || [];
+      document.getElementById('user-count').textContent = `মোট ${allUsers.length} জন`;
+      renderUsers();
+    } catch (e) {
+      notice.textContent = 'সংযোগে সমস্যা: ' + e.message;
+      notice.classList.remove('hidden');
+    }
+  }
+
+  function renderUsers() {
+    const q = (document.getElementById('user-search').value || '').trim().toLowerCase();
+    const filtered = allUsers.filter(u => !q || u.email.toLowerCase().includes(q));
+    document.getElementById('user-list').innerHTML = filtered.slice(0, 200).map(u => {
+      const isBlocked = blockedEmailsSet.has(u.email);
+      return `
+      <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold truncate" style="color:#0E211C;">${u.email}</p>
+          ${u.full_name ? `<p class="text-[11px]" style="color:#8A8266;">${u.full_name}</p>` : ''}
+        </div>
+        ${isBlocked
+          ? `<button onclick="unblockUser('${u.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full shrink-0" style="background:#0E211C; color:#E4C97A;">আনব্লক</button>`
+          : `<button onclick="quickBlock('${u.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full shrink-0" style="background:#D14343; color:#fff;">ব্লক</button>`}
+      </div>`;
+    }).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো ইউজার পাওয়া যায়নি</p>`;
+  }
+
+  async function quickBlock(email) {
+    if (!confirm(`${email} কে ব্লক করবেন?`)) return;
+    await supabaseClient.from('blocked_users').upsert({ email });
+    loadBlockedList();
   }
 
   async function loadBlockedList() {
     const { data } = await supabaseClient.from('blocked_users').select('*').order('blocked_at', { ascending: false });
+    blockedEmailsSet = new Set((data||[]).map(b => b.email));
     document.getElementById('blocked-list').innerHTML = (data||[]).map(b => `
       <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
         <div class="flex-1 min-w-0">
@@ -141,6 +210,7 @@
         </div>
         <button onclick="unblockUser('${b.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:#0E211C; color:#E4C97A;">আনব্লক</button>
       </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কেউ ব্লক করা নেই</p>`;
+    renderUsers();
   }
 
   async function blockUser() {
