@@ -26,6 +26,32 @@
   <div id="denied" class="hidden mx-5 mt-8 text-center text-sm" style="color:#5B5340;">এই পেজটি শুধু অ্যাডমিনের জন্য।</div>
 
   <div id="admin-area" class="hidden">
+
+    <!-- MAINTENANCE MODE -->
+    <div class="px-5 mt-5">
+      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="construction" class="w-4 h-4" style="color:#8B6B2A;"></i>
+            <span class="text-sm font-semibold" style="color:#0E211C;">Maintenance Mode</span>
+          </div>
+          <button id="maint-toggle" onclick="toggleMaintenance()" class="w-12 h-7 rounded-full relative transition" style="background:#E4DAB8;">
+            <span id="maint-knob" class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white transition-transform"></span>
+          </button>
+        </div>
+        <p class="text-xs mb-3" style="color:#8A8266;">ON করলে অ্যাডমিন ছাড়া বাকি সবার জন্য সাইট বন্ধ দেখাবে।</p>
+
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রত্যাশিত ফেরার সময় (ঐচ্ছিক)</label>
+        <input id="maint-return" type="text" placeholder="যেমন: আজ রাত ১০টা" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">কাস্টম মেসেজ (ঐচ্ছিক)</label>
+        <textarea id="maint-message" rows="2" placeholder="মেইনটেন্যান্স পেজে বাড়তি কোনো বার্তা দেখাতে চাইলে লিখুন" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;"></textarea>
+
+        <button onclick="saveMaintenanceInfo()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">তথ্য সেভ করুন</button>
+        <p id="maint-notice" class="hidden text-xs mt-2 text-center"></p>
+      </div>
+    </div>
+
     <form id="q-form" onsubmit="submitQuestion(event)" class="px-5 mt-5 flex flex-col gap-3">
       <div>
         <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">বিষয়</label>
@@ -83,6 +109,53 @@
     document.getElementById('admin-area').classList.remove('hidden');
     loadSubjects();
     loadRecent();
+    loadMaintenanceInfo();
+  }
+
+  let maintenanceState = false;
+
+  async function loadMaintenanceInfo() {
+    const { data } = await supabaseClient.from('site_settings').select('*').eq('id', 1).maybeSingle();
+    if (!data) return;
+    maintenanceState = !!data.maintenance_mode;
+    updateToggleUI();
+    document.getElementById('maint-return').value = data.expected_return || '';
+    document.getElementById('maint-message').value = data.maintenance_message || '';
+  }
+
+  function updateToggleUI() {
+    const toggle = document.getElementById('maint-toggle');
+    const knob = document.getElementById('maint-knob');
+    toggle.style.background = maintenanceState ? '#0E211C' : '#E4DAB8';
+    knob.style.transform = maintenanceState ? 'translateX(20px)' : 'translateX(0)';
+  }
+
+  async function toggleMaintenance() {
+    maintenanceState = !maintenanceState;
+    updateToggleUI();
+    const { error } = await supabaseClient.from('site_settings').update({ maintenance_mode: maintenanceState }).eq('id', 1);
+    const notice = document.getElementById('maint-notice');
+    if (error) {
+      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+      notice.style.color = '#D14343';
+    } else {
+      notice.textContent = maintenanceState ? 'Maintenance Mode চালু হয়েছে ✓' : 'Maintenance Mode বন্ধ হয়েছে ✓';
+      notice.style.color = '#2F7A4F';
+    }
+    notice.classList.remove('hidden');
+  }
+
+  async function saveMaintenanceInfo() {
+    const expected_return = document.getElementById('maint-return').value.trim();
+    const maintenance_message = document.getElementById('maint-message').value.trim();
+    const { error } = await supabaseClient.from('site_settings').update({
+      expected_return: expected_return || null,
+      maintenance_message: maintenance_message || null
+    }).eq('id', 1);
+    const notice = document.getElementById('maint-notice');
+    notice.textContent = error ? 'সমস্যা হয়েছে: ' + error.message : 'তথ্য সেভ হয়েছে ✓';
+    notice.style.color = error ? '#D14343' : '#2F7A4F';
+    notice.classList.remove('hidden');
   }
 
   async function loadSubjects() {

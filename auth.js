@@ -100,3 +100,20 @@ async function nhIsAdmin() {
   const { data } = await supabaseClient.from('admins').select('email').eq('email', session.user.email).maybeSingle();
   return !!data;
 }
+
+// ---- মেইনটেন্যান্স মোড চেক (auth.js যেকোনো পেজে লোড হলেই স্বয়ংক্রিয়ভাবে চলবে) ----
+(async function nhMaintenanceGate() {
+  const path = (window.location.pathname.split('/').pop() || 'index.html');
+  if (path === 'maintenance.html') return; // লুপ এড়ানোর জন্য
+  try {
+    const { data } = await supabaseClient.from('site_settings').select('maintenance_mode').eq('id', 1).maybeSingle();
+    if (data && data.maintenance_mode) {
+      const isAdmin = await nhIsAdmin();
+      if (!isAdmin) {
+        window.location.href = 'maintenance.html';
+      }
+    }
+  } catch (e) {
+    // চেক ব্যর্থ হলে সাইট বন্ধ না করে স্বাভাবিকভাবে চলতে দেওয়া (fail-open)
+  }
+})();
