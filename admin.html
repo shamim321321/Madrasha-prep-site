@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>প্রশ্ন যোগ করুন — নিবন্ধন হাব</title>
+<title>Admin Panel — নিবন্ধন হাব</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +21,7 @@
 
   <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
     <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-    <div class="serif-bn text-lg" style="color:#F4EEDC;">প্রশ্ন যোগ করুন (অ্যাডমিন)</div>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">Admin Panel</div>
   </header>
 
   <div id="denied" class="hidden mx-5 mt-8 text-center text-sm" style="color:#5B5340;">এই পেজটি শুধু অ্যাডমিনের জন্য।</div>
@@ -106,9 +106,12 @@
           </div>
           <span id="user-count" class="text-xs" style="color:#8A8266;"></span>
         </div>
-        <input id="user-search" oninput="renderUsers()" type="text" placeholder="ইমেইল দিয়ে খুঁজুন..." class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
-        <div id="user-list" class="flex flex-col gap-2 max-h-80 overflow-y-auto"></div>
-        <p id="user-list-notice" class="hidden text-xs mt-2 text-center" style="color:#8A8266;"></p>
+        <button id="see-users-btn" onclick="toggleUserList()" class="w-full py-2 rounded-full text-xs font-semibold mb-1" style="border:1px solid #C9A24C; color:#8B6B2A;">See User</button>
+        <div id="user-list-container" class="hidden mt-3">
+          <input id="user-search" oninput="renderUsers()" type="text" placeholder="ইমেইল দিয়ে খুঁজুন..." class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+          <div id="user-list" class="flex flex-col gap-2 max-h-80 overflow-y-auto"></div>
+          <p id="user-list-notice" class="hidden text-xs mt-2 text-center" style="color:#8A8266;"></p>
+        </div>
       </div>
     </div>
 
@@ -127,53 +130,6 @@
         <p id="block-notice" class="hidden text-xs mt-2 text-center"></p>
 
         <div id="blocked-list" class="flex flex-col gap-2 mt-4"></div>
-      </div>
-    </div>
-
-    <!-- DONATION MANAGEMENT -->
-    <div class="px-5 mt-4">
-      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
-        <div class="flex items-center gap-2 mb-3">
-          <i data-lucide="heart" class="w-4 h-4" style="color:#D14343;"></i>
-          <span class="text-sm font-semibold" style="color:#0E211C;">Donation Management</span>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2 mb-4">
-          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
-            <p id="don-total" class="num-bn text-sm" style="color:#0E211C;">৳০</p>
-            <p class="text-[10px]" style="color:#8A8266;">মোট (ভেরিফাইড)</p>
-          </div>
-          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
-            <p id="don-today" class="num-bn text-sm" style="color:#0E211C;">৳০</p>
-            <p class="text-[10px]" style="color:#8A8266;">আজকের</p>
-          </div>
-          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
-            <p id="don-month" class="num-bn text-sm" style="color:#0E211C;">৳০</p>
-            <p class="text-[10px]" style="color:#8A8266;">এই মাসের</p>
-          </div>
-        </div>
-
-        <button onclick="exportDonationsCSV()" class="w-full py-2 rounded-full text-xs font-semibold mb-3" style="border:1px solid #C9A24C; color:#8B6B2A;">CSV এক্সপোর্ট করুন</button>
-
-        <div id="donations-list" class="flex flex-col gap-2 max-h-96 overflow-y-auto"></div>
-      </div>
-    </div>
-
-    <!-- PAYMENT METHODS -->
-    <div class="px-5 mt-4">
-      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
-        <div class="flex items-center gap-2 mb-3">
-          <i data-lucide="wallet" class="w-4 h-4" style="color:#8B6B2A;"></i>
-          <span class="text-sm font-semibold" style="color:#0E211C;">পেমেন্ট মাধ্যম</span>
-        </div>
-        <input id="pm-name" type="text" placeholder="নাম (যেমন: bKash)" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
-        <input id="pm-details" type="text" placeholder="নাম্বার/অ্যাকাউন্ট তথ্য" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">QR ছবি (ঐচ্ছিক)</label>
-        <input id="pm-qr" type="file" accept="image/*" class="w-full text-xs mb-3">
-        <button onclick="addPaymentMethod()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">যোগ করুন</button>
-        <p id="pm-notice" class="hidden text-xs mt-2 text-center"></p>
-
-        <div id="pm-list" class="flex flex-col gap-2 mt-4"></div>
       </div>
     </div>
 
@@ -382,6 +338,14 @@
       notice.textContent = 'সংযোগে সমস্যা: ' + e.message;
       notice.classList.remove('hidden');
     }
+  }
+
+  function toggleUserList() {
+    const container = document.getElementById('user-list-container');
+    const btn = document.getElementById('see-users-btn');
+    const isHidden = container.classList.contains('hidden');
+    container.classList.toggle('hidden');
+    btn.textContent = isHidden ? 'Hide Users' : 'See User';
   }
 
   function renderUsers() {
