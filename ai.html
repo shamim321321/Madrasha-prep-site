@@ -19,10 +19,53 @@
 </head>
 <body class="sans-bn pb-20">
 
-  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
-    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-    <div class="serif-bn text-lg" style="color:#F4EEDC;">AI</div>
+  <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <div class="flex items-center gap-3">
+      <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+      <div class="serif-bn text-lg" style="color:#F4EEDC;">AI</div>
+    </div>
+    <button onclick="openDrawer()" style="color:#DCD3B6;">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
   </header>
+
+  <div id="drawer-overlay" onclick="closeDrawer()" class="hidden fixed inset-0 z-40" style="background:rgba(0,0,0,0.55);"></div>
+
+  <aside id="mnav" class="fixed top-0 right-0 h-full w-[80%] max-w-xs z-50 flex flex-col px-5 py-5 transform translate-x-full transition-transform duration-300 ease-out" style="background:#16332B; box-shadow:-10px 0 30px rgba(0,0,0,0.35);">
+    <button onclick="closeDrawer()" class="self-end mb-3 p-1" style="color:#DCD3B6;"><i data-lucide="x" class="w-5 h-5"></i></button>
+
+    <div class="flex items-center gap-3 pb-5 mb-3" style="border-bottom:1px solid rgba(201,162,76,0.2);">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center shrink-0 btn-gold">
+        <i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold" style="color:#F4EEDC;">প্রোফাইল</p>
+        <a href="index.html" class="text-xs mt-0.5" style="color:#C9A24C;">লগইন / প্রোফাইল দেখতে যান →</a>
+      </div>
+    </div>
+
+    <nav class="flex flex-col gap-0.5 text-sm overflow-y-auto" style="color:#DCD3B6;">
+      <a href="practice.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4" style="color:#C9A24C;"></i>Practice</a>
+      <a href="library.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="book-open" class="w-4 h-4" style="color:#C9A24C;"></i>Library</a>
+      <a href="ai.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4" style="color:#C9A24C;"></i>AI</a>
+      <a href="faraidh.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="calculator" class="w-4 h-4" style="color:#C9A24C;"></i>ফারায়েজ ক্যালকুলেটর</a>
+      <a href="contact.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="phone" class="w-4 h-4" style="color:#C9A24C;"></i>যোগাযোগ</a>
+
+      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+
+      <a href="about.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="info" class="w-4 h-4" style="color:#C9A24C;"></i>আমাদের সম্পর্কে</a>
+      <a href="founder.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="crown" class="w-4 h-4" style="color:#C9A24C;"></i>ফাউন্ডার</a>
+      <a href="mentors.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="users" class="w-4 h-4" style="color:#C9A24C;"></i>মেন্টরগণ</a>
+
+      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+
+      <a href="privacy-policy.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="shield" class="w-4 h-4" style="color:#C9A24C;"></i>গোপনীয়তা নীতি</a>
+      <a href="terms.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="file-text" class="w-4 h-4" style="color:#C9A24C;"></i>শর্তাবলি</a>
+    </nav>
+
+    <p class="mt-auto pt-4 text-[11px] text-center" style="color:#6E8078;">© নিবন্ধন হাব</p>
+  </aside>
+
 
   <div class="px-5 mt-5 flex flex-col gap-4">
 
@@ -54,6 +97,18 @@
     <a href="profile.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
   </nav>
 
-<script>lucide.createIcons();</script>
+<script>
+  function openDrawer(){
+    document.getElementById('mnav').classList.remove('translate-x-full');
+    document.getElementById('drawer-overlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('mnav').classList.add('translate-x-full');
+    document.getElementById('drawer-overlay').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  lucide.createIcons();
+</script>
 </body>
 </html>
