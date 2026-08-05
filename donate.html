@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Support MCQ Hub — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .amt-btn.active { background:#0E211C; color:#F4EEDC; }
+</style>
+</head>
+<body class="sans-bn pb-10">
+
+  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="serif-bn text-lg" style="color:#F4EEDC;">❤️ Support MCQ Hub</div>
+  </header>
+
+  <div class="px-5 mt-6">
+    <h1 class="serif-bn text-lg mb-2" style="color:#0E211C;">Contribute to Development</h1>
+    <p class="text-sm mb-1" style="color:#5B5340;">MCQ Hub সকলের জন্য একটি মানসম্মত ও AI-ভিত্তিক প্রস্তুতি প্ল্যাটফর্ম তৈরির লক্ষ্য নিয়ে কাজ করছে।</p>
+    <p class="text-sm mb-1" style="color:#5B5340;">সার্ভার, AI, উন্নয়ন ও রক্ষণাবেক্ষণের খরচ চালাতে আপনার স্বেচ্ছা সহযোগিতা আমাদের অনুপ্রাণিত করবে।</p>
+    <p class="text-xs mt-2" style="color:#8A8266;">Donation সম্পূর্ণ ঐচ্ছিক। সকল ফিচার সবার জন্য উন্মুক্ত থাকবে।</p>
+  </div>
+
+  <!-- PAYMENT METHODS -->
+  <div class="px-5 mt-6">
+    <h2 class="serif-bn text-base mb-3" style="color:#0E211C;">পেমেন্ট মাধ্যম</h2>
+    <div id="methods-list" class="flex flex-col gap-2.5"></div>
+  </div>
+
+  <!-- AMOUNT -->
+  <div class="px-5 mt-6">
+    <h2 class="serif-bn text-base mb-3" style="color:#0E211C;">অ্যামাউন্ট বেছে নিন</h2>
+    <div class="grid grid-cols-4 gap-2 mb-3">
+      <button type="button" onclick="pickAmount(100, this)" class="amt-btn py-2.5 rounded-xl text-sm font-semibold" style="background:#fff;">৳100</button>
+      <button type="button" onclick="pickAmount(200, this)" class="amt-btn py-2.5 rounded-xl text-sm font-semibold" style="background:#fff;">৳200</button>
+      <button type="button" onclick="pickAmount(500, this)" class="amt-btn py-2.5 rounded-xl text-sm font-semibold" style="background:#fff;">৳500</button>
+      <button type="button" onclick="pickAmount(1000, this)" class="amt-btn py-2.5 rounded-xl text-sm font-semibold" style="background:#fff;">৳1000</button>
+    </div>
+    <input id="custom-amount" type="number" min="1" placeholder="কাস্টম অ্যামাউন্ট (৳)" oninput="clearAmountButtons()" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+  </div>
+
+  <!-- DONATION FORM -->
+  <div class="px-5 mt-6">
+    <div class="rounded-2xl p-4" style="background:#fff;">
+      <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">আপনার নাম (ঐচ্ছিক)</label>
+      <input id="d-name" type="text" class="w-full px-4 py-2.5 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+
+      <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">যে মাধ্যমে পাঠিয়েছেন</label>
+      <input id="d-method" type="text" placeholder="যেমন: bKash" class="w-full px-4 py-2.5 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+
+      <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ট্রানজেকশন আইডি</label>
+      <input id="d-txn" type="text" placeholder="পেমেন্ট অ্যাপে দেখানো ট্রানজেকশন আইডি" class="w-full px-4 py-2.5 rounded-lg text-sm mb-4" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+
+      <button onclick="submitDonation()" class="w-full py-3 rounded-full text-sm font-semibold btn-gold">Donation নিশ্চিত করুন</button>
+      <p id="d-notice" class="hidden text-xs mt-2 text-center"></p>
+    </div>
+  </div>
+
+  <!-- SUPPORTER BENEFITS -->
+  <div class="px-5 mt-8">
+    <h2 class="serif-bn text-base mb-3" style="color:#0E211C;">Supporter Benefits</h2>
+    <div class="rounded-2xl p-4 flex flex-col gap-2.5" style="background:#fff;">
+      <p class="text-sm" style="color:#5B5340;">⭐ Supporter Badge</p>
+      <p class="text-sm" style="color:#5B5340;">🚀 নতুন Feature আগে ব্যবহার করার সুযোগ (Early Access)</p>
+      <p class="text-sm" style="color:#5B5340;">📩 Priority Support</p>
+      <p class="text-sm" style="color:#5B5340;">🗳️ নতুন Feature Suggest করার অগ্রাধিকার</p>
+      <p class="text-sm" style="color:#5B5340;">🎁 ভবিষ্যতে বিশেষ Resource বা Bonus Content</p>
+    </div>
+    <p class="text-[11px] mt-3" style="color:#8A8266;">Donation বাধ্যতামূলক নয়। Donation করলে ব্যক্তিগত যোগাযোগ বা বিশেষ সুবিধার নিশ্চয়তা দেওয়া হয় না।</p>
+  </div>
+
+<script>
+  const SUPABASE_URL = "https://laujqfawcirnwsmvhaif.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_rlZV0JZUFH7NdmR_-Oz7Dg_97OQxMpv";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let selectedAmount = null;
+
+  function pickAmount(amt, btn) {
+    selectedAmount = amt;
+    document.getElementById('custom-amount').value = '';
+    document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function clearAmountButtons() {
+    selectedAmount = null;
+    document.querySelectorAll('.amt-btn').forEach(b => b.classList.remove('active'));
+  }
+
+  async function loadMethods() {
+    const { data } = await sb.from('payment_methods').select('*').eq('active', true).order('sort_order');
+    const wrap = document.getElementById('methods-list');
+    if (!data || data.length === 0) {
+      wrap.innerHTML = `<p class="text-sm text-center py-4" style="color:#8A8266;">পেমেন্ট মাধ্যম শীঘ্রই যোগ হবে।</p>`;
+      return;
+    }
+    wrap.innerHTML = data.map(m => `
+      <div class="rounded-2xl p-4 flex items-center gap-3" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="wallet" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold" style="color:#0E211C;">${m.name}</p>
+          ${m.details ? `<p class="text-xs" style="color:#5B5340;">${m.details}</p>` : ''}
+        </div>
+        ${m.qr_image_url ? `<img src="${m.qr_image_url}" class="w-14 h-14 rounded-lg object-cover shrink-0">` : ''}
+      </div>`).join('');
+    lucide.createIcons();
+  }
+
+  async function submitDonation() {
+    const customAmount = parseFloat(document.getElementById('custom-amount').value);
+    const amount = customAmount > 0 ? customAmount : selectedAmount;
+    const donor_name = document.getElementById('d-name').value.trim() || null;
+    const method = document.getElementById('d-method').value.trim() || null;
+    const transaction_id = document.getElementById('d-txn').value.trim() || null;
+    const notice = document.getElementById('d-notice');
+
+    if (!amount || amount <= 0) {
+      notice.textContent = 'একটা অ্যামাউন্ট বেছে নিন বা লিখুন।';
+      notice.style.color = '#D14343';
+      notice.classList.remove('hidden');
+      return;
+    }
+    if (!method || !transaction_id) {
+      notice.textContent = 'মাধ্যম ও ট্রানজেকশন আইডি দিন।';
+      notice.style.color = '#D14343';
+      notice.classList.remove('hidden');
+      return;
+    }
+
+    const { error } = await sb.from('donations').insert({ donor_name, amount, method, transaction_id, status: 'pending' });
+    if (error) {
+      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+      notice.style.color = '#D14343';
+    } else {
+      notice.textContent = 'ধন্যবাদ! আপনার তথ্য জমা হয়েছে, শীঘ্রই যাচাই করা হবে ✓';
+      notice.style.color = '#2F7A4F';
+      document.getElementById('d-name').value = '';
+      document.getElementById('d-method').value = '';
+      document.getElementById('d-txn').value = '';
+      document.getElementById('custom-amount').value = '';
+      clearAmountButtons();
+    }
+    notice.classList.remove('hidden');
+  }
+
+  loadMethods();
+  lucide.createIcons();
+</script>
+</body>
+</html>

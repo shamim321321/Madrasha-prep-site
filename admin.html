@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>প্রশ্ন যোগ করুন — নিবন্ধন হাব</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,6 +13,7 @@
   body { background:#F4EEDC; }
   .serif-bn { font-family:'Tiro Bangla', serif; }
   .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
   .btn-gold { background:#C9A24C; color:#0E211C; }
 </style>
 </head>
@@ -52,6 +53,49 @@
       </div>
     </div>
 
+    <!-- DONATION MANAGEMENT -->
+    <div class="px-5 mt-5">
+      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="heart" class="w-4 h-4" style="color:#D14343;"></i>
+          <span class="text-sm font-semibold" style="color:#0E211C;">Donation Management</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+            <p id="don-total" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
+            <p class="text-[10px]" style="color:#8A8266;">মোট (verified)</p>
+          </div>
+          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+            <p id="don-today" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
+            <p class="text-[10px]" style="color:#8A8266;">আজকের</p>
+          </div>
+          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+            <p id="don-month" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
+            <p class="text-[10px]" style="color:#8A8266;">এই মাসের</p>
+          </div>
+        </div>
+        <button onclick="exportDonationsCSV()" class="w-full mb-3 py-2 rounded-full text-xs font-semibold" style="border:1px solid #C9A24C; color:#8B6B2A;">CSV Export</button>
+        <div id="donations-list" class="flex flex-col gap-2 max-h-96 overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHODS -->
+    <div class="px-5 mt-4">
+      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="wallet" class="w-4 h-4" style="color:#8B6B2A;"></i>
+          <span class="text-sm font-semibold" style="color:#0E211C;">Payment Methods</span>
+        </div>
+        <input id="pm-name" type="text" placeholder="নাম (যেমন: bKash)" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        <input id="pm-details" type="text" placeholder="নাম্বার/অ্যাকাউন্ট তথ্য" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">QR কোড (ঐচ্ছিক)</label>
+        <input id="pm-qr" type="file" accept="image/*" class="w-full text-xs mb-3">
+        <button onclick="addPaymentMethod()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">মেথড যোগ করুন</button>
+        <p id="pm-notice" class="hidden text-xs mt-2 text-center"></p>
+        <div id="pm-list" class="flex flex-col gap-2 mt-4"></div>
+      </div>
+    </div>
+
     <!-- ALL USERS -->
     <div class="px-5 mt-5">
       <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
@@ -83,6 +127,53 @@
         <p id="block-notice" class="hidden text-xs mt-2 text-center"></p>
 
         <div id="blocked-list" class="flex flex-col gap-2 mt-4"></div>
+      </div>
+    </div>
+
+    <!-- DONATION MANAGEMENT -->
+    <div class="px-5 mt-4">
+      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="heart" class="w-4 h-4" style="color:#D14343;"></i>
+          <span class="text-sm font-semibold" style="color:#0E211C;">Donation Management</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 mb-4">
+          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+            <p id="don-total" class="num-bn text-sm" style="color:#0E211C;">৳০</p>
+            <p class="text-[10px]" style="color:#8A8266;">মোট (ভেরিফাইড)</p>
+          </div>
+          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+            <p id="don-today" class="num-bn text-sm" style="color:#0E211C;">৳০</p>
+            <p class="text-[10px]" style="color:#8A8266;">আজকের</p>
+          </div>
+          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+            <p id="don-month" class="num-bn text-sm" style="color:#0E211C;">৳০</p>
+            <p class="text-[10px]" style="color:#8A8266;">এই মাসের</p>
+          </div>
+        </div>
+
+        <button onclick="exportDonationsCSV()" class="w-full py-2 rounded-full text-xs font-semibold mb-3" style="border:1px solid #C9A24C; color:#8B6B2A;">CSV এক্সপোর্ট করুন</button>
+
+        <div id="donations-list" class="flex flex-col gap-2 max-h-96 overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHODS -->
+    <div class="px-5 mt-4">
+      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="wallet" class="w-4 h-4" style="color:#8B6B2A;"></i>
+          <span class="text-sm font-semibold" style="color:#0E211C;">পেমেন্ট মাধ্যম</span>
+        </div>
+        <input id="pm-name" type="text" placeholder="নাম (যেমন: bKash)" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        <input id="pm-details" type="text" placeholder="নাম্বার/অ্যাকাউন্ট তথ্য" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">QR ছবি (ঐচ্ছিক)</label>
+        <input id="pm-qr" type="file" accept="image/*" class="w-full text-xs mb-3">
+        <button onclick="addPaymentMethod()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">যোগ করুন</button>
+        <p id="pm-notice" class="hidden text-xs mt-2 text-center"></p>
+
+        <div id="pm-list" class="flex flex-col gap-2 mt-4"></div>
       </div>
     </div>
 
@@ -146,6 +237,124 @@
     loadMaintenanceInfo();
     loadBlockedList();
     loadUsers();
+    loadDonations();
+    loadPaymentMethods();
+  }
+
+  // ---- Donation Management ----
+  let allDonations = [];
+
+  function toBanglaDigits(n){
+    const map = {'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'};
+    return n.toString().split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
+  }
+
+  async function loadDonations() {
+    const { data } = await supabaseClient.from('donations').select('*').order('created_at', { ascending: false });
+    allDonations = data || [];
+
+    const verified = allDonations.filter(d => d.status === 'verified');
+    const total = verified.reduce((s, d) => s + Number(d.amount), 0);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const today = verified.filter(d => d.created_at.slice(0,10) === todayStr).reduce((s, d) => s + Number(d.amount), 0);
+    const monthStr = new Date().toISOString().slice(0, 7);
+    const month = verified.filter(d => d.created_at.slice(0,7) === monthStr).reduce((s, d) => s + Number(d.amount), 0);
+
+    document.getElementById('don-total').textContent = '৳' + toBanglaDigits(total);
+    document.getElementById('don-today').textContent = '৳' + toBanglaDigits(today);
+    document.getElementById('don-month').textContent = '৳' + toBanglaDigits(month);
+
+    document.getElementById('donations-list').innerHTML = allDonations.map(d => `
+      <div class="rounded-xl p-3" style="background:#F9F6EC;">
+        <div class="flex items-center justify-between gap-2 mb-1">
+          <p class="text-xs font-semibold" style="color:#0E211C;">৳${d.amount} — ${d.donor_name || 'অজানা'}</p>
+          <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:${d.status==='verified'?'#2F7A4F':d.status==='rejected'?'#D14343':'#C9A24C'}; color:#fff;">${d.status}</span>
+        </div>
+        <p class="text-[11px]" style="color:#8A8266;">${d.method || ''} · ${d.transaction_ref || ''} ${d.donor_contact ? '· ' + d.donor_contact : ''}</p>
+        ${d.status === 'pending' ? `
+        <div class="flex gap-2 mt-2">
+          <button onclick="updateDonationStatus(${d.id}, 'verified')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#2F7A4F; color:#fff;">ভেরিফাই</button>
+          <button onclick="updateDonationStatus(${d.id}, 'rejected')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#D14343; color:#fff;">রিজেক্ট</button>
+        </div>` : ''}
+      </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো ডোনেশন নেই</p>`;
+  }
+
+  async function updateDonationStatus(id, status) {
+    await supabaseClient.from('donations').update({ status }).eq('id', id);
+    loadDonations();
+  }
+
+  function exportDonationsCSV() {
+    const rows = [['নাম','যোগাযোগ','অ্যামাউন্ট','মাধ্যম','ট্রানজেকশন রেফ','স্ট্যাটাস','তারিখ']];
+    allDonations.forEach(d => rows.push([d.donor_name||'', d.donor_contact||'', d.amount, d.method||'', d.transaction_ref||'', d.status, d.created_at]));
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `donations-${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+  }
+
+  // ---- Payment Methods ----
+  async function loadPaymentMethods() {
+    const { data } = await supabaseClient.from('payment_methods').select('*').order('sort_order');
+    document.getElementById('pm-list').innerHTML = (data||[]).map(m => `
+      <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold" style="color:#0E211C;">${m.name}</p>
+          ${m.details ? `<p class="text-[11px]" style="color:#8A8266;">${m.details}</p>` : ''}
+        </div>
+        <button onclick="deletePaymentMethod(${m.id})" style="color:#D14343;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো পেমেন্ট মাধ্যম যোগ করা নেই</p>`;
+    lucide.createIcons();
+  }
+
+  async function addPaymentMethod() {
+    const name = document.getElementById('pm-name').value.trim();
+    const details = document.getElementById('pm-details').value.trim();
+    const qrFile = document.getElementById('pm-qr').files[0];
+    const notice = document.getElementById('pm-notice');
+
+    if (!name) {
+      notice.textContent = 'নাম দিন।';
+      notice.style.color = '#D14343';
+      notice.classList.remove('hidden');
+      return;
+    }
+
+    let qr_image_url = null;
+    if (qrFile) {
+      const path = `${Date.now()}-${qrFile.name}`;
+      const { error: uploadError } = await supabaseClient.storage.from('payment-qr').upload(path, qrFile, { upsert: true });
+      if (uploadError) {
+        notice.textContent = 'QR ছবি আপলোড ব্যর্থ: ' + uploadError.message;
+        notice.style.color = '#D14343';
+        notice.classList.remove('hidden');
+        return;
+      }
+      const { data: publicUrlData } = supabaseClient.storage.from('payment-qr').getPublicUrl(path);
+      qr_image_url = publicUrlData.publicUrl;
+    }
+
+    const { error } = await supabaseClient.from('payment_methods').insert({ name, details: details || null, qr_image_url });
+    if (error) {
+      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+      notice.style.color = '#D14343';
+    } else {
+      notice.textContent = 'যোগ হয়েছে ✓';
+      notice.style.color = '#2F7A4F';
+      document.getElementById('pm-name').value = '';
+      document.getElementById('pm-details').value = '';
+      document.getElementById('pm-qr').value = '';
+      loadPaymentMethods();
+    }
+    notice.classList.remove('hidden');
+  }
+
+  async function deletePaymentMethod(id) {
+    if (!confirm('এই পেমেন্ট মাধ্যমটি মুছবেন?')) return;
+    await supabaseClient.from('payment_methods').delete().eq('id', id);
+    loadPaymentMethods();
   }
 
   let allUsers = [];
