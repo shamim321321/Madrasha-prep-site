@@ -22,6 +22,7 @@ module.exports = async (req, res) => {
   const topic = (body?.topic || '').toString().trim().slice(0, 200);
   const count = Math.min(30, Math.max(1, parseInt(body?.count) || 10));
   const lang = ['ar', 'en'].includes(body?.lang) ? body.lang : 'bn';
+  const difficulty = ['easy', 'medium', 'hard'].includes(body?.difficulty) ? body.difficulty : 'easy';
 
   if (!subjectName) {
     res.status(400).json({ error: 'সাবজেক্ট নির্বাচন করা বাধ্যতামূলক।' });
@@ -35,9 +36,29 @@ module.exports = async (req, res) => {
   // প্রম্পটে "বিষয়" হিসেবে সাবজেক্ট + টপিক একসাথে ব্যবহার হবে
   const subject = `${subjectName} — ${topic}`;
 
+  // Difficulty guidance
+  const difficultyGuide = {
+    easy: {
+      ar: 'أسئلة سهلة وواضحة — الحقائق الأساسية، المفاهيم المباشرة',
+      en: 'Easy questions — basic facts and straightforward concepts.',
+      bn: 'সহজ প্রশ্ন — মৌলিক তথ্য এবং সরাসরি ধারণা।'
+    },
+    medium: {
+      ar: 'أسئلة متوسطة — تطبيق المفاهيم، الفهم الأعمق',
+      en: 'Moderate questions — application of concepts, deeper understanding.',
+      bn: 'মাঝারি প্রশ্ন — ধারণার প্রয়োগ, গভীর বোঝাপড়া।'
+    },
+    hard: {
+      ar: 'أسئلة صعبة — التحليل والمقارنة والتفسير المعقد',
+      en: 'Hard questions — analysis, comparison, complex interpretation.',
+      bn: 'কঠিন প্রশ্ন — বিশ্লেষণ, তুলনা, জটিল ব্যাখ্যা।'
+    }
+  };
+
   const prompt = lang === 'ar'
     ? `أنت خبير في إعداد أسئلة الاختيار من متعدد لامتحان تعيين مدرسي مدرسة (NTRCA) في بنغلاديش.
 الموضوع: "${subject}"
+مستوى الصعوبة: ${difficultyGuide.easy.ar === difficultyGuide[difficulty].ar ? 'سهل' : difficulty === 'medium' ? 'متوسط' : 'صعب'} — ${difficultyGuide[difficulty].ar}
 أنشئ بالضبط ${count} سؤال اختيار من متعدد بمستوى جيد باللغة العربية الفصحى حول هذا الموضوع. لكل سؤال أربعة خيارات، إجابة صحيحة واحدة فقط، وشرح مختصر.
 
 أرجع فقط مصفوفة JSON بالتنسيق التالي أدناه، دون أي نص إضافي أو علامات markdown. حقل "explanation" يجب أن يكون باللغة العربية، وحقل "explanation_bn" هو نفس الشرح لكن مترجم إلى اللغة البنغالية:
@@ -57,6 +78,7 @@ module.exports = async (req, res) => {
     : lang === 'en'
     ? `You are an expert question setter preparing MCQs for Bangladesh's NTRCA (madrasha teacher registration) exam candidates.
 Subject/Topic: "${subject}"
+Difficulty Level: ${difficulty === 'easy' ? 'Easy' : difficulty === 'medium' ? 'Moderate' : 'Hard'} — ${difficultyGuide[difficulty].en}
 Create exactly ${count} good-quality multiple choice questions in English on this subject. Each question must have 4 options, exactly one correct answer, and a short explanation.
 
 Return ONLY a JSON array in the exact format below, with no extra text or markdown code fences. The "explanation_bn" field should be the same explanation translated into Bengali:
@@ -75,6 +97,7 @@ Return ONLY a JSON array in the exact format below, with no extra text or markdo
 The "correct" field must contain only one letter: a, b, c, or d.`
     : `তুমি বাংলাদেশের NTRCA মাদ্রাসা শিক্ষক নিবন্ধন পরীক্ষার প্রস্তুতির জন্য একজন অভিজ্ঞ প্রশ্নকর্তা।
 বিষয়/টপিক: "${subject}"
+কঠিনতার মাত্রা: ${difficulty === 'easy' ? 'সহজ' : difficulty === 'medium' ? 'মাঝারি' : 'কঠিন'} — ${difficultyGuide[difficulty].bn}
 এই বিষয়ে ঠিক ${count}টি মানসম্মত বহুনির্বাচনী প্রশ্ন (MCQ) বাংলায় তৈরি করো। প্রতিটি প্রশ্নে ৪টি অপশন থাকবে, একটাই সঠিক উত্তর, এবং একটা সংক্ষিপ্ত ব্যাখ্যা থাকবে।
 
 শুধুমাত্র নিচের ফরম্যাটে একটা JSON array রিটার্ন করো, অন্য কোনো লেখা, ব্যাখ্যা বা মার্কডাউন কোড ফেন্স ছাড়া:
