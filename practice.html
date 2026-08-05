@@ -262,6 +262,7 @@
   let score = 0;
   let wrongCount = 0;
   let wrongTopics = [];
+  let subjectStats = {};
   let selectedAILang = 'bn';
   let timerInterval = null;
 
@@ -341,6 +342,15 @@
     document.getElementById('ai-selected-subject').textContent = `বিষয়: ${subject}`;
     document.getElementById('ai-count-input').value = '';
     showEl('ai-picker');
+    if (prefillTopic) {
+      document.getElementById('ai-topic').value = prefillTopic;
+      prefillTopic = null;
+    }
+    if (prefillLang) {
+      const btn = document.querySelector(`.ai-lang-btn[data-lang="${prefillLang}"]`);
+      if (btn) btn.click();
+      prefillLang = null;
+    }
   }
 
   function showCountPicker(mode){
@@ -383,7 +393,7 @@
       score = 0;
       wrongCount = 0;
       wrongTopics = [];
-      // ডিবাগ: ডাটাবেইজে সেভ করতে সমস্যা হলে জানিয়ে দেবে (সমাধান হয়ে গেলে এই অংশ সরিয়ে দেওয়া যাবে)
+      subjectStats = {};
       if (data.dbError) {
         alert('⚠️ প্রশ্ন জেনারেট হয়েছে কিন্তু ডাটাবেইজে সেভ হয়নি:\n' + data.dbError);
       }
@@ -408,6 +418,7 @@
     score = 0;
     wrongCount = 0;
     wrongTopics = [];
+    subjectStats = {};
     showEl('quiz-area');
     startQuizTimer(quizQuestions.length);
     renderQuestion();
@@ -502,6 +513,10 @@
     });
     if (key === q.correct) { score++; }
     else { wrongCount++; wrongTopics.push(q.topic || q.subject); }
+    const subj = q.subject || 'অজানা';
+    subjectStats[subj] = subjectStats[subj] || { correct: 0, total: 0 };
+    subjectStats[subj].total++;
+    if (key === q.correct) { subjectStats[subj].correct++; }
     document.getElementById('q-score').textContent = `স্কোর: ${score}`;
 
     if (q.explanation) {
@@ -587,10 +602,30 @@
 
     showEl('result-area');
     lucide.createIcons();
+    saveAttempt();
+  }
+
+  async function saveAttempt(){
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session || !session.user) return;
+      const rows = Object.entries(subjectStats).map(([subject, s]) => ({
+        user_id: session.user.id,
+        subject: subject,
+        total_questions: s.total,
+        correct_count: s.correct
+      }));
+      if (rows.length === 0) return;
+      await sb.from('quiz_attempts').insert(rows);
+    } catch (e) {
+      console.warn('quiz_attempts সেভ করতে সমস্যা হয়েছে:', e);
+    }
   }
 
   lucide.createIcons();
   if (new URLSearchParams(window.location.search).get('mode') === 'ai') { showAIPicker(); }
+  let prefillTopic = new URLSearchParams(window.location.search).get('topic');
+  let prefillLang = new URLSearchParams(window.location.search).get('lang');
 </script>
 </body>
 </html>

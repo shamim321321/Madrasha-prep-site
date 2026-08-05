@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Learn — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+  .bottom-nav { box-shadow:0 -2px 10px rgba(0,0,0,0.06); }
+  .spinner { border:3px solid #E4DAB8; border-top-color:#C9A24C; border-radius:50%; width:32px; height:32px; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body class="sans-bn pb-20">
+
+  <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <div class="flex items-center gap-3">
+      <a href="ai.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+      <div class="serif-bn text-lg" style="color:#F4EEDC;">AI Learn</div>
+    </div>
+    <button onclick="openDrawer()" style="color:#DCD3B6;">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+  </header>
+
+  <div id="drawer-overlay" onclick="closeDrawer()" class="hidden fixed inset-0 z-40" style="background:rgba(0,0,0,0.55);"></div>
+
+  <aside id="mnav" class="fixed top-0 right-0 h-full w-[80%] max-w-xs z-50 flex flex-col px-5 py-5 transform translate-x-full transition-transform duration-300 ease-out" style="background:#16332B; box-shadow:-10px 0 30px rgba(0,0,0,0.35);">
+    <button onclick="closeDrawer()" class="self-end mb-3 p-1" style="color:#DCD3B6;"><i data-lucide="x" class="w-5 h-5"></i></button>
+
+    <div class="flex items-center gap-3 pb-5 mb-3" style="border-bottom:1px solid rgba(201,162,76,0.2);">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center shrink-0 btn-gold">
+        <i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold" style="color:#F4EEDC;">প্রোফাইল</p>
+        <a href="index.html" class="text-xs mt-0.5" style="color:#C9A24C;">লগইন / প্রোফাইল দেখতে যান →</a>
+      </div>
+    </div>
+
+    <nav class="flex flex-col gap-0.5 text-sm overflow-y-auto" style="color:#DCD3B6;">
+      <a href="practice.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4" style="color:#C9A24C;"></i>Practice</a>
+      <a href="library.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="book-open" class="w-4 h-4" style="color:#C9A24C;"></i>Library</a>
+      <a href="ai.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4" style="color:#C9A24C;"></i>AI</a>
+      <a href="faraidh.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="calculator" class="w-4 h-4" style="color:#C9A24C;"></i>ফারায়েজ ক্যালকুলেটর</a>
+      <a href="contact.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="phone" class="w-4 h-4" style="color:#C9A24C;"></i>যোগাযোগ</a>
+
+      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+
+      <a href="about.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="info" class="w-4 h-4" style="color:#C9A24C;"></i>আমাদের সম্পর্কে</a>
+      <a href="founder.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="crown" class="w-4 h-4" style="color:#C9A24C;"></i>ফাউন্ডার</a>
+      <a href="mentors.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="users" class="w-4 h-4" style="color:#C9A24C;"></i>মেন্টরগণ</a>
+
+      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+
+      <a href="privacy-policy.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="shield" class="w-4 h-4" style="color:#C9A24C;"></i>গোপনীয়তা নীতি</a>
+      <a href="terms.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="file-text" class="w-4 h-4" style="color:#C9A24C;"></i>শর্তাবলি</a>
+    </nav>
+
+    <p class="mt-auto pt-4 text-[11px] text-center" style="color:#6E8078;">© নিবন্ধন হাব</p>
+  </aside>
+
+  <!-- INPUT FORM -->
+  <div id="learn-form" class="px-5 mt-6">
+    <h2 class="serif-bn text-lg mb-1" style="color:#0E211C;">কোন টপিক শিখতে চান?</h2>
+    <p class="text-xs mb-4" style="color:#5B5340;">যেকোনো টপিক লিখুন — AI সংজ্ঞা, আলোচনা, উদাহরণ ও গুরুত্বপূর্ণ তথ্য দিয়ে ব্যাখ্যা করবে।</p>
+
+    <label class="block text-xs font-semibold mb-2" style="color:#5B5340;">ভাষা</label>
+    <div class="flex gap-2 mb-4">
+      <button type="button" data-lang="bn" class="learn-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#0E211C; color:#F4EEDC;">বাংলা</button>
+      <button type="button" data-lang="ar" class="learn-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#fff; color:#5B5340;">العربية</button>
+      <button type="button" data-lang="en" class="learn-lang-btn flex-1 py-2.5 rounded-xl text-sm font-medium" style="background:#fff; color:#5B5340;">English</button>
+    </div>
+
+    <input id="learn-topic" type="text" placeholder="যেমন: সূরা ইউসুফ, ইসলামের ইতিহাস, নাহু-সরফ..." class="w-full px-4 py-3 rounded-xl text-sm mb-3" style="background:#fff; border:1px solid #E4DAB8;">
+    <p id="learn-error" class="hidden text-xs mb-3" style="color:#C0392B;"></p>
+    <p class="text-xs mb-4" style="color:#8A8266;">⚠️ AI-জেনারেটেড ব্যাখ্যায় মাঝেমধ্যে ভুল থাকতে পারে — নিশ্চিত তথ্যের জন্য উস্তাদ বা বইয়ের সাথে মিলিয়ে নিন।</p>
+    <button onclick="learnTopic()" class="w-full py-3 rounded-full text-sm font-semibold btn-gold">শিখুন</button>
+  </div>
+
+  <!-- LOADING -->
+  <div id="learn-loading" class="hidden px-5 mt-16 flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-sm" style="color:#5B5340;">AI ব্যাখ্যা তৈরি করছে, একটু অপেক্ষা করুন...</p>
+  </div>
+
+  <!-- RESULT -->
+  <div id="learn-result" class="hidden px-5 mt-6">
+    <div class="rounded-2xl p-5 mb-4" style="background:#16332B;">
+      <p class="text-xs mb-1" style="color:#C9A24C;">টপিক</p>
+      <h2 id="result-topic" class="serif-bn text-xl" style="color:#F4EEDC;"></h2>
+    </div>
+
+    <div class="flex flex-col gap-3" id="result-sections"></div>
+
+    <div class="flex gap-3 mt-5 mb-2">
+      <button onclick="resetLearn()" class="flex-1 py-3 rounded-full text-sm font-semibold" style="background:#fff; border:1px solid #E4DAB8; color:#5B5340;">নতুন টপিক</button>
+      <button onclick="practiceThisTopic()" class="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-full text-sm font-semibold btn-gold"><i data-lucide="edit-3" class="w-4 h-4"></i>এই টপিক অনুশীলন করুন</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee;">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
+    <a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
+    <a href="ai.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="sparkles" class="w-5 h-5"></i>AI</a>
+    <a href="profile.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+  </nav>
+
+<script>
+  function openDrawer(){
+    document.getElementById('mnav').classList.remove('translate-x-full');
+    document.getElementById('drawer-overlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('mnav').classList.add('translate-x-full');
+    document.getElementById('drawer-overlay').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  let selectedLearnLang = 'bn';
+  let lastTopic = '';
+  document.querySelectorAll('.learn-lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.learn-lang-btn').forEach(b => { b.style.background = '#fff'; b.style.color = '#5B5340'; });
+      btn.style.background = '#0E211C'; btn.style.color = '#F4EEDC';
+      selectedLearnLang = btn.dataset.lang;
+    });
+  });
+
+  function showLearnEl(id){
+    ['learn-form','learn-loading','learn-result'].forEach(x => document.getElementById(x).classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  }
+
+  const SECTION_META = [
+    { key: 'definition',   title: 'সংজ্ঞা',                        icon: 'book-marked' },
+    { key: 'discussion',   title: 'আলোচনা',                        icon: 'align-left' },
+    { key: 'examples',     title: 'উদাহরণ',                        icon: 'list' },
+    { key: 'examPoints',   title: 'পরীক্ষায় গুরুত্বপূর্ণ পয়েন্ট',   icon: 'star' },
+    { key: 'tips',         title: 'টিপস',                          icon: 'lightbulb' },
+  ];
+
+  async function learnTopic(){
+    const topic = document.getElementById('learn-topic').value.trim();
+    const errEl = document.getElementById('learn-error');
+    errEl.classList.add('hidden');
+    if (!topic) { errEl.textContent = 'একটা টপিক লিখুন।'; errEl.classList.remove('hidden'); return; }
+    lastTopic = topic;
+    showLearnEl('learn-loading');
+    try {
+      const res = await fetch('/api/generate-explanation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic, lang: selectedLearnLang })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.explanation) {
+        document.getElementById('learn-topic').value = topic;
+        showLearnEl('learn-form');
+        errEl.textContent = 'ব্যাখ্যা তৈরি করতে সমস্যা হয়েছে: ' + (data.error || 'অজানা এরর');
+        errEl.classList.remove('hidden');
+        return;
+      }
+      renderResult(topic, data.explanation);
+    } catch (err) {
+      document.getElementById('learn-topic').value = topic;
+      showLearnEl('learn-form');
+      errEl.textContent = 'সংযোগে সমস্যা হয়েছে: ' + err.message;
+      errEl.classList.remove('hidden');
+    }
+  }
+
+  function renderResult(topic, explanation){
+    document.getElementById('result-topic').textContent = topic;
+    const wrap = document.getElementById('result-sections');
+    wrap.innerHTML = SECTION_META.map(sec => {
+      const val = explanation[sec.key];
+      if (!val || (Array.isArray(val) && val.length === 0)) return '';
+      const body = Array.isArray(val)
+        ? `<ul class="list-disc pl-5 flex flex-col gap-1">${val.map(li => `<li class="text-sm leading-relaxed" style="color:#5B5340;">${escapeHtml(li)}</li>`).join('')}</ul>`
+        : `<p class="text-sm leading-relaxed" style="color:#5B5340;">${escapeHtml(val)}</p>`;
+      return `
+        <div class="rounded-2xl p-5" style="background:#fff;">
+          <div class="flex items-center gap-2.5 mb-2.5">
+            <i data-lucide="${sec.icon}" class="w-4.5 h-4.5" style="color:#8B6B2A;"></i>
+            <h3 class="text-sm font-semibold" style="color:#0E211C;">${sec.title}</h3>
+          </div>
+          ${body}
+        </div>`;
+    }).join('');
+    showLearnEl('learn-result');
+    lucide.createIcons();
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function resetLearn(){
+    document.getElementById('learn-topic').value = '';
+    showLearnEl('learn-form');
+  }
+
+  function practiceThisTopic(){
+    const url = `practice.html?mode=ai&topic=${encodeURIComponent(lastTopic)}&lang=${selectedLearnLang}`;
+    window.location.href = url;
+  }
+
+  lucide.createIcons();
+</script>
+</body>
+</html>
