@@ -52,6 +52,24 @@
       </div>
     </div>
 
+    <!-- BLOCK USER -->
+    <div class="px-5 mt-4">
+      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+        <div class="flex items-center gap-2 mb-3">
+          <i data-lucide="shield-x" class="w-4 h-4" style="color:#D14343;"></i>
+          <span class="text-sm font-semibold" style="color:#0E211C;">ইউজার ব্লক করুন</span>
+        </div>
+        <div class="flex gap-2 mb-2">
+          <input id="block-email" type="email" placeholder="ইউজারের ইমেইল" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        </div>
+        <input id="block-reason" type="text" placeholder="কারণ (ঐচ্ছিক)" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+        <button onclick="blockUser()" class="w-full py-2.5 rounded-full text-sm font-semibold" style="background:#D14343; color:#fff;">ব্লক করুন</button>
+        <p id="block-notice" class="hidden text-xs mt-2 text-center"></p>
+
+        <div id="blocked-list" class="flex flex-col gap-2 mt-4"></div>
+      </div>
+    </div>
+
     <form id="q-form" onsubmit="submitQuestion(event)" class="px-5 mt-5 flex flex-col gap-3">
       <div>
         <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">বিষয়</label>
@@ -110,6 +128,48 @@
     loadSubjects();
     loadRecent();
     loadMaintenanceInfo();
+    loadBlockedList();
+  }
+
+  async function loadBlockedList() {
+    const { data } = await supabaseClient.from('blocked_users').select('*').order('blocked_at', { ascending: false });
+    document.getElementById('blocked-list').innerHTML = (data||[]).map(b => `
+      <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold truncate" style="color:#0E211C;">${b.email}</p>
+          ${b.reason ? `<p class="text-[11px]" style="color:#8A8266;">${b.reason}</p>` : ''}
+        </div>
+        <button onclick="unblockUser('${b.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:#0E211C; color:#E4C97A;">আনব্লক</button>
+      </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কেউ ব্লক করা নেই</p>`;
+  }
+
+  async function blockUser() {
+    const email = document.getElementById('block-email').value.trim().toLowerCase();
+    const reason = document.getElementById('block-reason').value.trim();
+    const notice = document.getElementById('block-notice');
+    if (!email) {
+      notice.textContent = 'ইমেইল দিন।';
+      notice.style.color = '#D14343';
+      notice.classList.remove('hidden');
+      return;
+    }
+    const { error } = await supabaseClient.from('blocked_users').upsert({ email, reason: reason || null });
+    if (error) {
+      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+      notice.style.color = '#D14343';
+    } else {
+      notice.textContent = 'ব্লক করা হয়েছে ✓';
+      notice.style.color = '#2F7A4F';
+      document.getElementById('block-email').value = '';
+      document.getElementById('block-reason').value = '';
+      loadBlockedList();
+    }
+    notice.classList.remove('hidden');
+  }
+
+  async function unblockUser(email) {
+    await supabaseClient.from('blocked_users').delete().eq('email', email);
+    loadBlockedList();
   }
 
   let maintenanceState = false;

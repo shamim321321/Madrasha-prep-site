@@ -117,3 +117,20 @@ async function nhIsAdmin() {
     // চেক ব্যর্থ হলে সাইট বন্ধ না করে স্বাভাবিকভাবে চলতে দেওয়া (fail-open)
   }
 })();
+
+// ---- ব্লক করা ইউজার চেক (auth.js যেকোনো পেজে লোড হলেই স্বয়ংক্রিয়ভাবে চলবে) ----
+(async function nhBlockedGate() {
+  const path = (window.location.pathname.split('/').pop() || 'index.html');
+  if (path === 'blocked.html') return; // লুপ এড়ানোর জন্য
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session || !session.user) return; // লগইন করা না থাকলে চেক করার দরকার নেই
+    const { data } = await supabaseClient.from('blocked_users').select('email').eq('email', session.user.email).maybeSingle();
+    if (data) {
+      await supabaseClient.auth.signOut();
+      window.location.href = 'blocked.html';
+    }
+  } catch (e) {
+    // চেক ব্যর্থ হলে সাইট বন্ধ না করে স্বাভাবিকভাবে চলতে দেওয়া (fail-open)
+  }
+})();
