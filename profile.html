@@ -105,33 +105,42 @@
     <section class="px-4 mt-4 grid grid-cols-3 gap-3">
       <div class="rounded-2xl p-3 text-center" style="background:#fff;">
         <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="edit-3" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-        <div class="num-bn text-lg" style="color:#0E211C;">০</div>
+        <div id="stat-total-q" class="num-bn text-lg" style="color:#0E211C;">০</div>
         <div class="text-[11px]" style="color:#5B5340;">মোট অনুশীলন</div>
       </div>
       <div class="rounded-2xl p-3 text-center" style="background:#fff;">
         <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="target" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-        <div class="num-bn text-lg" style="color:#0E211C;">—</div>
+        <div id="stat-accuracy" class="num-bn text-lg" style="color:#0E211C;">—</div>
         <div class="text-[11px]" style="color:#5B5340;">সঠিক উত্তরের হার</div>
       </div>
       <div class="rounded-2xl p-3 text-center" style="background:#fff;">
         <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="flame" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-        <div class="num-bn text-lg" style="color:#0E211C;">—</div>
+        <div id="stat-streak" class="num-bn text-lg" style="color:#0E211C;">—</div>
         <div class="text-[11px]" style="color:#5B5340;">সেরা স্ট্রিক</div>
       </div>
     </section>
 
-    <!-- WEAK TOPICS -->
-    <section class="px-4 mt-8">
-      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="trending-up" class="w-4 h-4" style="color:#C9A24C;"></i>দুর্বল বিষয়সমূহ</h2>
-      <div class="rounded-2xl p-5 text-center" style="background:#fff;">
-        <p class="text-sm" style="color:#5B5340;">কয়েকটা অনুশীলন সম্পন্ন হলে এখানে আপনার দুর্বল বিষয়গুলো দেখা যাবে।</p>
+    <!-- SUBJECT ACCURACY CHART -->
+    <section id="subject-chart-section" class="px-4 mt-8 hidden">
+      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="bar-chart-3" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক সঠিক উত্তরের হার</h2>
+      <div class="rounded-2xl p-4" style="background:#fff;">
+        <div id="subject-chart" class="flex items-end justify-between gap-2" style="height:110px;"></div>
       </div>
+    </section>
+
+    <!-- SUBJECT-WISE BREAKDOWN -->
+    <section class="px-4 mt-8">
+      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="trending-up" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক অগ্রগতি</h2>
+      <div id="subject-breakdown-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
+        <p class="text-sm" style="color:#5B5340;">কয়েকটা অনুশীলন সম্পন্ন হলে এখানে বিষয়ভিত্তিক সংখ্যা ও সঠিক উত্তরের হার দেখা যাবে।</p>
+      </div>
+      <div id="subject-breakdown-list" class="hidden rounded-2xl p-4 flex flex-col gap-4" style="background:#fff;"></div>
     </section>
 
     <!-- RECENT ACTIVITY -->
     <section class="px-4 mt-8">
       <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="history" class="w-4 h-4" style="color:#C9A24C;"></i>সাম্প্রতিক অনুশীলন</h2>
-      <div class="rounded-2xl p-5 text-center" style="background:#fff;">
+      <div id="recent-activity-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
         <p class="text-sm mb-3" style="color:#5B5340;">আপনি এখনো কোনো অনুশীলন সম্পন্ন করেননি।</p>
         <a href="practice.html" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold btn-gold">অনুশীলন শুরু করুন <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
       </div>
@@ -229,6 +238,90 @@
     document.getElementById('loading-msg').classList.add('hidden');
     document.getElementById('page').classList.remove('hidden');
     syncDrawerProfile();
+    loadStats();
+    lucide.createIcons();
+  }
+
+  async function loadStats(){
+    const { data, error } = await supabaseClient
+      .from('quiz_attempts')
+      .select('subject,total_questions,correct_count,created_at')
+      .eq('user_id', currentUser.id);
+
+    if (error || !data || data.length === 0) return;
+
+    let totalQ = 0, totalCorrect = 0;
+    const bySubject = {};
+    data.forEach(r => {
+      totalQ += r.total_questions;
+      totalCorrect += r.correct_count;
+      bySubject[r.subject] = bySubject[r.subject] || { total: 0, correct: 0 };
+      bySubject[r.subject].total += r.total_questions;
+      bySubject[r.subject].correct += r.correct_count;
+    });
+
+    document.getElementById('stat-total-q').textContent = totalQ.toLocaleString('bn-BD');
+    const overallAcc = totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0;
+    document.getElementById('stat-accuracy').textContent = overallAcc + '%';
+
+    const days = [...new Set(data.map(r => new Date(r.created_at).toISOString().slice(0, 10)))].sort();
+    let bestStreak = days.length ? 1 : 0, cur = 1;
+    for (let i = 1; i < days.length; i++) {
+      const diffDays = (new Date(days[i]) - new Date(days[i - 1])) / 86400000;
+      cur = diffDays === 1 ? cur + 1 : 1;
+      bestStreak = Math.max(bestStreak, cur);
+    }
+    document.getElementById('stat-streak').textContent = bestStreak;
+
+    const subjects = Object.entries(bySubject).map(([name, s]) => ({
+      name, total: s.total, correct: s.correct,
+      pct: s.total ? Math.round((s.correct / s.total) * 100) : 0
+    })).sort((a, b) => a.pct - b.pct);
+
+    const barColor = p => p >= 70 ? '#2F7A4F' : p >= 40 ? '#C9A24C' : '#D14343';
+
+    document.getElementById('subject-breakdown-empty').classList.add('hidden');
+    const list = document.getElementById('subject-breakdown-list');
+    list.classList.remove('hidden');
+    list.innerHTML = subjects.map(s => `
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-sm font-medium" style="color:#0E211C;">${s.name}</span>
+          <span class="text-xs" style="color:#5B5340;">${s.correct}/${s.total} সঠিক · ${s.pct}%</span>
+        </div>
+        <div class="w-full h-2 rounded-full" style="background:#F0EAD6;">
+          <div class="h-2 rounded-full" style="width:${s.pct}%; background:${barColor(s.pct)};"></div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('subject-chart-section').classList.remove('hidden');
+    document.getElementById('subject-chart').innerHTML = subjects.map(s => `
+      <div class="flex flex-col items-center gap-1.5" style="flex:1; min-width:0;">
+        <span class="text-[10px] font-semibold" style="color:#0E211C;">${s.pct}%</span>
+        <div class="w-full rounded-t-md" style="height:${Math.max(s.pct, 4)}px; max-height:100px; background:${barColor(s.pct)};"></div>
+        <span class="text-[9px] text-center leading-tight w-full truncate" style="color:#5B5340;" title="${s.name}">${s.name}</span>
+      </div>
+    `).join('');
+
+    const recent = [...data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+    if (recent.length > 0) {
+      document.getElementById('recent-activity-empty').outerHTML = `
+        <div class="rounded-2xl p-4 flex flex-col gap-3" style="background:#fff;">
+          ${recent.map(r => {
+            const pct = r.total_questions ? Math.round((r.correct_count / r.total_questions) * 100) : 0;
+            const dateStr = new Date(r.created_at).toLocaleDateString('bn-BD-u-nu-latn', { day: 'numeric', month: 'short' });
+            return `
+            <div class="flex items-center justify-between">
+              <div class="min-w-0">
+                <p class="text-sm font-medium truncate" style="color:#0E211C;">${r.subject}</p>
+                <p class="text-[11px]" style="color:#8A8266;">${dateStr}</p>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0" style="background:${barColor(pct)}22; color:${barColor(pct)};">${r.correct_count}/${r.total_questions} · ${pct}%</span>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
     lucide.createIcons();
   }
 
