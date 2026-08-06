@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>নিবন্ধন হাব — AI Powered Exam Practice Platform</title>
+<meta name="description" content="AI দিয়ে শিখুন, অনুশীলন করুন ও নিজের প্রস্তুতি যাচাই করুন — NTRCA ও অন্যান্য প্রতিযোগিতামূলক পরীক্ষার জন্য।" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
+  .btn-gold {
+    background: linear-gradient(180deg, #E0BD70 0%, #C9A24C 55%, #A8822E 100%);
+    color:#0E211C;
+    border: 1px solid rgba(139,107,42,0.4);
+    box-shadow: 0 3px 0 #8B6B2A, 0 5px 10px rgba(14,33,28,0.25), inset 0 1px 0 rgba(255,255,255,0.35);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-gold:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #8B6B2A, 0 2px 5px rgba(14,33,28,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .btn-outline-3d {
+    background: linear-gradient(180deg, rgba(201,162,76,0.28), rgba(201,162,76,0.12));
+    border: 1.5px solid #C9A24C;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-outline-3d:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .card-border { border:1px solid rgba(201,162,76,0.25); }
+  .hero-grad {
+    background:
+      radial-gradient(circle at 88% 12%, rgba(201,162,76,0.22) 0%, transparent 42%),
+      radial-gradient(circle at 8% 92%, rgba(46,107,94,0.45) 0%, transparent 50%),
+      radial-gradient(circle at 1px 1px, rgba(244,238,220,0.14) 1px, transparent 0) 0 0/22px 22px,
+      linear-gradient(135deg,#0E211C 0%,#1B4740 55%,#2E6B5E 100%);
+  }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+  #mnav nav a:active { background:rgba(244,238,220,0.06); }
+  .hero-dots {
+    background-image: radial-gradient(rgba(201,162,76,0.45) 1px, transparent 1.6px);
+    background-size: 16px 16px;
+    opacity: 0.55;
+    -webkit-mask-image: radial-gradient(ellipse 90% 80% at 70% 35%, #000 40%, transparent 85%);
+            mask-image: radial-gradient(ellipse 90% 80% at 70% 35%, #000 40%, transparent 85%);
+  }
+</style>
+</head>
+<body class="sans-bn pb-20">
+
+  <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <a href="index.html" class="flex items-center gap-2.5">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden" style="background:#0E211C;">
+        <img src="logo.png" alt="GenMCQ" class="w-full h-full object-cover">
+      </div>
+      <div>
+        <div class="serif-bn text-lg leading-tight" style="color:#F4EEDC;">নিবন্ধন হাব</div>
+        <div class="text-[10px] leading-tight" style="color:#C9A24C;">প্রস্তুতি যেখানে সহজ হয়</div>
+      </div>
+    </a>
+    <div class="flex items-center gap-3">
+      <a href="donate.html" class="relative p-1.5" style="color:#D14343;" title="Support">
+        <i data-lucide="heart" class="w-5 h-5"></i>
+      </a>
+      <a href="notices.html" class="relative p-1.5" style="color:#DCD3B6;">
+        <i data-lucide="bell" class="w-5 h-5"></i>
+      </a>
+      <div class="relative">
+        <button id="nav-user" onclick="nhToggleUserMenu()" class="hidden w-9 h-9 rounded-full items-center justify-center text-xs font-bold overflow-hidden btn-gold"></button>
+        <div id="user-menu" class="hidden absolute right-0 top-11 z-40 w-40 rounded-xl overflow-hidden" style="background:#16332B; border:1px solid rgba(201,162,76,0.3);">
+          <a href="profile.html" class="block px-4 py-2.5 text-xs" style="color:#F4EEDC;">View Profile</a>
+          <a id="admin-link" href="admin.html" class="hidden block px-4 py-2.5 text-xs" style="color:#E4C97A; border-top:1px solid rgba(201,162,76,0.15);">Admin Panel</a>
+          <button onclick="nhSignOut()" class="w-full text-left px-4 py-2.5 text-xs" style="color:#E08A6C; border-top:1px solid rgba(201,162,76,0.15);">Log Out</button>
+        </div>
+      </div>
+      <button id="nav-login-btn" onclick="openAuth()" class="px-3 py-1.5 rounded-full text-xs font-medium btn-gold">লগইন</button>
+      <button onclick="openDrawer()" style="color:#DCD3B6;">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </header>
+
+  <div id="drawer-overlay" onclick="closeDrawer()" class="hidden fixed inset-0 z-40" style="background:rgba(0,0,0,0.55);"></div>
+
+  <aside id="mnav" class="fixed top-0 right-0 h-full w-[80%] max-w-xs z-50 flex flex-col px-5 py-5 transform translate-x-full transition-transform duration-300 ease-out" style="background:#16332B; box-shadow:-10px 0 30px rgba(0,0,0,0.35);">
+    <button onclick="closeDrawer()" class="self-end mb-3 p-1" style="color:#DCD3B6;"><i data-lucide="x" class="w-5 h-5"></i></button>
+
+    <div class="flex items-center gap-3 pb-5 mb-3" style="border-bottom:1px solid rgba(201,162,76,0.2);">
+      <div id="drawer-avatar" class="w-14 h-14 rounded-full flex items-center justify-center shrink-0 overflow-hidden btn-gold">
+        <i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>
+      </div>
+      <div class="min-w-0">
+        <p id="drawer-status" class="text-sm font-semibold" style="color:#F4EEDC;">লগইন করুন</p>
+        <button id="drawer-auth-btn" onclick="closeDrawer(); openAuth();" class="text-xs mt-0.5" style="color:#C9A24C;">প্রবেশ করুন / নিবন্ধন করুন</button>
+        <a id="drawer-profile-link" href="profile.html" class="hidden text-xs mt-0.5" style="color:#C9A24C;">প্রোফাইল দেখুন →</a>
+      </div>
+    </div>
+
+    <nav class="flex flex-col gap-0.5 text-sm overflow-y-auto" style="color:#DCD3B6;">
+      <a href="practice.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4" style="color:#C9A24C;"></i>Practice</a>
+      <a href="library.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="book-open" class="w-4 h-4" style="color:#C9A24C;"></i>Library</a>
+      <a href="ai.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4" style="color:#C9A24C;"></i>AI</a>
+      <a href="faraidh.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="calculator" class="w-4 h-4" style="color:#C9A24C;"></i>ফারায়েজ ক্যালকুলেটর</a>
+      <a href="contact.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="phone" class="w-4 h-4" style="color:#C9A24C;"></i>যোগাযোগ</a>
+      <a href="donate.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="heart" class="w-4 h-4" style="color:#D14343;"></i>সাপোর্ট / ডোনেট</a>
+
+      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+
+      <a href="about.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="info" class="w-4 h-4" style="color:#C9A24C;"></i>আমাদের সম্পর্কে</a>
+      <a href="founder.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="crown" class="w-4 h-4" style="color:#C9A24C;"></i>ফাউন্ডার</a>
+      <a href="mentors.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="users" class="w-4 h-4" style="color:#C9A24C;"></i>মেন্টরগণ</a>
+
+      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+
+      <a href="privacy-policy.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="shield" class="w-4 h-4" style="color:#C9A24C;"></i>গোপনীয়তা নীতি</a>
+      <a href="terms.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="file-text" class="w-4 h-4" style="color:#C9A24C;"></i>শর্তাবলি</a>
+    </nav>
+
+    <p class="mt-auto pt-4 text-[11px] text-center" style="color:#6E8078;">© নিবন্ধন হাব</p>
+  </aside>
+
+  <section class="hero-grad px-5 pt-8 pb-9 mx-4 mt-4 rounded-3xl relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
+      <i data-lucide="book-open" class="absolute w-8 h-8" style="top:7%; left:5%; color:#F4EEDC; opacity:0.14; transform:rotate(-10deg);"></i>
+      <i data-lucide="lightbulb" class="absolute w-8 h-8" style="top:6%; right:8%; color:#C9A24C; opacity:0.18; transform:rotate(8deg);"></i>
+      <i data-lucide="play-circle" class="absolute w-7 h-7" style="bottom:18%; left:8%; color:#F4EEDC; opacity:0.12; transform:rotate(6deg);"></i>
+      <i data-lucide="graduation-cap" class="absolute w-12 h-12" style="top:38%; right:6%; color:#C9A24C; opacity:0.16; transform:rotate(-6deg);"></i>
+      <i data-lucide="clipboard-check" class="absolute w-7 h-7" style="bottom:8%; right:24%; color:#F4EEDC; opacity:0.13; transform:rotate(-8deg);"></i>
+      <i data-lucide="trophy" class="absolute w-7 h-7" style="bottom:6%; right:4%; color:#C9A24C; opacity:0.15; transform:rotate(7deg);"></i>
+    </div>
+    <p class="text-xs tracking-widest mb-2 relative" style="color:#C9A24C; letter-spacing:0.15em;">AI POWERED EXAM PRACTICE</p>
+    <h1 class="serif-bn text-2xl leading-snug mb-2 relative" style="color:#F4EEDC;">শিখুন, অনুশীলন করুন,<br/>নিজেকে যাচাই করুন</h1>
+    <p class="text-sm mb-5 relative max-w-xs" style="color:#CBD9D2;">AI দিয়ে যেকোনো টপিক শিখুন এবং তাৎক্ষণিক অনুশীলনের মাধ্যমে নিজের প্রস্তুতি যাচাই করুন।</p>
+    <div class="flex gap-3 relative">
+      <a href="practice.html" class="px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5 btn-gold">
+        <i data-lucide="zap" class="w-4 h-4"></i> Start Practice
+      </a>
+      <a href="ai.html" class="btn-outline-3d px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-1.5" style="color:#F0D48A;">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> AI Features
+      </a>
+    </div>
+  </section>
+
+  <section class="px-4 mt-5">
+    <div class="rounded-2xl p-5 flex items-center gap-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="database" class="w-6 h-6" style="color:#8B6B2A;"></i></div>
+      <div>
+        <p id="qbank-count" class="num-bn text-2xl leading-tight" style="color:#0E211C;">০</p>
+        <p class="text-xs mt-0.5" style="color:#5B5340;">প্রশ্ন ব্যাংকে মোট প্রশ্ন জমা হয়েছে</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="px-4 mt-6">
+    <div class="grid grid-cols-2 gap-3">
+      <a href="practice.html" class="rounded-2xl p-4" style="background:#fff;">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 icon-badge"><i data-lucide="layers" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <p class="text-sm font-semibold" style="color:#0E211C;">Subject Practice</p>
+        <p class="text-xs mt-0.5" style="color:#5B5340;">বিষয়ভিত্তিক অনুশীলন</p>
+      </a>
+      <a href="daily-challenge.html" class="rounded-2xl p-4" style="background:#fff;">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 icon-badge"><i data-lucide="calendar-check-2" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <p class="text-sm font-semibold" style="color:#0E211C;">Daily Challenge</p>
+        <p class="text-xs mt-0.5" style="color:#5B5340;">প্রতিদিনের চ্যালেঞ্জ</p>
+      </a>
+      <a href="leaderboard.html" class="rounded-2xl p-4" style="background:#fff;">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 icon-badge"><i data-lucide="trophy" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <p class="text-sm font-semibold" style="color:#0E211C;">Leaderboard</p>
+        <p class="text-xs mt-0.5" style="color:#5B5340;">সেরাদের তালিকা</p>
+      </a>
+      <a href="profile.html" class="rounded-2xl p-4" style="background:#fff;">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-2 icon-badge"><i data-lucide="activity" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <p class="text-sm font-semibold" style="color:#0E211C;">Recent Activity</p>
+        <p class="text-xs mt-0.5" style="color:#5B5340;">সাম্প্রতিক কার্যক্রম</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="px-4 mt-8">
+    <div class="rounded-2xl p-5" style="background:#16332B;">
+      <div class="flex items-center gap-2.5 mb-2">
+        <i data-lucide="sparkles" class="w-5 h-5" style="color:#C9A24C;"></i>
+        <h2 class="serif-bn text-lg" style="color:#F4EEDC;">AI দিয়ে শিখুন ও অনুশীলন করুন</h2>
+      </div>
+      <p class="text-xs mb-4" style="color:#9FB3AB;">যেকোনো টপিক লিখুন — AI আপনার জন্য ব্যাখ্যা ও প্রশ্ন তৈরি করে দেবে।</p>
+      <a href="ai.html" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold btn-gold">AI সেকশনে যান <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+    </div>
+  </section>
+
+  <div class="flex justify-center gap-4 mt-9">
+    <a href="https://wa.me/8801866005870" target="_blank" class="w-12 h-12 rounded-xl flex items-center justify-center icon-badge">
+      <i data-lucide="message-circle" class="w-5 h-5" style="color:#8B6B2A;"></i>
+    </a>
+    <a href="https://www.facebook.com/prof355or" target="_blank" class="w-12 h-12 rounded-xl flex items-center justify-center icon-badge">
+      <i data-lucide="facebook" class="w-5 h-5" style="color:#8B6B2A;"></i>
+    </a>
+    <a href="tel:+8801866005870" class="w-12 h-12 rounded-xl flex items-center justify-center icon-badge">
+      <i data-lucide="phone" class="w-5 h-5" style="color:#8B6B2A;"></i>
+    </a>
+  </div>
+
+  <footer class="px-5 py-8 mt-3 text-center text-xs" style="color:#8A8266;">
+    © নিবন্ধন হাব — প্রস্তুতি যেখানে সহজ হয়।
+  </footer>
+
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee;">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
+    <a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
+    <a href="ai.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="sparkles" class="w-5 h-5"></i>AI</a>
+    <button onclick="goDashboard()" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="user" class="w-5 h-5"></i>Profile</button>
+  </nav>
+
+  <div id="auth-modal" class="hidden fixed inset-0 z-40 flex items-center justify-center px-5" style="background:rgba(0,0,0,0.6);" onclick="if(event.target===this) closeAuth()">
+    <div class="w-full max-w-sm rounded-2xl p-6 relative" style="background:#16332B; border:1px solid rgba(201,162,76,0.3);">
+      <button onclick="closeAuth()" class="absolute top-4 right-4" style="color:#DCD3B6;"><i data-lucide="x" class="w-4 h-4"></i></button>
+      <div class="flex gap-5 mb-6" style="border-bottom:1px solid rgba(201,162,76,0.2);">
+        <button id="tab-login" onclick="setTab('login')" class="text-sm pb-3" style="color:#C9A24C; border-bottom:2px solid #C9A24C;">লগইন</button>
+        <button id="tab-register" onclick="setTab('register')" class="text-sm pb-3" style="color:#DCD3B6; border-bottom:2px solid transparent;">নিবন্ধন</button>
+      </div>
+      <form id="auth-form" onsubmit="handleAuth(event)">
+        <label id="name-field" class="hidden block mb-4">
+          <span class="block text-sm mb-1.5" style="color:#DCD3B6;">পূর্ণ নাম</span>
+          <input id="f-name" type="text" placeholder="আপনার নাম" class="w-full px-4 py-2.5 rounded-lg outline-none" style="background:rgba(244,238,220,0.06); border:1px solid #4F7268; color:#F4EEDC;">
+        </label>
+        <label class="block mb-4">
+          <span class="block text-sm mb-1.5" style="color:#DCD3B6;">ইমেইল</span>
+          <input id="f-email" type="email" placeholder="you@example.com" class="w-full px-4 py-2.5 rounded-lg outline-none" style="background:rgba(244,238,220,0.06); border:1px solid #4F7268; color:#F4EEDC;">
+        </label>
+        <label class="block mb-4">
+          <span class="block text-sm mb-1.5" style="color:#DCD3B6;">পাসওয়ার্ড</span>
+          <input id="f-pass" type="password" placeholder="••••••••" class="w-full px-4 py-2.5 rounded-lg outline-none" style="background:rgba(244,238,220,0.06); border:1px solid #4F7268; color:#F4EEDC;">
+        </label>
+        <p id="auth-notice" class="hidden text-xs mb-3" style="color:#E08A6C;"></p>
+        <button type="submit" class="w-full py-2.5 rounded-lg font-medium btn-gold" id="auth-submit-btn">লগইন করুন</button>
+      </form>
+    </div>
+  </div>
+
+<script src="auth.js"></script>
+<script>
+
+  function openAuth(){ document.getElementById('auth-modal').classList.remove('hidden'); }
+  function closeAuth(){ document.getElementById('auth-modal').classList.add('hidden'); }
+
+  function openDrawer(){
+    syncDrawerProfile();
+    document.getElementById('mnav').classList.remove('translate-x-full');
+    document.getElementById('drawer-overlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('mnav').classList.add('translate-x-full');
+    document.getElementById('drawer-overlay').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+  function syncDrawerProfile(){
+    const navUser = document.getElementById('nav-user');
+    const loggedIn = navUser && !navUser.classList.contains('hidden');
+    document.getElementById('drawer-status').textContent = loggedIn ? 'স্বাগতম!' : 'লগইন করুন';
+    document.getElementById('drawer-auth-btn').classList.toggle('hidden', loggedIn);
+    document.getElementById('drawer-profile-link').classList.toggle('hidden', !loggedIn);
+    const avatar = document.getElementById('drawer-avatar');
+    if (loggedIn) {
+      avatar.innerHTML = navUser.innerHTML;
+      avatar.style.background = getComputedStyle(navUser).background;
+    } else {
+      avatar.innerHTML = '<i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>';
+      avatar.style.background = '';
+    }
+    lucide.createIcons();
+  }
+  async function goDashboard(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session && session.user) { window.location.href = 'profile.html'; }
+    else { openAuth(); }
+  }
+  let currentTab = 'login';
+  function setTab(t){
+    currentTab = t;
+    document.getElementById('tab-login').style.color = t==='login' ? '#C9A24C' : '#DCD3B6';
+    document.getElementById('tab-login').style.borderBottomColor = t==='login' ? '#C9A24C' : 'transparent';
+    document.getElementById('tab-register').style.color = t==='register' ? '#C9A24C' : '#DCD3B6';
+    document.getElementById('tab-register').style.borderBottomColor = t==='register' ? '#C9A24C' : 'transparent';
+    document.getElementById('name-field').classList.toggle('hidden', t!=='register');
+    document.getElementById('auth-submit-btn').textContent = t==='login' ? 'লগইন করুন' : 'নিবন্ধন করুন';
+  }
+  async function handleAuth(e){
+    e.preventDefault();
+    const notice = document.getElementById('auth-notice');
+    const btn = document.getElementById('auth-submit-btn');
+    const name = document.getElementById('f-name').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    const pass = document.getElementById('f-pass').value.trim();
+    if (currentTab==='register' && !name){ notice.textContent='নাম লিখুন।'; notice.classList.remove('hidden'); return; }
+    if (!email || !pass){ notice.textContent='ইমেইল ও পাসওয়ার্ড দিন।'; notice.classList.remove('hidden'); return; }
+    notice.classList.add('hidden');
+    btn.textContent = 'অপেক্ষা করুন...';
+    const timeout = (ms) => new Promise((_, rej) => setTimeout(() => rej(new Error('সময় শেষ — 10 সেকেন্ডে সাড়া মেলেনি')), ms));
+    let result;
+    try {
+      const authCall = currentTab === 'register' ? nhSignUp(name, email, pass) : nhSignIn(email, pass);
+      result = await Promise.race([authCall, timeout(10000)]);
+    } catch (err) {
+      notice.textContent = 'নেটওয়ার্ক/সংযোগ এরর: ' + (err && err.message ? err.message : String(err));
+      notice.classList.remove('hidden');
+      btn.textContent = currentTab==='login' ? 'লগইন করুন' : 'নিবন্ধন করুন';
+      return;
+    }
+    if (result.error) {
+      notice.textContent = result.error.message.includes('already registered') ? 'এই ইমেইলে আগে থেকে একাউন্ট আছে, লগইন করুন।'
+        : result.error.message.includes('Invalid login') ? 'ইমেইল বা পাসওয়ার্ড ভুল।'
+        : 'কিছু ভুল হয়েছে: ' + result.error.message;
+      notice.classList.remove('hidden');
+      btn.textContent = currentTab==='login' ? 'লগইন করুন' : 'নিবন্ধন করুন';
+      return;
+    }
+    btn.textContent = currentTab==='login' ? 'লগইন করুন' : 'নিবন্ধন করুন';
+    closeAuth();
+    nhRenderAuthState();
+    checkAdmin();
+  }
+
+  async function checkAdmin(){
+    const isAdmin = await nhIsAdmin();
+    document.getElementById('admin-link').classList.toggle('hidden', !isAdmin);
+  }
+
+  function toBanglaDigits(n){
+    const map = {'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'};
+    return n.toString().split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
+  }
+
+  function animateCount(el, target, duration){
+    const start = performance.now();
+    function tick(now){
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const value = Math.round(eased * target);
+      el.textContent = toBanglaDigits(value);
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  async function loadQuestionBankCount(){
+    const el = document.getElementById('qbank-count');
+    if (!el) return;
+    try {
+      const { count, error } = await supabaseClient.from('questions').select('*', { count: 'exact', head: true });
+      if (error || count === null) { el.textContent = '—'; return; }
+      animateCount(el, count, 1400);
+    } catch (e) {
+      el.textContent = '—';
+    }
+  }
+
+  lucide.createIcons();
+  nhRenderAuthState();
+  checkAdmin();
+  loadQuestionBankCount();
+</script>
+</body>
+</html>
