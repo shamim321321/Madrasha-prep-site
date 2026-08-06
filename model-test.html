@@ -18,6 +18,8 @@
   .opt-btn { background:#fff; border:1px solid #E4DAB8; }
   .opt-btn.selected { background:#FBF0DC; border-color:#C9A24C; }
   .icon-badge { background:rgba(201,162,76,0.12); }
+  @keyframes slideInCard { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  .card-anim { animation: slideInCard .28s ease-out; }
 </style>
 </head>
 <body class="sans-bn pb-24">
@@ -140,27 +142,42 @@
 
     <div class="rounded-2xl p-4 mb-5" style="background:#FBF0DC; border:1px solid #E8CE94;">
       <p class="text-xs font-semibold mb-1.5" style="color:#6B5A2E;">⚠️ পরীক্ষা শুরুর মাধ্যমে আপনি সম্মতি দিচ্ছেন যে —</p>
-      <p class="text-xs" style="color:#6B5A2E;">এই পরীক্ষায় আপনি কোনো অসদুপায় অবলম্বন করবেন না। উত্তর জমা দেওয়ার আগে অন্য কোনো মাধ্যমে উত্তর দেখার চেষ্টা করবেন না — তাতে নিজের প্রকৃত প্রস্তুতি যাচাই হবে না। প্রশ্নগুলো নিচের দিকে স্ক্রল করে দেখতে হবে, সবগুলোর উত্তর দিয়ে শেষে "উত্তরপত্র জমা দিন" বাটনে চাপুন।</p>
+      <p class="text-xs" style="color:#6B5A2E;">এই পরীক্ষায় আপনি কোনো অসদুপায় অবলম্বন করবেন না। উত্তর জমা দেওয়ার আগে অন্য কোনো মাধ্যমে উত্তর দেখার চেষ্টা করবেন না। উত্তর করলে সাথে সাথে পরের প্রশ্ন চলে আসবে — আগের প্রশ্নে ফিরে দেখতে চাইলে ◀ বাটনে চাপুন।</p>
     </div>
 
     <button onclick="startExam()" class="w-full py-3.5 rounded-full text-sm font-semibold btn-gold flex items-center justify-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>সম্মতি দিয়ে পরীক্ষা শুরু করুন</button>
   </div>
 
-  <!-- QUIZ (স্ক্রল-ভিত্তিক প্রশ্নপত্র) -->
+  <!-- QUIZ: এক-এক করে প্রশ্ন, উত্তর দিলে অটো পরের প্রশ্নে যাবে -->
   <div id="quiz-area" class="hidden">
     <div class="px-5 py-3 flex items-center justify-between" style="position:sticky; top:60px; z-index:20; background:#F4EEDC; border-bottom:1px solid #E4DAB8;">
-      <span id="answered-progress" class="text-xs font-medium" style="color:#5B5340;"></span>
+      <span id="q-position" class="text-xs font-medium" style="color:#5B5340;"></span>
       <span id="q-timer" class="text-xs font-semibold" style="color:#D14343;"></span>
     </div>
     <div class="w-full h-1.5" style="background:#E4DAB8;">
       <div id="progress-bar" class="h-1.5" style="background:#C9A24C; width:0%; transition:width .2s;"></div>
     </div>
 
-    <div id="quiz-list" class="px-5 mt-4 flex flex-col gap-4"></div>
+    <div id="card-viewport" class="px-5 mt-4"></div>
 
-    <div class="px-5 mt-2 mb-6">
-      <button id="submit-btn" onclick="confirmSubmit()" class="w-full py-3.5 rounded-full text-sm font-semibold btn-gold flex items-center justify-center gap-2"><i data-lucide="send" class="w-4 h-4"></i>উত্তরপত্র জমা দিন</button>
+    <div class="px-5 mt-3 flex items-center justify-between gap-3">
+      <button onclick="goToCard(currentIndex-1)" class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold" style="background:#fff; border:1px solid #E4DAB8; color:#5B5340;"><i data-lucide="chevron-left" class="w-4 h-4"></i>আগের প্রশ্ন</button>
+      <button onclick="goToCard(currentIndex+1)" class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold" style="background:#fff; border:1px solid #E4DAB8; color:#5B5340;">পরের প্রশ্ন<i data-lucide="chevron-right" class="w-4 h-4"></i></button>
     </div>
+  </div>
+
+  <div id="submit-bar" class="hidden fixed left-0 right-0 z-30 px-5 py-3" style="bottom:0; background:#fff; border-top:1px solid #eee; box-shadow:0 -2px 10px rgba(0,0,0,0.08);">
+    <div class="flex items-center justify-between gap-3">
+      <span id="answered-progress" class="text-xs" style="color:#5B5340;"></span>
+      <button onclick="confirmSubmit()" class="px-5 py-2.5 rounded-full text-sm font-semibold btn-gold flex items-center gap-1.5"><i data-lucide="send" class="w-3.5 h-3.5"></i>জমা দিন</button>
+    </div>
+  </div>
+
+  <!-- REVIEW (সাবমিটের পর, স্ক্রল করে সবগুলো দেখা যাবে) -->
+  <div id="review-area" class="hidden px-5 mt-4">
+    <p class="text-sm font-semibold mb-3" style="color:#0E211C;">উত্তরপত্র রিভিউ</p>
+    <div id="review-list" class="flex flex-col gap-4 mb-6"></div>
+    <a href="ai.html" class="block text-center py-3 rounded-full text-sm font-semibold mb-6" style="border:1px solid #E4DAB8; color:#5B5340;">AI সেকশনে ফিরুন</a>
   </div>
 
   <!-- RESULT -->
@@ -196,7 +213,7 @@
     </div>
 
     <div class="flex flex-col gap-3">
-      <button onclick="scrollToReview()" class="py-3 rounded-full text-sm font-semibold" style="border:1px solid #C9A24C; color:#8B6B2A;">উত্তরপত্র রিভিউ করুন</button>
+      <button onclick="openReview()" class="py-3 rounded-full text-sm font-semibold" style="border:1px solid #C9A24C; color:#8B6B2A;">উত্তরপত্র রিভিউ করুন</button>
       <button onclick="location.reload()" class="py-3 rounded-full text-sm font-semibold btn-gold">আবার মডেল টেস্ট দিন</button>
       <a href="ai.html" class="py-3 rounded-full text-sm font-semibold text-center" style="border:1px solid #E4DAB8; color:#5B5340;">AI সেকশনে ফিরুন</a>
     </div>
@@ -204,7 +221,7 @@
 
   <p id="no-questions" class="hidden px-5 mt-10 text-center text-sm" style="color:#8A8266;"><span id="no-questions-text">এই ট্র্যাকে এখনো পর্যাপ্ত প্রশ্ন যোগ করা হয়নি।</span></p>
 
-  <nav class="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee; box-shadow:0 -2px 10px rgba(0,0,0,0.06);">
+  <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee; box-shadow:0 -2px 10px rgba(0,0,0,0.06);">
     <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
     <a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
     <a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
@@ -234,9 +251,11 @@
   let currentTrackKey = null;
   let builtQuestions = [];
   let quizQuestions = [];
+  let currentIndex = 0;
   let answers = {};       // index -> 'a'|'b'|'c'|'d'
   let qbStates = {};      // index -> { verified, bookmarked, qid }
   let submitted = false;
+  let advanceTimer = null;
   let score = 0;
   let wrongCount = 0;
   let wrongTopics = [];
@@ -244,7 +263,7 @@
   let timerInterval = null;
 
   function showEl(id){
-    document.querySelectorAll('#track-picker,#building,#exam-info,#quiz-area,#result-area,#no-questions').forEach(e=>e.classList.add('hidden'));
+    document.querySelectorAll('#track-picker,#building,#exam-info,#quiz-area,#review-area,#result-area,#no-questions').forEach(e=>e.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
   }
 
@@ -356,36 +375,34 @@
     lucide.createIcons();
   }
 
-  // ==== ধাপ ২: পুরো প্রশ্নপত্র স্ক্রল আকারে দেখানো ====
+  // ==== ধাপ ২: এক-এক করে প্রশ্ন, উত্তর দিলে অটো পরের প্রশ্নে ====
   function startExam(){
     quizQuestions = builtQuestions;
-    answers = {}; qbStates = {}; submitted = false;
+    currentIndex = 0; answers = {}; qbStates = {}; submitted = false;
     score = 0; wrongCount = 0; wrongTopics = []; subjectStats = {};
+    quizQuestions.forEach((q,i) => { qbStates[i] = { verified:false, bookmarked:false, qid: q.id || null }; });
     showEl('quiz-area');
+    document.getElementById('submit-bar').classList.remove('hidden');
+    document.getElementById('bottom-nav').classList.add('hidden');
     startQuizTimer(quizQuestions.length);
-    renderAllQuestions();
-    loadQualityStatuses();
+    goToCard(0);
+    loadAllQualityStatuses();
     updateAnsweredProgress();
   }
 
-  function renderAllQuestions(){
-    const list = document.getElementById('quiz-list');
-    list.innerHTML = quizQuestions.map((q, i) => {
-      qbStates[i] = { verified: false, bookmarked: false, qid: q.id || null };
-      const dirAttr = q.isArabic ? 'rtl' : 'auto';
-      const fontStyle = q.isArabic ? "font-family:'Traditional Arabic', serif;" : '';
-      const optsHtml = ['a','b','c','d'].map(k => `<button data-key="${k}" onclick="selectAnswer(${i},'${k}')" dir="${dirAttr}" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm" style="${fontStyle}">${q['option_'+k] || ''}</button>`).join('');
-      return `
-      <div id="qcard-${i}" class="rounded-2xl p-4" style="background:#fff;">
+  function cardTemplate(i){
+    const q = quizQuestions[i];
+    const dirAttr = q.isArabic ? 'rtl' : 'auto';
+    const fontStyle = q.isArabic ? "font-family:'Traditional Arabic', serif;" : '';
+    const selected = answers[i];
+    const optsHtml = ['a','b','c','d'].map(k => `<button data-key="${k}" onclick="selectAnswer(${i},'${k}')" dir="${dirAttr}" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm${selected===k ? ' selected':''}" style="${fontStyle}">${q['option_'+k] || ''}</button>`).join('');
+    return `
+      <div id="qcard-${i}" class="card-anim rounded-2xl p-4" style="background:#fff;">
         <div class="flex items-center justify-between mb-2.5 gap-2">
           <span class="text-[11px] px-2 py-0.5 rounded-full shrink-0" style="background:#0E211C; color:#E4C97A;">${i+1}. ${q.subject}${q.topic ? ' · ' + q.topic : ''}</span>
         </div>
         <p class="text-base leading-relaxed mb-3" dir="${dirAttr}" style="${fontStyle} color:#0E211C;">${q.question}</p>
         <div id="opts-${i}" class="flex flex-col gap-2.5">${optsHtml}</div>
-        <div id="exp-${i}" class="hidden mt-3 rounded-xl p-3.5" style="background:#FBF0DC; border:1px solid #E8CE94;">
-          <p class="text-xs font-semibold mb-1" style="color:#6B5A2E;">ব্যাখ্যা</p>
-          <p id="exp-text-${i}" class="text-xs" style="color:#6B5A2E;"></p>
-        </div>
         <div id="quality-bar-${i}" class="mt-3 rounded-xl p-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
           <div class="flex items-center justify-around">
             <button id="qb-verify-${i}" onclick="handleVerify(${i})" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="thumbs-up" class="w-4 h-4"></i>ভেরিফাই</button>
@@ -402,7 +419,16 @@
           <p id="qb-notice-${i}" class="hidden text-[11px] mt-2 text-center"></p>
         </div>
       </div>`;
-    }).join('');
+  }
+
+  function goToCard(i){
+    if (i < 0 || i >= quizQuestions.length) return;
+    clearTimeout(advanceTimer);
+    currentIndex = i;
+    document.getElementById('card-viewport').innerHTML = cardTemplate(i);
+    document.getElementById('q-position').textContent = `প্রশ্ন ${i+1} / ${quizQuestions.length}`;
+    document.getElementById('progress-bar').style.width = `${((i+1)/quizQuestions.length)*100}%`;
+    applyQualityStatus(i);
     lucide.createIcons();
   }
 
@@ -413,13 +439,18 @@
       btn.classList.toggle('selected', btn.dataset.key === key);
     });
     updateAnsweredProgress();
+    clearTimeout(advanceTimer);
+    advanceTimer = setTimeout(() => {
+      if (currentIndex < quizQuestions.length - 1) {
+        goToCard(currentIndex + 1);
+      }
+    }, 400);
   }
 
   function updateAnsweredProgress(){
     const answeredCount = Object.keys(answers).length;
     const total = quizQuestions.length;
     document.getElementById('answered-progress').textContent = `উত্তর দেওয়া হয়েছে: ${answeredCount} / ${total}`;
-    document.getElementById('progress-bar').style.width = `${(answeredCount/total)*100}%`;
   }
 
   // ==== টাইমার: প্রশ্নপ্রতি ৩৬ সেকেন্ড ====
@@ -455,55 +486,63 @@
     submitExam();
   }
 
-  // ==== ধাপ ৩: জমা দেওয়া হলে সব প্রশ্নের সঠিক/ভুল রিভিল ও ফলাফল হিসাব ====
+  // ==== ধাপ ৩: জমা — ফলাফল হিসাব + স্ক্রলযোগ্য রিভিউ লিস্ট তৈরি ====
   function submitExam(){
     if (submitted) return;
     submitted = true;
     clearInterval(timerInterval);
-    document.getElementById('submit-btn').disabled = true;
-    document.getElementById('submit-btn').style.opacity = '0.6';
+    clearTimeout(advanceTimer);
+    document.getElementById('submit-bar').classList.add('hidden');
+    document.getElementById('bottom-nav').classList.remove('hidden');
 
-    quizQuestions.forEach((q, i) => {
+    const reviewList = document.getElementById('review-list');
+    reviewList.innerHTML = quizQuestions.map((q, i) => {
       const selected = answers[i];
-      document.querySelectorAll(`#opts-${i} button`).forEach(btn => {
-        btn.onclick = null;
-        const k = btn.dataset.key;
-        if (k === q.correct) { btn.style.background = '#DFF3E3'; btn.style.borderColor = '#2F7A4F'; btn.style.color = '#1E5C36'; }
-        else if (k === selected) { btn.style.background = '#FBE2E2'; btn.style.borderColor = '#D14343'; btn.style.color = '#8C2020'; }
-      });
-
       const subj = q.subject || 'অজানা';
       subjectStats[subj] = subjectStats[subj] || { correct: 0, total: 0 };
-
       if (selected) {
         subjectStats[subj].total++;
-        if (selected === q.correct) {
-          score++;
-          subjectStats[subj].correct++;
-        } else {
-          wrongCount++;
-          wrongTopics.push(q.topic || q.subject);
-        }
+        if (selected === q.correct) { score++; subjectStats[subj].correct++; }
+        else { wrongCount++; wrongTopics.push(q.topic || q.subject); }
       }
 
+      const dirAttr = q.isArabic ? 'rtl' : 'auto';
+      const fontStyle = q.isArabic ? "font-family:'Traditional Arabic', serif;" : '';
+      const optsHtml = ['a','b','c','d'].map(k => {
+        let style = "background:#fff; border:1px solid #E4DAB8;";
+        if (k === q.correct) style = "background:#DFF3E3; border:1px solid #2F7A4F; color:#1E5C36;";
+        else if (k === selected) style = "background:#FBE2E2; border:1px solid #D14343; color:#8C2020;";
+        return `<div dir="${dirAttr}" class="w-full text-left px-4 py-3 rounded-xl text-sm" style="${fontStyle}${style}">${q['option_'+k] || ''}</div>`;
+      }).join('');
+
+      let expHtml = '';
       if (q.explanation) {
-        const expTextEl = document.getElementById(`exp-text-${i}`);
+        let expInner;
         if (q.isArabic && q.explanation_bn) {
-          expTextEl.innerHTML = `<span dir="rtl" style="font-family:'Traditional Arabic', serif; display:block;">${q.explanation}</span><span dir="auto" style="display:block; margin-top:6px;">${q.explanation_bn}</span>`;
+          expInner = `<span dir="rtl" style="font-family:'Traditional Arabic', serif; display:block;">${q.explanation}</span><span dir="auto" style="display:block; margin-top:6px;">${q.explanation_bn}</span>`;
         } else {
-          expTextEl.textContent = q.explanation;
-          expTextEl.setAttribute('dir', q.isArabic ? 'rtl' : 'auto');
-          if (q.isArabic) expTextEl.style.fontFamily = "'Traditional Arabic', serif";
+          expInner = `<span dir="${dirAttr}" style="${fontStyle}">${q.explanation}</span>`;
         }
-        document.getElementById(`exp-${i}`).classList.remove('hidden');
+        expHtml = `<div class="mt-3 rounded-xl p-3.5" style="background:#FBF0DC; border:1px solid #E8CE94;"><p class="text-xs font-semibold mb-1" style="color:#6B5A2E;">ব্যাখ্যা</p><p class="text-xs" style="color:#6B5A2E;">${expInner}</p></div>`;
       }
-    });
+
+      return `
+        <div class="rounded-2xl p-4" style="background:#fff;">
+          <div class="flex items-center justify-between mb-2.5 gap-2">
+            <span class="text-[11px] px-2 py-0.5 rounded-full shrink-0" style="background:#0E211C; color:#E4C97A;">${i+1}. ${q.subject}${q.topic ? ' · ' + q.topic : ''}</span>
+            ${!selected ? '<span class="text-[11px] font-semibold" style="color:#8B6B2A;">উত্তর দেননি</span>' : ''}
+          </div>
+          <p class="text-base leading-relaxed mb-3" dir="${dirAttr}" style="${fontStyle} color:#0E211C;">${q.question}</p>
+          <div class="flex flex-col gap-2.5">${optsHtml}</div>
+          ${expHtml}
+        </div>`;
+    }).join('');
 
     showResults();
   }
 
-  function scrollToReview(){
-    showEl('quiz-area');
+  function openReview(){
+    showEl('review-area');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -573,8 +612,8 @@
     }
   }
 
-  // ==== প্রশ্ন কোয়ালিটি সিস্টেম: Verify / Bookmark / Report / Share (প্রতিটা কার্ডে) ====
-  async function loadQualityStatuses(){
+  // ==== প্রশ্ন কোয়ালিটি সিস্টেম: Verify / Bookmark / Report / Share ====
+  async function loadAllQualityStatuses(){
     const { data: { session } } = await sb.auth.getSession();
     if (!session || !session.user) return;
     const uid = session.user.id;
@@ -588,9 +627,16 @@
     const bookmarkedSet = new Set((bData||[]).map(r => r.question_id));
     quizQuestions.forEach((q, i) => {
       if (!q.id) return;
-      if (verifiedSet.has(q.id)) { qbStates[i].verified = true; setQBIconState(`qb-verify-${i}`, true); }
-      if (bookmarkedSet.has(q.id)) { qbStates[i].bookmarked = true; setQBIconState(`qb-bookmark-${i}`, true); }
+      if (verifiedSet.has(q.id)) qbStates[i].verified = true;
+      if (bookmarkedSet.has(q.id)) qbStates[i].bookmarked = true;
     });
+    applyQualityStatus(currentIndex);
+  }
+
+  function applyQualityStatus(i){
+    if (!qbStates[i]) return;
+    setQBIconState(`qb-verify-${i}`, qbStates[i].verified);
+    setQBIconState(`qb-bookmark-${i}`, qbStates[i].bookmarked);
   }
 
   function setQBIconState(id, active){
