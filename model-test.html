@@ -16,6 +16,7 @@
   .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
   .btn-gold { background:#C9A24C; color:#0E211C; }
   .opt-btn { background:#fff; border:1px solid #E4DAB8; }
+  .opt-btn.selected { background:#FBF0DC; border-color:#C9A24C; }
   .icon-badge { background:rgba(201,162,76,0.12); }
 </style>
 </head>
@@ -139,50 +140,26 @@
 
     <div class="rounded-2xl p-4 mb-5" style="background:#FBF0DC; border:1px solid #E8CE94;">
       <p class="text-xs font-semibold mb-1.5" style="color:#6B5A2E;">⚠️ পরীক্ষা শুরুর মাধ্যমে আপনি সম্মতি দিচ্ছেন যে —</p>
-      <p class="text-xs" style="color:#6B5A2E;">এই পরীক্ষায় আপনি কোনো অসদুপায় অবলম্বন করবেন না। উত্তর জমা দেওয়ার আগে অন্য কোনো মাধ্যমে উত্তর দেখার চেষ্টা করবেন না — তাতে নিজের প্রকৃত প্রস্তুতি যাচাই হবে না।</p>
+      <p class="text-xs" style="color:#6B5A2E;">এই পরীক্ষায় আপনি কোনো অসদুপায় অবলম্বন করবেন না। উত্তর জমা দেওয়ার আগে অন্য কোনো মাধ্যমে উত্তর দেখার চেষ্টা করবেন না — তাতে নিজের প্রকৃত প্রস্তুতি যাচাই হবে না। প্রশ্নগুলো নিচের দিকে স্ক্রল করে দেখতে হবে, সবগুলোর উত্তর দিয়ে শেষে "উত্তরপত্র জমা দিন" বাটনে চাপুন।</p>
     </div>
 
     <button onclick="startExam()" class="w-full py-3.5 rounded-full text-sm font-semibold btn-gold flex items-center justify-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>সম্মতি দিয়ে পরীক্ষা শুরু করুন</button>
   </div>
 
-  <!-- QUIZ -->
-  <div id="quiz-area" class="hidden px-5 mt-5">
-    <div class="flex items-center justify-between mb-3">
-      <span id="q-progress" class="text-xs font-medium" style="color:#5B5340;"></span>
+  <!-- QUIZ (স্ক্রল-ভিত্তিক প্রশ্নপত্র) -->
+  <div id="quiz-area" class="hidden">
+    <div class="px-5 py-3 flex items-center justify-between" style="position:sticky; top:60px; z-index:20; background:#F4EEDC; border-bottom:1px solid #E4DAB8;">
+      <span id="answered-progress" class="text-xs font-medium" style="color:#5B5340;"></span>
       <span id="q-timer" class="text-xs font-semibold" style="color:#D14343;"></span>
-      <span id="q-score" class="text-xs font-medium" style="color:#8B6B2A;"></span>
     </div>
-    <div class="w-full rounded-full h-1.5 mb-5" style="background:#E4DAB8;">
-      <div id="progress-bar" class="h-1.5 rounded-full" style="background:#C9A24C; width:0%;"></div>
+    <div class="w-full h-1.5" style="background:#E4DAB8;">
+      <div id="progress-bar" class="h-1.5" style="background:#C9A24C; width:0%; transition:width .2s;"></div>
     </div>
-    <div class="rounded-2xl p-4 mb-4" style="background:#fff;">
-      <div class="flex items-center justify-between mb-2.5">
-        <span id="q-subject-tag" class="text-[11px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;"></span>
-        <button id="lang-toggle" onclick="toggleLang()" class="hidden text-[11px] px-2.5 py-1 rounded-full font-semibold" style="background:#F0EAD8; color:#5B5340;">العربية</button>
-      </div>
-      <p id="q-text" class="text-base leading-relaxed" style="color:#0E211C;"></p>
-    </div>
-    <div id="options-wrap" class="flex flex-col gap-2.5"></div>
-    <div id="explanation-box" class="hidden mt-4 rounded-xl p-3.5" style="background:#FBF0DC; border:1px solid #E8CE94;">
-      <p class="text-xs font-semibold mb-1" style="color:#6B5A2E;">ব্যাখ্যা</p>
-      <p id="explanation-text" class="text-xs" style="color:#6B5A2E;"></p>
-    </div>
-    <button id="next-btn" onclick="nextQuestion()" class="hidden w-full mt-5 py-3 rounded-full text-sm font-semibold btn-gold">পরের প্রশ্ন</button>
 
-    <div id="quality-bar" class="hidden mt-3 rounded-xl p-3" style="background:#fff; border:1px solid #E4DAB8;">
-      <div class="flex items-center justify-around">
-        <button id="qb-verify" onclick="handleVerify()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="thumbs-up" class="w-4 h-4"></i>ভেরিফাই</button>
-        <button id="qb-bookmark" onclick="handleBookmark()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="star" class="w-4 h-4"></i>বুকমার্ক</button>
-        <button id="qb-report" onclick="toggleReportPicker()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="flag" class="w-4 h-4"></i>রিপোর্ট</button>
-        <button id="qb-share" onclick="handleShare()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="share-2" class="w-4 h-4"></i>শেয়ার</button>
-      </div>
-      <div id="report-picker" class="hidden mt-3 pt-3 flex flex-wrap gap-2" style="border-top:1px solid #F0EAD6;">
-        <button onclick="submitReport('ভুল উত্তর')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">ভুল উত্তর</button>
-        <button onclick="submitReport('অস্পষ্ট প্রশ্ন')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">অস্পষ্ট প্রশ্ন</button>
-        <button onclick="submitReport('ভুল ব্যাখ্যা')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">ভুল ব্যাখ্যা</button>
-        <button onclick="submitReport('অন্যান্য')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">অন্যান্য</button>
-      </div>
-      <p id="qb-notice" class="hidden text-[11px] mt-2 text-center"></p>
+    <div id="quiz-list" class="px-5 mt-4 flex flex-col gap-4"></div>
+
+    <div class="px-5 mt-2 mb-6">
+      <button id="submit-btn" onclick="confirmSubmit()" class="w-full py-3.5 rounded-full text-sm font-semibold btn-gold flex items-center justify-center gap-2"><i data-lucide="send" class="w-4 h-4"></i>উত্তরপত্র জমা দিন</button>
     </div>
   </div>
 
@@ -219,8 +196,9 @@
     </div>
 
     <div class="flex flex-col gap-3">
+      <button onclick="scrollToReview()" class="py-3 rounded-full text-sm font-semibold" style="border:1px solid #C9A24C; color:#8B6B2A;">উত্তরপত্র রিভিউ করুন</button>
       <button onclick="location.reload()" class="py-3 rounded-full text-sm font-semibold btn-gold">আবার মডেল টেস্ট দিন</button>
-      <a href="ai.html" class="py-3 rounded-full text-sm font-semibold text-center" style="border:1px solid #C9A24C; color:#8B6B2A;">AI সেকশনে ফিরুন</a>
+      <a href="ai.html" class="py-3 rounded-full text-sm font-semibold text-center" style="border:1px solid #E4DAB8; color:#5B5340;">AI সেকশনে ফিরুন</a>
     </div>
   </div>
 
@@ -256,13 +234,14 @@
   let currentTrackKey = null;
   let builtQuestions = [];
   let quizQuestions = [];
-  let currentIndex = 0;
+  let answers = {};       // index -> 'a'|'b'|'c'|'d'
+  let qbStates = {};      // index -> { verified, bookmarked, qid }
+  let submitted = false;
   let score = 0;
   let wrongCount = 0;
   let wrongTopics = [];
   let subjectStats = {};
   let timerInterval = null;
-  let showArabic = false;
 
   function showEl(id){
     document.querySelectorAll('#track-picker,#building,#exam-info,#quiz-area,#result-area,#no-questions').forEach(e=>e.classList.add('hidden'));
@@ -270,7 +249,7 @@
   }
 
   function goBack(){
-    if (!document.getElementById('quiz-area').classList.contains('hidden')) {
+    if (!document.getElementById('quiz-area').classList.contains('hidden') && !submitted) {
       if (!confirm('পরীক্ষা এখনো চলছে। বের হয়ে গেলে অগ্রগতি সেভ হবে না। বের হবেন?')) return;
     }
     window.location.href = 'ai.html';
@@ -377,15 +356,73 @@
     lucide.createIcons();
   }
 
+  // ==== ধাপ ২: পুরো প্রশ্নপত্র স্ক্রল আকারে দেখানো ====
   function startExam(){
     quizQuestions = builtQuestions;
-    currentIndex = 0; score = 0; wrongCount = 0; wrongTopics = []; subjectStats = {};
+    answers = {}; qbStates = {}; submitted = false;
+    score = 0; wrongCount = 0; wrongTopics = []; subjectStats = {};
     showEl('quiz-area');
     startQuizTimer(quizQuestions.length);
-    renderQuestion();
+    renderAllQuestions();
+    loadQualityStatuses();
+    updateAnsweredProgress();
   }
 
-  // ==== টাইমার: প্রতি ১০টা প্রশ্নে ৬ মিনিট (প্রশ্নপ্রতি ৩৬ সেকেন্ড) ====
+  function renderAllQuestions(){
+    const list = document.getElementById('quiz-list');
+    list.innerHTML = quizQuestions.map((q, i) => {
+      qbStates[i] = { verified: false, bookmarked: false, qid: q.id || null };
+      const dirAttr = q.isArabic ? 'rtl' : 'auto';
+      const fontStyle = q.isArabic ? "font-family:'Traditional Arabic', serif;" : '';
+      const optsHtml = ['a','b','c','d'].map(k => `<button data-key="${k}" onclick="selectAnswer(${i},'${k}')" dir="${dirAttr}" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm" style="${fontStyle}">${q['option_'+k] || ''}</button>`).join('');
+      return `
+      <div id="qcard-${i}" class="rounded-2xl p-4" style="background:#fff;">
+        <div class="flex items-center justify-between mb-2.5 gap-2">
+          <span class="text-[11px] px-2 py-0.5 rounded-full shrink-0" style="background:#0E211C; color:#E4C97A;">${i+1}. ${q.subject}${q.topic ? ' · ' + q.topic : ''}</span>
+        </div>
+        <p class="text-base leading-relaxed mb-3" dir="${dirAttr}" style="${fontStyle} color:#0E211C;">${q.question}</p>
+        <div id="opts-${i}" class="flex flex-col gap-2.5">${optsHtml}</div>
+        <div id="exp-${i}" class="hidden mt-3 rounded-xl p-3.5" style="background:#FBF0DC; border:1px solid #E8CE94;">
+          <p class="text-xs font-semibold mb-1" style="color:#6B5A2E;">ব্যাখ্যা</p>
+          <p id="exp-text-${i}" class="text-xs" style="color:#6B5A2E;"></p>
+        </div>
+        <div id="quality-bar-${i}" class="mt-3 rounded-xl p-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+          <div class="flex items-center justify-around">
+            <button id="qb-verify-${i}" onclick="handleVerify(${i})" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="thumbs-up" class="w-4 h-4"></i>ভেরিফাই</button>
+            <button id="qb-bookmark-${i}" onclick="handleBookmark(${i})" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="star" class="w-4 h-4"></i>বুকমার্ক</button>
+            <button id="qb-report-${i}" onclick="toggleReportPicker(${i})" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="flag" class="w-4 h-4"></i>রিপোর্ট</button>
+            <button id="qb-share-${i}" onclick="handleShare(${i})" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="share-2" class="w-4 h-4"></i>শেয়ার</button>
+          </div>
+          <div id="report-picker-${i}" class="hidden mt-3 pt-3 flex flex-wrap gap-2" style="border-top:1px solid #F0EAD6;">
+            <button onclick="submitReport(${i},'ভুল উত্তর')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#fff; border:1px solid #E4DAB8; color:#5B5340;">ভুল উত্তর</button>
+            <button onclick="submitReport(${i},'অস্পষ্ট প্রশ্ন')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#fff; border:1px solid #E4DAB8; color:#5B5340;">অস্পষ্ট প্রশ্ন</button>
+            <button onclick="submitReport(${i},'ভুল ব্যাখ্যা')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#fff; border:1px solid #E4DAB8; color:#5B5340;">ভুল ব্যাখ্যা</button>
+            <button onclick="submitReport(${i},'অন্যান্য')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#fff; border:1px solid #E4DAB8; color:#5B5340;">অন্যান্য</button>
+          </div>
+          <p id="qb-notice-${i}" class="hidden text-[11px] mt-2 text-center"></p>
+        </div>
+      </div>`;
+    }).join('');
+    lucide.createIcons();
+  }
+
+  function selectAnswer(i, key){
+    if (submitted) return;
+    answers[i] = key;
+    document.querySelectorAll(`#opts-${i} button`).forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.key === key);
+    });
+    updateAnsweredProgress();
+  }
+
+  function updateAnsweredProgress(){
+    const answeredCount = Object.keys(answers).length;
+    const total = quizQuestions.length;
+    document.getElementById('answered-progress').textContent = `উত্তর দেওয়া হয়েছে: ${answeredCount} / ${total}`;
+    document.getElementById('progress-bar').style.width = `${(answeredCount/total)*100}%`;
+  }
+
+  // ==== টাইমার: প্রশ্নপ্রতি ৩৬ সেকেন্ড ====
   function startQuizTimer(numQuestions){
     clearInterval(timerInterval);
     let totalSeconds = Math.round(numQuestions * 36);
@@ -395,7 +432,7 @@
       if (totalSeconds <= 0) {
         clearInterval(timerInterval);
         document.getElementById('q-timer').textContent = '⏱ ০০:০০';
-        showResults();
+        submitExam();
         return;
       }
       updateTimerDisplay(totalSeconds);
@@ -409,120 +446,68 @@
     if (el) el.textContent = `⏱ ${m}:${s}`;
   }
 
-  function renderQuestion(){
-    const q = quizQuestions[currentIndex];
-    document.getElementById('q-progress').textContent = `প্রশ্ন ${currentIndex+1} / ${quizQuestions.length}`;
-    document.getElementById('q-score').textContent = `স্কোর: ${score}`;
-    document.getElementById('progress-bar').style.width = `${(currentIndex/quizQuestions.length)*100}%`;
-    document.getElementById('q-subject-tag').textContent = q.subject + (q.topic ? ' · ' + q.topic : '');
-
-    showArabic = false;
-    const langBtn = document.getElementById('lang-toggle');
-    langBtn.classList.toggle('hidden', q.isArabic || !q.arabic_question);
-    langBtn.textContent = 'العربية';
-    renderQuestionText();
-
-    document.getElementById('explanation-box').classList.add('hidden');
-    document.getElementById('next-btn').classList.add('hidden');
-    document.getElementById('quality-bar').classList.add('hidden');
-    document.getElementById('report-picker').classList.add('hidden');
-    document.getElementById('qb-notice').classList.add('hidden');
-    resetQualityBar();
-    lucide.createIcons();
-  }
-
-  function renderQuestionText(){
-    const q = quizQuestions[currentIndex];
-    const qText = document.getElementById('q-text');
-    if (q.isArabic) {
-      qText.textContent = q.question;
-      qText.setAttribute('dir', 'rtl');
-      qText.style.fontFamily = "'Traditional Arabic', serif";
-    } else if (showArabic && q.arabic_question) {
-      qText.textContent = q.arabic_question;
-      qText.setAttribute('dir', 'rtl');
-      qText.style.fontFamily = "'Traditional Arabic', serif";
-    } else {
-      qText.textContent = q.question;
-      qText.setAttribute('dir', 'auto');
-      qText.style.fontFamily = '';
+  function confirmSubmit(){
+    const answeredCount = Object.keys(answers).length;
+    const total = quizQuestions.length;
+    if (answeredCount < total) {
+      if (!confirm(`আপনি ${total - answeredCount}টি প্রশ্নের উত্তর দেননি। এখনই জমা দিতে চান?`)) return;
     }
-
-    const useAr = q.isArabic || (showArabic && q.arabic_option_a);
-    const options = q.isArabic
-      ? [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]]
-      : (showArabic && q.arabic_option_a)
-        ? [['a',q.arabic_option_a],['b',q.arabic_option_b],['c',q.arabic_option_c],['d',q.arabic_option_d]]
-        : [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]];
-    const wrap = document.getElementById('options-wrap');
-    wrap.innerHTML = options.map(([key,text]) => `
-      <button data-key="${key}" onclick="selectAnswer('${key}')" dir="${useAr ? 'rtl' : 'auto'}" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm" style="${q.isArabic ? "font-family:'Traditional Arabic', serif;" : ''}">${text}</button>`).join('');
+    submitExam();
   }
 
-  function toggleLang(){
-    showArabic = !showArabic;
-    document.getElementById('lang-toggle').textContent = showArabic ? 'বাংলা' : 'العربية';
-    renderQuestionText();
-    lucide.createIcons();
-  }
+  // ==== ধাপ ৩: জমা দেওয়া হলে সব প্রশ্নের সঠিক/ভুল রিভিল ও ফলাফল হিসাব ====
+  function submitExam(){
+    if (submitted) return;
+    submitted = true;
+    clearInterval(timerInterval);
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('submit-btn').style.opacity = '0.6';
 
-  function selectAnswer(key){
-    const q = quizQuestions[currentIndex];
-    document.querySelectorAll('#options-wrap button').forEach(btn => {
-      btn.onclick = null;
-      const k = btn.dataset.key;
-      if (k === q.correct) { btn.style.background = '#DFF3E3'; btn.style.borderColor = '#2F7A4F'; btn.style.color = '#1E5C36'; }
-      else if (k === key) { btn.style.background = '#FBE2E2'; btn.style.borderColor = '#D14343'; btn.style.color = '#8C2020'; }
-    });
-    if (key === q.correct) { score++; }
-    else { wrongCount++; wrongTopics.push(q.topic || q.subject); }
-    const subj = q.subject || 'অজানা';
-    subjectStats[subj] = subjectStats[subj] || { correct: 0, total: 0 };
-    subjectStats[subj].total++;
-    if (key === q.correct) { subjectStats[subj].correct++; }
-    document.getElementById('q-score').textContent = `স্কোর: ${score}`;
+    quizQuestions.forEach((q, i) => {
+      const selected = answers[i];
+      document.querySelectorAll(`#opts-${i} button`).forEach(btn => {
+        btn.onclick = null;
+        const k = btn.dataset.key;
+        if (k === q.correct) { btn.style.background = '#DFF3E3'; btn.style.borderColor = '#2F7A4F'; btn.style.color = '#1E5C36'; }
+        else if (k === selected) { btn.style.background = '#FBE2E2'; btn.style.borderColor = '#D14343'; btn.style.color = '#8C2020'; }
+      });
 
-    if (q.explanation) {
-      const expEl = document.getElementById('explanation-text');
-      expEl.innerHTML = '';
-      if (q.isArabic && q.explanation_bn) {
-        const arSpan = document.createElement('span');
-        arSpan.textContent = q.explanation;
-        arSpan.setAttribute('dir', 'rtl');
-        arSpan.style.fontFamily = "'Traditional Arabic', serif";
-        arSpan.style.display = 'block';
-        const bnSpan = document.createElement('span');
-        bnSpan.textContent = q.explanation_bn;
-        bnSpan.setAttribute('dir', 'auto');
-        bnSpan.style.display = 'block';
-        bnSpan.style.marginTop = '6px';
-        expEl.appendChild(arSpan);
-        expEl.appendChild(bnSpan);
-      } else {
-        expEl.textContent = q.explanation;
-        expEl.setAttribute('dir', q.isArabic ? 'rtl' : 'auto');
-        expEl.style.fontFamily = q.isArabic ? "'Traditional Arabic', serif" : '';
+      const subj = q.subject || 'অজানা';
+      subjectStats[subj] = subjectStats[subj] || { correct: 0, total: 0 };
+
+      if (selected) {
+        subjectStats[subj].total++;
+        if (selected === q.correct) {
+          score++;
+          subjectStats[subj].correct++;
+        } else {
+          wrongCount++;
+          wrongTopics.push(q.topic || q.subject);
+        }
       }
-      document.getElementById('explanation-box').classList.remove('hidden');
-    }
-    document.getElementById('next-btn').classList.remove('hidden');
-    if (qbState.qid) {
-      document.getElementById('quality-bar').classList.remove('hidden');
-      lucide.createIcons();
-    }
+
+      if (q.explanation) {
+        const expTextEl = document.getElementById(`exp-text-${i}`);
+        if (q.isArabic && q.explanation_bn) {
+          expTextEl.innerHTML = `<span dir="rtl" style="font-family:'Traditional Arabic', serif; display:block;">${q.explanation}</span><span dir="auto" style="display:block; margin-top:6px;">${q.explanation_bn}</span>`;
+        } else {
+          expTextEl.textContent = q.explanation;
+          expTextEl.setAttribute('dir', q.isArabic ? 'rtl' : 'auto');
+          if (q.isArabic) expTextEl.style.fontFamily = "'Traditional Arabic', serif";
+        }
+        document.getElementById(`exp-${i}`).classList.remove('hidden');
+      }
+    });
+
+    showResults();
   }
 
-  function nextQuestion(){
-    currentIndex++;
-    if (currentIndex >= quizQuestions.length) {
-      showResults();
-      return;
-    }
-    renderQuestion();
+  function scrollToReview(){
+    showEl('quiz-area');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function showResults(){
-    clearInterval(timerInterval);
     const total = quizQuestions.length;
     const marks = Math.max(0, score - (wrongCount * 0.25));
     const percent = (marks / total) * 100;
@@ -588,107 +573,112 @@
     }
   }
 
-  // ==== প্রশ্ন কোয়ালিটি সিস্টেম: Verify / Bookmark / Report / Share ====
-  let qbState = { verified: false, bookmarked: false, qid: null };
-
-  async function resetQualityBar(){
-    const q = quizQuestions[currentIndex];
-    qbState = { verified: false, bookmarked: false, qid: q.id || null };
-    setQBIconState('qb-verify', false);
-    setQBIconState('qb-bookmark', false);
-    if (!qbState.qid) return;
+  // ==== প্রশ্ন কোয়ালিটি সিস্টেম: Verify / Bookmark / Report / Share (প্রতিটা কার্ডে) ====
+  async function loadQualityStatuses(){
     const { data: { session } } = await sb.auth.getSession();
     if (!session || !session.user) return;
     const uid = session.user.id;
+    const qids = quizQuestions.map(q => q.id).filter(Boolean);
+    if (qids.length === 0) return;
     const [{ data: vData }, { data: bData }] = await Promise.all([
-      sb.from('question_verifications').select('id').eq('question_id', qbState.qid).eq('user_id', uid).maybeSingle(),
-      sb.from('question_bookmarks').select('id').eq('question_id', qbState.qid).eq('user_id', uid).maybeSingle()
+      sb.from('question_verifications').select('question_id').eq('user_id', uid).in('question_id', qids),
+      sb.from('question_bookmarks').select('question_id').eq('user_id', uid).in('question_id', qids)
     ]);
-    if (vData) { qbState.verified = true; setQBIconState('qb-verify', true); }
-    if (bData) { qbState.bookmarked = true; setQBIconState('qb-bookmark', true); }
+    const verifiedSet = new Set((vData||[]).map(r => r.question_id));
+    const bookmarkedSet = new Set((bData||[]).map(r => r.question_id));
+    quizQuestions.forEach((q, i) => {
+      if (!q.id) return;
+      if (verifiedSet.has(q.id)) { qbStates[i].verified = true; setQBIconState(`qb-verify-${i}`, true); }
+      if (bookmarkedSet.has(q.id)) { qbStates[i].bookmarked = true; setQBIconState(`qb-bookmark-${i}`, true); }
+    });
   }
 
   function setQBIconState(id, active){
-    document.getElementById(id).style.color = active ? '#2F7A4F' : '#5B5340';
+    const el = document.getElementById(id);
+    if (el) el.style.color = active ? '#2F7A4F' : '#5B5340';
   }
 
-  function showQBNotice(msg, color){
-    const el = document.getElementById('qb-notice');
+  function showQBNotice(i, msg, color){
+    const el = document.getElementById(`qb-notice-${i}`);
+    if (!el) return;
     el.textContent = msg;
     el.style.color = color;
     el.classList.remove('hidden');
   }
 
-  async function requireQBAuth(){
+  async function requireQBAuth(i){
     const { data: { session } } = await sb.auth.getSession();
-    if (!session || !session.user) { showQBNotice('এটা করতে লগইন করুন।', '#D14343'); return null; }
+    if (!session || !session.user) { showQBNotice(i, 'এটা করতে লগইন করুন।', '#D14343'); return null; }
     return session.user;
   }
 
-  async function handleVerify(){
-    if (!qbState.qid) return;
-    const user = await requireQBAuth();
+  async function handleVerify(i){
+    const qid = qbStates[i].qid;
+    if (!qid) return;
+    const user = await requireQBAuth(i);
     if (!user) return;
-    if (qbState.verified) { showQBNotice('আগেই ভেরিফাই করেছেন ✓', '#2F7A4F'); return; }
-    const { error } = await sb.from('question_verifications').insert({ question_id: qbState.qid, user_id: user.id });
-    if (error) { showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343'); return; }
-    qbState.verified = true;
-    setQBIconState('qb-verify', true);
-    showQBNotice('ভেরিফাই করা হয়েছে, ধন্যবাদ! ✓', '#2F7A4F');
+    if (qbStates[i].verified) { showQBNotice(i, 'আগেই ভেরিফাই করেছেন ✓', '#2F7A4F'); return; }
+    const { error } = await sb.from('question_verifications').insert({ question_id: qid, user_id: user.id });
+    if (error) { showQBNotice(i, 'সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343'); return; }
+    qbStates[i].verified = true;
+    setQBIconState(`qb-verify-${i}`, true);
+    showQBNotice(i, 'ভেরিফাই করা হয়েছে, ধন্যবাদ! ✓', '#2F7A4F');
   }
 
-  async function handleBookmark(){
-    if (!qbState.qid) return;
-    const user = await requireQBAuth();
+  async function handleBookmark(i){
+    const qid = qbStates[i].qid;
+    if (!qid) return;
+    const user = await requireQBAuth(i);
     if (!user) return;
-    if (qbState.bookmarked) {
-      await sb.from('question_bookmarks').delete().eq('question_id', qbState.qid).eq('user_id', user.id);
-      qbState.bookmarked = false;
-      setQBIconState('qb-bookmark', false);
-      showQBNotice('বুকমার্ক সরানো হয়েছে।', '#5B5340');
+    if (qbStates[i].bookmarked) {
+      await sb.from('question_bookmarks').delete().eq('question_id', qid).eq('user_id', user.id);
+      qbStates[i].bookmarked = false;
+      setQBIconState(`qb-bookmark-${i}`, false);
+      showQBNotice(i, 'বুকমার্ক সরানো হয়েছে।', '#5B5340');
     } else {
-      const { error } = await sb.from('question_bookmarks').insert({ question_id: qbState.qid, user_id: user.id });
-      if (error) { showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343'); return; }
-      qbState.bookmarked = true;
-      setQBIconState('qb-bookmark', true);
-      showQBNotice('বুকমার্ক করা হয়েছে ✓', '#2F7A4F');
+      const { error } = await sb.from('question_bookmarks').insert({ question_id: qid, user_id: user.id });
+      if (error) { showQBNotice(i, 'সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343'); return; }
+      qbStates[i].bookmarked = true;
+      setQBIconState(`qb-bookmark-${i}`, true);
+      showQBNotice(i, 'বুকমার্ক করা হয়েছে ✓', '#2F7A4F');
     }
   }
 
-  function toggleReportPicker(){
-    if (!qbState.qid) return;
-    document.getElementById('report-picker').classList.toggle('hidden');
+  function toggleReportPicker(i){
+    if (!qbStates[i].qid) return;
+    document.getElementById(`report-picker-${i}`).classList.toggle('hidden');
   }
 
-  async function submitReport(reason){
-    if (!qbState.qid) return;
-    const user = await requireQBAuth();
+  async function submitReport(i, reason){
+    const qid = qbStates[i].qid;
+    if (!qid) return;
+    const user = await requireQBAuth(i);
     if (!user) return;
-    const { error } = await sb.from('question_reports').insert({ question_id: qbState.qid, user_id: user.id, reason });
-    document.getElementById('report-picker').classList.add('hidden');
+    const { error } = await sb.from('question_reports').insert({ question_id: qid, user_id: user.id, reason });
+    document.getElementById(`report-picker-${i}`).classList.add('hidden');
     if (error) {
-      if (error.code === '23505') showQBNotice('এই প্রশ্নটি আগেই রিপোর্ট করেছেন।', '#8B6B2A');
-      else showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343');
+      if (error.code === '23505') showQBNotice(i, 'এই প্রশ্নটি আগেই রিপোর্ট করেছেন।', '#8B6B2A');
+      else showQBNotice(i, 'সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343');
       return;
     }
-    showQBNotice('রিপোর্ট গ্রহণ করা হয়েছে, ধন্যবাদ।', '#2F7A4F');
-    const { count } = await sb.from('question_reports').select('id', { count: 'exact', head: true }).eq('question_id', qbState.qid);
+    showQBNotice(i, 'রিপোর্ট গ্রহণ করা হয়েছে, ধন্যবাদ।', '#2F7A4F');
+    const { count } = await sb.from('question_reports').select('id', { count: 'exact', head: true }).eq('question_id', qid);
     if (count !== null) {
       const updates = { report_count: count };
       if (count >= 5) updates.is_hidden = true;
-      await sb.from('questions').update(updates).eq('id', qbState.qid);
+      await sb.from('questions').update(updates).eq('id', qid);
     }
   }
 
-  function handleShare(){
-    const q = quizQuestions[currentIndex];
+  function handleShare(i){
+    const q = quizQuestions[i];
     const text = `প্রশ্ন: ${q.question}\n\nনিবন্ধন হাব অ্যাপে অনুশীলন করুন।`;
     if (navigator.share) {
       navigator.share({ text }).catch(() => {});
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(text)
-        .then(() => showQBNotice('কপি করা হয়েছে ✓', '#2F7A4F'))
-        .catch(() => showQBNotice('শেয়ার সমর্থিত নয়।', '#D14343'));
+        .then(() => showQBNotice(i, 'কপি করা হয়েছে ✓', '#2F7A4F'))
+        .catch(() => showQBNotice(i, 'শেয়ার সমর্থিত নয়।', '#D14343'));
     }
   }
 
