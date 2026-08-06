@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>মডেল টেস্ট — নিবন্ধন হাব</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
+  .btn-gold { background:#C9A24C; color:#0E211C; }
+  .opt-btn { background:#fff; border:1px solid #E4DAB8; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+</style>
+</head>
+<body class="sans-bn pb-24">
+
+  <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <div class="flex items-center gap-3">
+      <button onclick="goBack()" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+      <div class="serif-bn text-lg" style="color:#F4EEDC;">মডেল টেস্ট</div>
+    </div>
+    <button onclick="openDrawer()" style="color:#DCD3B6;">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+  </header>
+
+  <div id="drawer-overlay" onclick="closeDrawer()" class="hidden fixed inset-0 z-40" style="background:rgba(0,0,0,0.55);"></div>
+
+  <aside id="mnav" class="fixed top-0 right-0 h-full w-[80%] max-w-xs z-50 flex flex-col px-5 py-5 transform translate-x-full transition-transform duration-300 ease-out" style="background:#16332B; box-shadow:-10px 0 30px rgba(0,0,0,0.35);">
+    <button onclick="closeDrawer()" class="self-end mb-3 p-1" style="color:#DCD3B6;"><i data-lucide="x" class="w-5 h-5"></i></button>
+
+    <div class="flex items-center gap-3 pb-5 mb-3" style="border-bottom:1px solid rgba(201,162,76,0.2);">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center shrink-0 btn-gold">
+        <i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>
+      </div>
+      <div>
+        <p class="text-sm font-semibold" style="color:#F4EEDC;">প্রোফাইল</p>
+        <a href="index.html" class="text-xs mt-0.5" style="color:#C9A24C;">লগইন / প্রোফাইল দেখতে যান →</a>
+      </div>
+    </div>
+
+    <nav class="flex flex-col gap-0.5 text-sm overflow-y-auto" style="color:#DCD3B6;">
+      <a href="practice.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4" style="color:#C9A24C;"></i>Practice</a>
+      <a href="library.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="book-open" class="w-4 h-4" style="color:#C9A24C;"></i>Library</a>
+      <a href="ai.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4" style="color:#C9A24C;"></i>AI</a>
+      <a href="faraidh.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="calculator" class="w-4 h-4" style="color:#C9A24C;"></i>ফারায়েজ ক্যালকুলেটর</a>
+      <a href="contact.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="phone" class="w-4 h-4" style="color:#C9A24C;"></i>যোগাযোগ</a>
+
+      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+
+      <a href="about.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="info" class="w-4 h-4" style="color:#C9A24C;"></i>আমাদের সম্পর্কে</a>
+      <a href="founder.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="crown" class="w-4 h-4" style="color:#C9A24C;"></i>ফাউন্ডার</a>
+      <a href="mentors.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="users" class="w-4 h-4" style="color:#C9A24C;"></i>মেন্টরগণ</a>
+
+      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+
+      <a href="privacy-policy.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="shield" class="w-4 h-4" style="color:#C9A24C;"></i>গোপনীয়তা নীতি</a>
+      <a href="terms.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="file-text" class="w-4 h-4" style="color:#C9A24C;"></i>শর্তাবলি</a>
+    </nav>
+
+    <p class="mt-auto pt-4 text-[11px] text-center" style="color:#6E8078;">© নিবন্ধন হাব</p>
+  </aside>
+
+  <!-- TRACK PICKER -->
+  <div id="track-picker" class="px-5 mt-6">
+    <h2 class="serif-bn text-lg mb-1" style="color:#0E211C;">কোন ট্র্যাকের মডেল টেস্ট দিতে চান?</h2>
+    <p class="text-xs mb-4" style="color:#5B5340;">সিলেবাস অনুযায়ী প্রতিটি বিষয়/টপিক থেকে নির্দিষ্ট অনুপাতে প্রশ্ন নিয়ে পূর্ণাঙ্গ টেস্ট তৈরি হবে।</p>
+
+    <button onclick="pickTrack('general')" class="w-full flex items-center gap-3 rounded-2xl p-4 mb-3" style="background:#fff;">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="layers" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+      <div class="text-left flex-1">
+        <p class="text-sm font-semibold" style="color:#0E211C;">জেনারেল</p>
+        <p class="text-xs" style="color:#5B5340;">বাংলা, ইংরেজি, গণিত, সাধারণ জ্ঞান</p>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+    </button>
+    <button onclick="pickTrack('provashok')" class="w-full flex items-center gap-3 rounded-2xl p-4 mb-3" style="background:#fff;">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="book-marked" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+      <div class="text-left flex-1">
+        <p class="text-sm font-semibold" style="color:#0E211C;">প্রভাষক (আরবি)</p>
+        <p class="text-xs" style="color:#5B5340;">প্রভাষক পদের সাব্জেক্টিভ সিলেবাস</p>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+    </button>
+    <button onclick="pickTrack('sohokari_moulvi')" class="w-full flex items-center gap-3 rounded-2xl p-4" style="background:#fff;">
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="book-marked" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+      <div class="text-left flex-1">
+        <p class="text-sm font-semibold" style="color:#0E211C;">সহকারী মৌলভী (আরবি)</p>
+        <p class="text-xs" style="color:#5B5340;">সহকারী মৌলভী পদের সাব্জেক্টিভ সিলেবাস</p>
+      </div>
+      <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
+    </button>
+  </div>
+
+  <!-- BUILDING -->
+  <div id="building" class="hidden px-5 mt-16 text-center">
+    <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-3 animate-spin" style="color:#C9A24C;"></i>
+    <p class="text-sm" style="color:#5B5340;">সিলেবাস অনুযায়ী টেস্ট তৈরি হচ্ছে, একটু অপেক্ষা করুন...</p>
+  </div>
+
+  <!-- EXAM INFO / CONSENT -->
+  <div id="exam-info" class="hidden px-5 mt-6">
+    <div class="rounded-2xl p-5 mb-4" style="background:#0E211C;">
+      <p id="exam-title" class="serif-bn text-lg mb-1" style="color:#F4EEDC;"></p>
+      <p id="exam-subjects" class="text-xs" style="color:#9FB3AB;"></p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="rounded-2xl p-3.5 text-center" style="background:#fff;">
+        <i data-lucide="help-circle" class="w-5 h-5 mx-auto mb-1.5" style="color:#8B6B2A;"></i>
+        <div id="exam-qcount" class="num-bn text-lg" style="color:#0E211C;"></div>
+        <div class="text-[11px]" style="color:#5B5340;">প্রশ্ন</div>
+      </div>
+      <div class="rounded-2xl p-3.5 text-center" style="background:#fff;">
+        <i data-lucide="clock" class="w-5 h-5 mx-auto mb-1.5" style="color:#8B6B2A;"></i>
+        <div id="exam-time" class="num-bn text-lg" style="color:#0E211C;"></div>
+        <div class="text-[11px]" style="color:#5B5340;">সময়</div>
+      </div>
+      <div class="rounded-2xl p-3.5 text-center" style="background:#fff;">
+        <i data-lucide="target" class="w-5 h-5 mx-auto mb-1.5" style="color:#8B6B2A;"></i>
+        <div id="exam-marks" class="num-bn text-lg" style="color:#0E211C;"></div>
+        <div class="text-[11px]" style="color:#5B5340;">পূর্ণমান</div>
+      </div>
+      <div class="rounded-2xl p-3.5 text-center" style="background:#fff;">
+        <i data-lucide="minus-circle" class="w-5 h-5 mx-auto mb-1.5" style="color:#8B6B2A;"></i>
+        <div class="num-bn text-lg" style="color:#0E211C;">০.২৫</div>
+        <div class="text-[11px]" style="color:#5B5340;">নেগেটিভ মার্ক</div>
+      </div>
+    </div>
+
+    <p id="exam-shortfall-note" class="hidden text-xs mb-4 rounded-xl p-3" style="background:#FBF0DC; border:1px solid #E8CE94; color:#6B5A2E;"></p>
+
+    <div class="rounded-2xl p-4 mb-5" style="background:#FBF0DC; border:1px solid #E8CE94;">
+      <p class="text-xs font-semibold mb-1.5" style="color:#6B5A2E;">⚠️ পরীক্ষা শুরুর মাধ্যমে আপনি সম্মতি দিচ্ছেন যে —</p>
+      <p class="text-xs" style="color:#6B5A2E;">এই পরীক্ষায় আপনি কোনো অসদুপায় অবলম্বন করবেন না। উত্তর জমা দেওয়ার আগে অন্য কোনো মাধ্যমে উত্তর দেখার চেষ্টা করবেন না — তাতে নিজের প্রকৃত প্রস্তুতি যাচাই হবে না।</p>
+    </div>
+
+    <button onclick="startExam()" class="w-full py-3.5 rounded-full text-sm font-semibold btn-gold flex items-center justify-center gap-2"><i data-lucide="check" class="w-4 h-4"></i>সম্মতি দিয়ে পরীক্ষা শুরু করুন</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-area" class="hidden px-5 mt-5">
+    <div class="flex items-center justify-between mb-3">
+      <span id="q-progress" class="text-xs font-medium" style="color:#5B5340;"></span>
+      <span id="q-timer" class="text-xs font-semibold" style="color:#D14343;"></span>
+      <span id="q-score" class="text-xs font-medium" style="color:#8B6B2A;"></span>
+    </div>
+    <div class="w-full rounded-full h-1.5 mb-5" style="background:#E4DAB8;">
+      <div id="progress-bar" class="h-1.5 rounded-full" style="background:#C9A24C; width:0%;"></div>
+    </div>
+    <div class="rounded-2xl p-4 mb-4" style="background:#fff;">
+      <div class="flex items-center justify-between mb-2.5">
+        <span id="q-subject-tag" class="text-[11px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;"></span>
+        <button id="lang-toggle" onclick="toggleLang()" class="hidden text-[11px] px-2.5 py-1 rounded-full font-semibold" style="background:#F0EAD8; color:#5B5340;">العربية</button>
+      </div>
+      <p id="q-text" class="text-base leading-relaxed" style="color:#0E211C;"></p>
+    </div>
+    <div id="options-wrap" class="flex flex-col gap-2.5"></div>
+    <div id="explanation-box" class="hidden mt-4 rounded-xl p-3.5" style="background:#FBF0DC; border:1px solid #E8CE94;">
+      <p class="text-xs font-semibold mb-1" style="color:#6B5A2E;">ব্যাখ্যা</p>
+      <p id="explanation-text" class="text-xs" style="color:#6B5A2E;"></p>
+    </div>
+    <button id="next-btn" onclick="nextQuestion()" class="hidden w-full mt-5 py-3 rounded-full text-sm font-semibold btn-gold">পরের প্রশ্ন</button>
+
+    <div id="quality-bar" class="hidden mt-3 rounded-xl p-3" style="background:#fff; border:1px solid #E4DAB8;">
+      <div class="flex items-center justify-around">
+        <button id="qb-verify" onclick="handleVerify()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="thumbs-up" class="w-4 h-4"></i>ভেরিফাই</button>
+        <button id="qb-bookmark" onclick="handleBookmark()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="star" class="w-4 h-4"></i>বুকমার্ক</button>
+        <button id="qb-report" onclick="toggleReportPicker()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="flag" class="w-4 h-4"></i>রিপোর্ট</button>
+        <button id="qb-share" onclick="handleShare()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="share-2" class="w-4 h-4"></i>শেয়ার</button>
+      </div>
+      <div id="report-picker" class="hidden mt-3 pt-3 flex flex-wrap gap-2" style="border-top:1px solid #F0EAD6;">
+        <button onclick="submitReport('ভুল উত্তর')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">ভুল উত্তর</button>
+        <button onclick="submitReport('অস্পষ্ট প্রশ্ন')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">অস্পষ্ট প্রশ্ন</button>
+        <button onclick="submitReport('ভুল ব্যাখ্যা')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">ভুল ব্যাখ্যা</button>
+        <button onclick="submitReport('অন্যান্য')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">অন্যান্য</button>
+      </div>
+      <p id="qb-notice" class="hidden text-[11px] mt-2 text-center"></p>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result-area" class="hidden px-5 mt-8">
+    <div class="text-center mb-5">
+      <i id="result-icon" data-lucide="trophy" class="w-12 h-12 mx-auto mb-3" style="color:#C9A24C;"></i>
+      <h2 id="pass-status" class="serif-bn text-xl mb-1" style="color:#0E211C;"></h2>
+      <p id="result-compliment" class="text-sm" style="color:#5B5340;"></p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="num-bn text-xl" style="color:#2F7A4F;" id="stat-correct"></div>
+        <div class="text-[11px]" style="color:#5B5340;">সঠিক উত্তর</div>
+      </div>
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="num-bn text-xl" style="color:#D14343;" id="stat-wrong"></div>
+        <div class="text-[11px]" style="color:#5B5340;">ভুল উত্তর</div>
+      </div>
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="num-bn text-xl" style="color:#0E211C;" id="stat-marks"></div>
+        <div class="text-[11px]" style="color:#5B5340;">প্রাপ্ত মার্ক (কাটমার্ক ধরে)</div>
+      </div>
+      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
+        <div class="num-bn text-xl" style="color:#0E211C;" id="stat-percent"></div>
+        <div class="text-[11px]" style="color:#5B5340;">শতকরা হার</div>
+      </div>
+    </div>
+
+    <div id="weak-topics" class="hidden rounded-2xl p-4 mb-5" style="background:#FBF0DC; border:1px solid #E8CE94;">
+      <p class="text-xs font-semibold mb-2" style="color:#6B5A2E;">যেসব টপিকে আরও অনুশীলন দরকার</p>
+      <div id="weak-topics-list" class="flex flex-col gap-1.5"></div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <button onclick="location.reload()" class="py-3 rounded-full text-sm font-semibold btn-gold">আবার মডেল টেস্ট দিন</button>
+      <a href="ai.html" class="py-3 rounded-full text-sm font-semibold text-center" style="border:1px solid #C9A24C; color:#8B6B2A;">AI সেকশনে ফিরুন</a>
+    </div>
+  </div>
+
+  <p id="no-questions" class="hidden px-5 mt-10 text-center text-sm" style="color:#8A8266;"><span id="no-questions-text">এই ট্র্যাকে এখনো পর্যাপ্ত প্রশ্ন যোগ করা হয়নি।</span></p>
+
+  <nav class="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee; box-shadow:0 -2px 10px rgba(0,0,0,0.06);">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
+    <a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
+    <a href="ai.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="sparkles" class="w-5 h-5"></i>AI</a>
+    <a href="profile.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+  </nav>
+
+<script>
+  function openDrawer(){
+    document.getElementById('mnav').classList.remove('translate-x-full');
+    document.getElementById('drawer-overlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer(){
+    document.getElementById('mnav').classList.add('translate-x-full');
+    document.getElementById('drawer-overlay').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  const SUPABASE_URL = "https://laujqfawcirnwsmvhaif.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_rlZV0JZUFH7NdmR_-Oz7Dg_97OQxMpv";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const TRACK_LABELS = { general: 'জেনারেল', provashok: 'প্রভাষক (আরবি)', sohokari_moulvi: 'সহকারী মৌলভী (আরবি)' };
+  const TRACK_MARKS = { general: 60, provashok: 140, sohokari_moulvi: 140 };
+
+  let currentTrackKey = null;
+  let builtQuestions = [];
+  let quizQuestions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let wrongCount = 0;
+  let wrongTopics = [];
+  let subjectStats = {};
+  let timerInterval = null;
+  let showArabic = false;
+
+  function showEl(id){
+    document.querySelectorAll('#track-picker,#building,#exam-info,#quiz-area,#result-area,#no-questions').forEach(e=>e.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  }
+
+  function goBack(){
+    if (!document.getElementById('quiz-area').classList.contains('hidden')) {
+      if (!confirm('পরীক্ষা এখনো চলছে। বের হয়ে গেলে অগ্রগতি সেভ হবে না। বের হবেন?')) return;
+    }
+    window.location.href = 'ai.html';
+  }
+
+  // ==== ধাপ ১: সিলেবাস অনুযায়ী টেস্ট তৈরি ====
+  async function pickTrack(key){
+    currentTrackKey = key;
+    showEl('building');
+
+    const { data: topicsData, error } = await sb.from('syllabus_topics').select('*').eq('syllabus', key).order('sort_order');
+    if (error || !topicsData || topicsData.length === 0) {
+      document.getElementById('no-questions-text').textContent = 'এই ট্র্যাকের সিলেবাস এখনো যোগ করা হয়নি।';
+      showEl('no-questions');
+      return;
+    }
+
+    const bySubject = {};
+    topicsData.forEach(row => {
+      if (!bySubject[row.subject]) bySubject[row.subject] = [];
+      if (!bySubject[row.subject].includes(row.topic)) bySubject[row.subject].push(row.topic);
+    });
+    const subjects = Object.keys(bySubject);
+    const totalMarks = TRACK_MARKS[key] || 100;
+
+    const base = Math.floor(totalMarks / subjects.length);
+    let remainder = totalMarks - base * subjects.length;
+    const subjectQuota = {};
+    subjects.forEach(s => {
+      subjectQuota[s] = base + (remainder > 0 ? 1 : 0);
+      if (remainder > 0) remainder--;
+    });
+
+    const { data: allQ } = await sb.from('questions').select('*').eq('is_hidden', false).in('subject', subjects);
+    const bySubjectQ = {};
+    (allQ || []).forEach(q => { (bySubjectQ[q.subject] = bySubjectQ[q.subject] || []).push(q); });
+
+    let finalQuestions = [];
+    let subjectsBuilt = [];
+
+    subjects.forEach(subject => {
+      const quota = subjectQuota[subject];
+      const pool = (bySubjectQ[subject] || []).slice();
+      const topics = bySubject[subject];
+      const usedIds = new Set();
+      let taken = [];
+
+      if (topics.length > 0 && pool.length > 0) {
+        const tBase = Math.floor(quota / topics.length);
+        let tRemainder = quota - tBase * topics.length;
+        topics.forEach(topic => {
+          const tQuota = tBase + (tRemainder > 0 ? 1 : 0);
+          if (tRemainder > 0) tRemainder--;
+          const norm = topic.trim().toLowerCase();
+          let matches = pool.filter(q => !usedIds.has(q.id) && q.topic && q.topic.trim().toLowerCase() === norm);
+          if (matches.length === 0) {
+            matches = pool.filter(q => !usedIds.has(q.id) && q.topic && (q.topic.toLowerCase().includes(norm) || norm.includes(q.topic.toLowerCase())));
+          }
+          matches.sort(() => Math.random() - 0.5);
+          matches.slice(0, tQuota).forEach(q => { taken.push(q); usedIds.add(q.id); });
+        });
+      }
+
+      let shortfall = quota - taken.length;
+      if (shortfall > 0) {
+        const rest = pool.filter(q => !usedIds.has(q.id)).sort(() => Math.random() - 0.5);
+        rest.slice(0, shortfall).forEach(q => { taken.push(q); usedIds.add(q.id); });
+      }
+
+      if (taken.length > 0) finalQuestions = finalQuestions.concat(taken);
+      if (quota > 0) subjectsBuilt.push({ name: subject, quota, taken: taken.length });
+    });
+
+    finalQuestions.sort(() => Math.random() - 0.5);
+
+    if (finalQuestions.length === 0) {
+      document.getElementById('no-questions-text').textContent = 'এই ট্র্যাকে এখনো কোনো প্রশ্ন যোগ করা হয়নি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।';
+      showEl('no-questions');
+      return;
+    }
+
+    builtQuestions = finalQuestions;
+    showExamInfo(key, subjectsBuilt, finalQuestions.length);
+  }
+
+  function showExamInfo(key, subjectsBuilt, count){
+    document.getElementById('exam-title').textContent = TRACK_LABELS[key] + ' — মডেল টেস্ট';
+    document.getElementById('exam-subjects').textContent = subjectsBuilt.map(s => s.name).join(' · ');
+    document.getElementById('exam-qcount').textContent = count;
+    const seconds = Math.round(count * 36);
+    const mins = Math.max(1, Math.round(seconds / 60));
+    document.getElementById('exam-time').textContent = mins + ' মি.';
+    document.getElementById('exam-marks').textContent = count;
+
+    const shortfallSubjects = subjectsBuilt.filter(s => s.taken < s.quota);
+    const noteEl = document.getElementById('exam-shortfall-note');
+    if (shortfallSubjects.length > 0) {
+      noteEl.classList.remove('hidden');
+      noteEl.textContent = '⚠️ কিছু বিষয়ে পর্যাপ্ত প্রশ্ন না থাকায় নির্ধারিত সংখ্যার চেয়ে কম প্রশ্ন এসেছে (' + shortfallSubjects.map(s => s.name + ': ' + s.taken + '/' + s.quota).join(', ') + ')।';
+    } else {
+      noteEl.classList.add('hidden');
+    }
+    showEl('exam-info');
+    lucide.createIcons();
+  }
+
+  function startExam(){
+    quizQuestions = builtQuestions;
+    currentIndex = 0; score = 0; wrongCount = 0; wrongTopics = []; subjectStats = {};
+    showEl('quiz-area');
+    startQuizTimer(quizQuestions.length);
+    renderQuestion();
+  }
+
+  // ==== টাইমার: প্রতি ১০টা প্রশ্নে ৬ মিনিট (প্রশ্নপ্রতি ৩৬ সেকেন্ড) ====
+  function startQuizTimer(numQuestions){
+    clearInterval(timerInterval);
+    let totalSeconds = Math.round(numQuestions * 36);
+    updateTimerDisplay(totalSeconds);
+    timerInterval = setInterval(() => {
+      totalSeconds--;
+      if (totalSeconds <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('q-timer').textContent = '⏱ ০০:০০';
+        showResults();
+        return;
+      }
+      updateTimerDisplay(totalSeconds);
+    }, 1000);
+  }
+
+  function updateTimerDisplay(seconds){
+    const m = Math.floor(seconds/60).toString().padStart(2,'0');
+    const s = (seconds%60).toString().padStart(2,'0');
+    const el = document.getElementById('q-timer');
+    if (el) el.textContent = `⏱ ${m}:${s}`;
+  }
+
+  function renderQuestion(){
+    const q = quizQuestions[currentIndex];
+    document.getElementById('q-progress').textContent = `প্রশ্ন ${currentIndex+1} / ${quizQuestions.length}`;
+    document.getElementById('q-score').textContent = `স্কোর: ${score}`;
+    document.getElementById('progress-bar').style.width = `${(currentIndex/quizQuestions.length)*100}%`;
+    document.getElementById('q-subject-tag').textContent = q.subject + (q.topic ? ' · ' + q.topic : '');
+
+    showArabic = false;
+    const langBtn = document.getElementById('lang-toggle');
+    langBtn.classList.toggle('hidden', q.isArabic || !q.arabic_question);
+    langBtn.textContent = 'العربية';
+    renderQuestionText();
+
+    document.getElementById('explanation-box').classList.add('hidden');
+    document.getElementById('next-btn').classList.add('hidden');
+    document.getElementById('quality-bar').classList.add('hidden');
+    document.getElementById('report-picker').classList.add('hidden');
+    document.getElementById('qb-notice').classList.add('hidden');
+    resetQualityBar();
+    lucide.createIcons();
+  }
+
+  function renderQuestionText(){
+    const q = quizQuestions[currentIndex];
+    const qText = document.getElementById('q-text');
+    if (q.isArabic) {
+      qText.textContent = q.question;
+      qText.setAttribute('dir', 'rtl');
+      qText.style.fontFamily = "'Traditional Arabic', serif";
+    } else if (showArabic && q.arabic_question) {
+      qText.textContent = q.arabic_question;
+      qText.setAttribute('dir', 'rtl');
+      qText.style.fontFamily = "'Traditional Arabic', serif";
+    } else {
+      qText.textContent = q.question;
+      qText.setAttribute('dir', 'auto');
+      qText.style.fontFamily = '';
+    }
+
+    const useAr = q.isArabic || (showArabic && q.arabic_option_a);
+    const options = q.isArabic
+      ? [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]]
+      : (showArabic && q.arabic_option_a)
+        ? [['a',q.arabic_option_a],['b',q.arabic_option_b],['c',q.arabic_option_c],['d',q.arabic_option_d]]
+        : [['a',q.option_a],['b',q.option_b],['c',q.option_c],['d',q.option_d]];
+    const wrap = document.getElementById('options-wrap');
+    wrap.innerHTML = options.map(([key,text]) => `
+      <button data-key="${key}" onclick="selectAnswer('${key}')" dir="${useAr ? 'rtl' : 'auto'}" class="opt-btn w-full text-left px-4 py-3 rounded-xl text-sm" style="${q.isArabic ? "font-family:'Traditional Arabic', serif;" : ''}">${text}</button>`).join('');
+  }
+
+  function toggleLang(){
+    showArabic = !showArabic;
+    document.getElementById('lang-toggle').textContent = showArabic ? 'বাংলা' : 'العربية';
+    renderQuestionText();
+    lucide.createIcons();
+  }
+
+  function selectAnswer(key){
+    const q = quizQuestions[currentIndex];
+    document.querySelectorAll('#options-wrap button').forEach(btn => {
+      btn.onclick = null;
+      const k = btn.dataset.key;
+      if (k === q.correct) { btn.style.background = '#DFF3E3'; btn.style.borderColor = '#2F7A4F'; btn.style.color = '#1E5C36'; }
+      else if (k === key) { btn.style.background = '#FBE2E2'; btn.style.borderColor = '#D14343'; btn.style.color = '#8C2020'; }
+    });
+    if (key === q.correct) { score++; }
+    else { wrongCount++; wrongTopics.push(q.topic || q.subject); }
+    const subj = q.subject || 'অজানা';
+    subjectStats[subj] = subjectStats[subj] || { correct: 0, total: 0 };
+    subjectStats[subj].total++;
+    if (key === q.correct) { subjectStats[subj].correct++; }
+    document.getElementById('q-score').textContent = `স্কোর: ${score}`;
+
+    if (q.explanation) {
+      const expEl = document.getElementById('explanation-text');
+      expEl.innerHTML = '';
+      if (q.isArabic && q.explanation_bn) {
+        const arSpan = document.createElement('span');
+        arSpan.textContent = q.explanation;
+        arSpan.setAttribute('dir', 'rtl');
+        arSpan.style.fontFamily = "'Traditional Arabic', serif";
+        arSpan.style.display = 'block';
+        const bnSpan = document.createElement('span');
+        bnSpan.textContent = q.explanation_bn;
+        bnSpan.setAttribute('dir', 'auto');
+        bnSpan.style.display = 'block';
+        bnSpan.style.marginTop = '6px';
+        expEl.appendChild(arSpan);
+        expEl.appendChild(bnSpan);
+      } else {
+        expEl.textContent = q.explanation;
+        expEl.setAttribute('dir', q.isArabic ? 'rtl' : 'auto');
+        expEl.style.fontFamily = q.isArabic ? "'Traditional Arabic', serif" : '';
+      }
+      document.getElementById('explanation-box').classList.remove('hidden');
+    }
+    document.getElementById('next-btn').classList.remove('hidden');
+    if (qbState.qid) {
+      document.getElementById('quality-bar').classList.remove('hidden');
+      lucide.createIcons();
+    }
+  }
+
+  function nextQuestion(){
+    currentIndex++;
+    if (currentIndex >= quizQuestions.length) {
+      showResults();
+      return;
+    }
+    renderQuestion();
+  }
+
+  function showResults(){
+    clearInterval(timerInterval);
+    const total = quizQuestions.length;
+    const marks = Math.max(0, score - (wrongCount * 0.25));
+    const percent = (marks / total) * 100;
+
+    document.getElementById('stat-correct').textContent = score;
+    document.getElementById('stat-wrong').textContent = wrongCount;
+    document.getElementById('stat-marks').textContent = marks.toFixed(2) + ' / ' + total;
+    document.getElementById('stat-percent').textContent = percent.toFixed(1) + '%';
+
+    const icon = document.getElementById('result-icon');
+    const statusEl = document.getElementById('pass-status');
+    const complimentEl = document.getElementById('result-compliment');
+
+    if (percent >= 80) {
+      icon.setAttribute('data-lucide', 'trophy'); icon.style.color = '#C9A24C';
+      statusEl.textContent = 'চমৎকার হয়েছে! 🎉'; statusEl.style.color = '#2F7A4F';
+      complimentEl.textContent = 'অসাধারণ প্রস্তুতি! এভাবেই চালিয়ে যান।';
+    } else if (percent >= 60) {
+      icon.setAttribute('data-lucide', 'thumbs-up'); icon.style.color = '#2F7A4F';
+      statusEl.textContent = 'পাশ করেছেন ✓'; statusEl.style.color = '#2F7A4F';
+      complimentEl.textContent = 'ভালো করেছেন! আরেকটু অনুশীলনে আরও ভালো হবে।';
+    } else if (percent >= 40) {
+      icon.setAttribute('data-lucide', 'check-circle'); icon.style.color = '#8B6B2A';
+      statusEl.textContent = 'পাশ করেছেন ✓'; statusEl.style.color = '#8B6B2A';
+      complimentEl.textContent = 'পাশ করেছেন, তবে আরও অনুশীলন করলে ফলাফল আরও ভালো হবে।';
+    } else {
+      icon.setAttribute('data-lucide', 'refresh-ccw'); icon.style.color = '#D14343';
+      statusEl.textContent = 'এবার পাশ মার্ক আসেনি'; statusEl.style.color = '#D14343';
+      complimentEl.textContent = 'হতাশ হবেন না — ভুল প্রশ্নগুলোর ব্যাখ্যা আবার পড়ুন এবং আবার চেষ্টা করুন।';
+    }
+
+    if (wrongTopics.length > 0) {
+      const counts = {};
+      wrongTopics.forEach(t => { counts[t] = (counts[t]||0) + 1; });
+      const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 4);
+      document.getElementById('weak-topics').classList.remove('hidden');
+      document.getElementById('weak-topics-list').innerHTML = sorted.map(([topic, count]) => `
+        <div class="flex items-center justify-between text-xs" style="color:#6B5A2E;">
+          <span>${topic}</span>
+          <span class="font-semibold">${count}টি ভুল</span>
+        </div>`).join('') + `<p class="text-[11px] mt-2" style="color:#8B6B2A;">এই বিষয়গুলো আবার পড়ে পরে আবার অনুশীলন করুন।</p>`;
+    }
+
+    showEl('result-area');
+    lucide.createIcons();
+    saveAttempt();
+  }
+
+  async function saveAttempt(){
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session || !session.user) return;
+      const rows = Object.entries(subjectStats).map(([subject, s]) => ({
+        user_id: session.user.id,
+        subject: subject,
+        total_questions: s.total,
+        correct_count: s.correct
+      }));
+      if (rows.length === 0) return;
+      await sb.from('quiz_attempts').insert(rows);
+    } catch (e) {
+      console.warn('quiz_attempts সেভ করতে সমস্যা হয়েছে:', e);
+    }
+  }
+
+  // ==== প্রশ্ন কোয়ালিটি সিস্টেম: Verify / Bookmark / Report / Share ====
+  let qbState = { verified: false, bookmarked: false, qid: null };
+
+  async function resetQualityBar(){
+    const q = quizQuestions[currentIndex];
+    qbState = { verified: false, bookmarked: false, qid: q.id || null };
+    setQBIconState('qb-verify', false);
+    setQBIconState('qb-bookmark', false);
+    if (!qbState.qid) return;
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || !session.user) return;
+    const uid = session.user.id;
+    const [{ data: vData }, { data: bData }] = await Promise.all([
+      sb.from('question_verifications').select('id').eq('question_id', qbState.qid).eq('user_id', uid).maybeSingle(),
+      sb.from('question_bookmarks').select('id').eq('question_id', qbState.qid).eq('user_id', uid).maybeSingle()
+    ]);
+    if (vData) { qbState.verified = true; setQBIconState('qb-verify', true); }
+    if (bData) { qbState.bookmarked = true; setQBIconState('qb-bookmark', true); }
+  }
+
+  function setQBIconState(id, active){
+    document.getElementById(id).style.color = active ? '#2F7A4F' : '#5B5340';
+  }
+
+  function showQBNotice(msg, color){
+    const el = document.getElementById('qb-notice');
+    el.textContent = msg;
+    el.style.color = color;
+    el.classList.remove('hidden');
+  }
+
+  async function requireQBAuth(){
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || !session.user) { showQBNotice('এটা করতে লগইন করুন।', '#D14343'); return null; }
+    return session.user;
+  }
+
+  async function handleVerify(){
+    if (!qbState.qid) return;
+    const user = await requireQBAuth();
+    if (!user) return;
+    if (qbState.verified) { showQBNotice('আগেই ভেরিফাই করেছেন ✓', '#2F7A4F'); return; }
+    const { error } = await sb.from('question_verifications').insert({ question_id: qbState.qid, user_id: user.id });
+    if (error) { showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343'); return; }
+    qbState.verified = true;
+    setQBIconState('qb-verify', true);
+    showQBNotice('ভেরিফাই করা হয়েছে, ধন্যবাদ! ✓', '#2F7A4F');
+  }
+
+  async function handleBookmark(){
+    if (!qbState.qid) return;
+    const user = await requireQBAuth();
+    if (!user) return;
+    if (qbState.bookmarked) {
+      await sb.from('question_bookmarks').delete().eq('question_id', qbState.qid).eq('user_id', user.id);
+      qbState.bookmarked = false;
+      setQBIconState('qb-bookmark', false);
+      showQBNotice('বুকমার্ক সরানো হয়েছে।', '#5B5340');
+    } else {
+      const { error } = await sb.from('question_bookmarks').insert({ question_id: qbState.qid, user_id: user.id });
+      if (error) { showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343'); return; }
+      qbState.bookmarked = true;
+      setQBIconState('qb-bookmark', true);
+      showQBNotice('বুকমার্ক করা হয়েছে ✓', '#2F7A4F');
+    }
+  }
+
+  function toggleReportPicker(){
+    if (!qbState.qid) return;
+    document.getElementById('report-picker').classList.toggle('hidden');
+  }
+
+  async function submitReport(reason){
+    if (!qbState.qid) return;
+    const user = await requireQBAuth();
+    if (!user) return;
+    const { error } = await sb.from('question_reports').insert({ question_id: qbState.qid, user_id: user.id, reason });
+    document.getElementById('report-picker').classList.add('hidden');
+    if (error) {
+      if (error.code === '23505') showQBNotice('এই প্রশ্নটি আগেই রিপোর্ট করেছেন।', '#8B6B2A');
+      else showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343');
+      return;
+    }
+    showQBNotice('রিপোর্ট গ্রহণ করা হয়েছে, ধন্যবাদ।', '#2F7A4F');
+    const { count } = await sb.from('question_reports').select('id', { count: 'exact', head: true }).eq('question_id', qbState.qid);
+    if (count !== null) {
+      const updates = { report_count: count };
+      if (count >= 5) updates.is_hidden = true;
+      await sb.from('questions').update(updates).eq('id', qbState.qid);
+    }
+  }
+
+  function handleShare(){
+    const q = quizQuestions[currentIndex];
+    const text = `প্রশ্ন: ${q.question}\n\nনিবন্ধন হাব অ্যাপে অনুশীলন করুন।`;
+    if (navigator.share) {
+      navigator.share({ text }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text)
+        .then(() => showQBNotice('কপি করা হয়েছে ✓', '#2F7A4F'))
+        .catch(() => showQBNotice('শেয়ার সমর্থিত নয়।', '#D14343'));
+    }
+  }
+
+  lucide.createIcons();
+</script>
+</body>
+</html>
