@@ -195,6 +195,22 @@
       <p id="explanation-text" class="text-xs" style="color:#6B5A2E;"></p>
     </div>
     <button id="next-btn" onclick="nextQuestion()" class="hidden w-full mt-5 py-3 rounded-full text-sm font-semibold btn-gold">পরের প্রশ্ন</button>
+
+    <div id="quality-bar" class="hidden mt-3 rounded-xl p-3" style="background:#fff; border:1px solid #E4DAB8;">
+      <div class="flex items-center justify-around">
+        <button id="qb-verify" onclick="handleVerify()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="thumbs-up" class="w-4 h-4"></i>ভেরিফাই</button>
+        <button id="qb-bookmark" onclick="handleBookmark()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="star" class="w-4 h-4"></i>বুকমার্ক</button>
+        <button id="qb-report" onclick="toggleReportPicker()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="flag" class="w-4 h-4"></i>রিপোর্ট</button>
+        <button id="qb-share" onclick="handleShare()" class="flex flex-col items-center gap-1 text-[11px]" style="color:#5B5340;"><i data-lucide="share-2" class="w-4 h-4"></i>শেয়ার</button>
+      </div>
+      <div id="report-picker" class="hidden mt-3 pt-3 flex flex-wrap gap-2" style="border-top:1px solid #F0EAD6;">
+        <button onclick="submitReport('ভুল উত্তর')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">ভুল উত্তর</button>
+        <button onclick="submitReport('অস্পষ্ট প্রশ্ন')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">অস্পষ্ট প্রশ্ন</button>
+        <button onclick="submitReport('ভুল ব্যাখ্যা')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">ভুল ব্যাখ্যা</button>
+        <button onclick="submitReport('অন্যান্য')" class="text-[11px] px-3 py-1.5 rounded-full" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#5B5340;">অন্যান্য</button>
+      </div>
+      <p id="qb-notice" class="hidden text-[11px] mt-2 text-center"></p>
+    </div>
   </div>
 
   <!-- RESULT -->
@@ -423,7 +439,7 @@
   }
 
   async function startQuiz(count){
-    let query = sb.from('questions').select('*');
+    let query = sb.from('questions').select('*').eq('is_hidden', false);
     if (selectedSubject) query = query.eq('subject', selectedSubject);
     const { data, error } = await query;
     if (error || !data || data.length === 0) { showEl('no-questions'); return; }
@@ -481,7 +497,115 @@
 
     document.getElementById('explanation-box').classList.add('hidden');
     document.getElementById('next-btn').classList.add('hidden');
+    document.getElementById('quality-bar').classList.add('hidden');
+    document.getElementById('report-picker').classList.add('hidden');
+    document.getElementById('qb-notice').classList.add('hidden');
+    resetQualityBar();
     lucide.createIcons();
+  }
+
+  // ==== প্রশ্ন কোয়ালিটি সিস্টেম: Verify / Bookmark / Report / Share ====
+  let qbState = { verified: false, bookmarked: false, qid: null };
+
+  async function resetQualityBar(){
+    const q = quizQuestions[currentIndex];
+    qbState = { verified: false, bookmarked: false, qid: q.id || null };
+    setQBIconState('qb-verify', false);
+    setQBIconState('qb-bookmark', false);
+    if (!qbState.qid) return;
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || !session.user) return;
+    const uid = session.user.id;
+    const [{ data: vData }, { data: bData }] = await Promise.all([
+      sb.from('question_verifications').select('id').eq('question_id', qbState.qid).eq('user_id', uid).maybeSingle(),
+      sb.from('question_bookmarks').select('id').eq('question_id', qbState.qid).eq('user_id', uid).maybeSingle()
+    ]);
+    if (vData) { qbState.verified = true; setQBIconState('qb-verify', true); }
+    if (bData) { qbState.bookmarked = true; setQBIconState('qb-bookmark', true); }
+  }
+
+  function setQBIconState(id, active){
+    document.getElementById(id).style.color = active ? '#2F7A4F' : '#5B5340';
+  }
+
+  function showQBNotice(msg, color){
+    const el = document.getElementById('qb-notice');
+    el.textContent = msg;
+    el.style.color = color;
+    el.classList.remove('hidden');
+  }
+
+  async function requireQBAuth(){
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session || !session.user) { showQBNotice('এটা করতে লগইন করুন।', '#D14343'); return null; }
+    return session.user;
+  }
+
+  async function handleVerify(){
+    if (!qbState.qid) return;
+    const user = await requireQBAuth();
+    if (!user) return;
+    if (qbState.verified) { showQBNotice('আগেই ভেরিফাই করেছেন ✓', '#2F7A4F'); return; }
+    const { error } = await sb.from('question_verifications').insert({ question_id: qbState.qid, user_id: user.id });
+    if (error) { showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343'); return; }
+    qbState.verified = true;
+    setQBIconState('qb-verify', true);
+    showQBNotice('ভেরিফাই করা হয়েছে, ধন্যবাদ! ✓', '#2F7A4F');
+  }
+
+  async function handleBookmark(){
+    if (!qbState.qid) return;
+    const user = await requireQBAuth();
+    if (!user) return;
+    if (qbState.bookmarked) {
+      await sb.from('question_bookmarks').delete().eq('question_id', qbState.qid).eq('user_id', user.id);
+      qbState.bookmarked = false;
+      setQBIconState('qb-bookmark', false);
+      showQBNotice('বুকমার্ক সরানো হয়েছে।', '#5B5340');
+    } else {
+      const { error } = await sb.from('question_bookmarks').insert({ question_id: qbState.qid, user_id: user.id });
+      if (error) { showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343'); return; }
+      qbState.bookmarked = true;
+      setQBIconState('qb-bookmark', true);
+      showQBNotice('বুকমার্ক করা হয়েছে ✓', '#2F7A4F');
+    }
+  }
+
+  function toggleReportPicker(){
+    if (!qbState.qid) return;
+    document.getElementById('report-picker').classList.toggle('hidden');
+  }
+
+  async function submitReport(reason){
+    if (!qbState.qid) return;
+    const user = await requireQBAuth();
+    if (!user) return;
+    const { error } = await sb.from('question_reports').insert({ question_id: qbState.qid, user_id: user.id, reason });
+    document.getElementById('report-picker').classList.add('hidden');
+    if (error) {
+      if (error.code === '23505') showQBNotice('এই প্রশ্নটি আগেই রিপোর্ট করেছেন।', '#8B6B2A');
+      else showQBNotice('সমস্যা হয়েছে, আবার চেষ্টা করুন।', '#D14343');
+      return;
+    }
+    showQBNotice('রিপোর্ট গ্রহণ করা হয়েছে, ধন্যবাদ।', '#2F7A4F');
+    const { count } = await sb.from('question_reports').select('id', { count: 'exact', head: true }).eq('question_id', qbState.qid);
+    if (count !== null) {
+      const updates = { report_count: count };
+      if (count >= 5) updates.is_hidden = true;
+      await sb.from('questions').update(updates).eq('id', qbState.qid);
+    }
+  }
+
+  function handleShare(){
+    const q = quizQuestions[currentIndex];
+    const text = `প্রশ্ন: ${q.question}\n\nনিবন্ধন হাব অ্যাপে অনুশীলন করুন।`;
+    if (navigator.share) {
+      navigator.share({ text }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text)
+        .then(() => showQBNotice('কপি করা হয়েছে ✓', '#2F7A4F'))
+        .catch(() => showQBNotice('শেয়ার সমর্থিত নয়।', '#D14343'));
+    }
   }
 
   function renderQuestionText(){
@@ -559,6 +683,10 @@
       document.getElementById('explanation-box').classList.remove('hidden');
     }
     document.getElementById('next-btn').classList.remove('hidden');
+    if (qbState.qid) {
+      document.getElementById('quality-bar').classList.remove('hidden');
+      lucide.createIcons();
+    }
   }
 
   function nextQuestion(){

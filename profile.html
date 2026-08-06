@@ -146,6 +146,15 @@
       </div>
     </section>
 
+    <!-- BOOKMARKED QUESTIONS -->
+    <section class="px-4 mt-8">
+      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="star" class="w-4 h-4" style="color:#C9A24C;"></i>বুকমার্ক করা প্রশ্ন</h2>
+      <div id="bookmarks-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
+        <p class="text-sm" style="color:#5B5340;">অনুশীলনের সময় ⭐ বুকমার্ক করা প্রশ্নগুলো এখানে দেখা যাবে।</p>
+      </div>
+      <div id="bookmarks-list" class="hidden flex flex-col gap-2.5"></div>
+    </section>
+
     <!-- EDIT PROFILE (toggle) -->
     <section class="px-4 mt-9">
       <button onclick="toggleEdit()" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold" style="background:#fff; color:#0E211C;">
@@ -239,7 +248,40 @@
     document.getElementById('page').classList.remove('hidden');
     syncDrawerProfile();
     loadStats();
+    loadBookmarks();
     lucide.createIcons();
+  }
+
+  async function loadBookmarks(){
+    const { data, error } = await supabaseClient
+      .from('question_bookmarks')
+      .select('id, question_id, questions(id, subject, question)')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    const valid = (!error && data) ? data.filter(b => b.questions) : [];
+    const emptyEl = document.getElementById('bookmarks-empty');
+    const list = document.getElementById('bookmarks-list');
+    if (valid.length === 0) {
+      emptyEl.classList.remove('hidden');
+      list.classList.add('hidden');
+      return;
+    }
+    emptyEl.classList.add('hidden');
+    list.classList.remove('hidden');
+    list.innerHTML = valid.map(b => `
+      <div class="rounded-2xl p-3.5 flex items-start justify-between gap-2" style="background:#fff;">
+        <div class="flex-1 min-w-0">
+          <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${b.questions.subject}</span>
+          <p class="text-xs mt-1.5" style="color:#333;">${b.questions.question}</p>
+        </div>
+        <button onclick="removeBookmark('${b.question_id}')" class="shrink-0" style="color:#C9A24C;"><i data-lucide="star" style="fill:#C9A24C;" class="w-4 h-4"></i></button>
+      </div>`).join('');
+    lucide.createIcons();
+  }
+
+  async function removeBookmark(questionId){
+    await supabaseClient.from('question_bookmarks').delete().eq('question_id', questionId).eq('user_id', currentUser.id);
+    loadBookmarks();
   }
 
   async function loadStats(){

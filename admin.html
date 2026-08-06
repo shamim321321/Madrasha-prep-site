@@ -172,6 +172,14 @@
 
     <div class="px-5 mt-8">
       <div class="flex items-center justify-between mb-3">
+        <h2 class="serif-bn text-base" style="color:#0E211C;">প্রশ্ন কোয়ালিটি রিভিউ</h2>
+        <span id="review-count" class="text-xs" style="color:#8A8266;"></span>
+      </div>
+      <div id="review-list" class="flex flex-col gap-2"></div>
+    </div>
+
+    <div class="px-5 mt-8">
+      <div class="flex items-center justify-between mb-3">
         <h2 class="serif-bn text-base" style="color:#0E211C;">সাম্প্রতিক প্রশ্নসমূহ</h2>
         <span id="q-count" class="text-xs" style="color:#8A8266;"></span>
       </div>
@@ -190,11 +198,38 @@
     document.getElementById('admin-area').classList.remove('hidden');
     loadSubjects();
     loadRecent();
+    loadReviewQueue();
     loadMaintenanceInfo();
     loadBlockedList();
     loadUsers();
     loadDonations();
     loadPaymentMethods();
+  }
+
+  // ---- প্রশ্ন কোয়ালিটি রিভিউ (৫ বার রিপোর্ট হলে অটো-হাইড হয়ে এখানে আসে) ----
+  async function loadReviewQueue() {
+    const { data } = await supabaseClient.from('questions').select('*').eq('is_hidden', true).order('report_count', { ascending: false });
+    const hidden = data || [];
+    document.getElementById('review-count').textContent = hidden.length ? `${hidden.length}টি রিভিউর অপেক্ষায়` : '';
+    document.getElementById('review-list').innerHTML = hidden.map(q => `
+      <div class="rounded-xl p-3" style="background:#FBF0DC; border:1px solid #E8CE94;">
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${q.subject}</span>
+          <span class="text-[11px] font-semibold" style="color:#D14343;">${q.report_count || 0}টি রিপোর্ট</span>
+        </div>
+        <p class="text-xs mb-2.5" style="color:#333;">${q.question}</p>
+        <div class="flex gap-2">
+          <button onclick="unhideQuestion('${q.id}')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#2F7A4F; color:#fff;">ঠিক আছে, আনহাইড করুন</button>
+          <button onclick="deleteQuestion('${q.id}')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#D14343; color:#fff;">ডিলিট করুন</button>
+        </div>
+      </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">রিভিউর জন্য কোনো প্রশ্ন নেই ✓</p>`;
+    lucide.createIcons();
+  }
+
+  async function unhideQuestion(id) {
+    await supabaseClient.from('questions').update({ is_hidden: false, report_count: 0 }).eq('id', id);
+    await supabaseClient.from('question_reports').delete().eq('question_id', id);
+    loadReviewQueue();
   }
 
   // ---- Donation Management ----
@@ -535,6 +570,7 @@
     if (!confirm('প্রশ্নটি ডিলিট করবেন?')) return;
     await supabaseClient.from('questions').delete().eq('id', id);
     loadRecent();
+    loadReviewQueue();
   }
 
   init();
