@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Library — GenMCQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { background:#F4EEDC; }
+  .serif-bn { font-family:'Tiro Bangla', serif; }
+  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
+  .icon-badge { background:rgba(201,162,76,0.12); }
+  .bottom-nav { box-shadow:0 -2px 10px rgba(0,0,0,0.06); }
+  .chip { background:#fff; border:1px solid #E4DAB8; color:#5B5340; }
+  .chip.active { background:#0E211C; border-color:#0E211C; color:#E4C97A; }
+</style>
+</head>
+<body class="sans-bn pb-20">
+
+  <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+    <div class="flex items-center gap-3">
+      <a href="library.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+      <div id="page-title" class="serif-bn text-lg" style="color:#F4EEDC;">Library</div>
+    </div>
+  </header>
+
+  <div class="px-5 mt-5">
+    <div id="subject-filters" class="hidden flex gap-2 overflow-x-auto pb-1 mb-4" style="scrollbar-width:none;"></div>
+
+    <div id="loading" class="text-center py-10">
+      <i data-lucide="loader-2" class="w-6 h-6 mx-auto animate-spin" style="color:#C9A24C;"></i>
+    </div>
+
+    <div id="resource-list" class="hidden flex flex-col gap-3"></div>
+
+    <div id="empty-state" class="hidden text-center py-10">
+      <i data-lucide="folder-open" class="w-8 h-8 mx-auto mb-3" style="color:#8A8266;"></i>
+      <p class="text-sm" style="color:#8A8266;">এখানে এখনো কোনো রিসোর্স যোগ করা হয়নি।</p>
+    </div>
+  </div>
+
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee;">
+    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+    <a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
+    <a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
+    <a href="ai.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="sparkles" class="w-5 h-5"></i>AI</a>
+    <a href="profile.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+  </nav>
+
+<script>
+  const SUPABASE_URL = "https://laujqfawcirnwsmvhaif.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_rlZV0JZUFH7NdmR_-Oz7Dg_97OQxMpv";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const CATEGORY_META = {
+    pdf_notes: { label: 'PDF Notes', icon: 'file-text' },
+    previous_questions: { label: 'Previous Questions', icon: 'history' },
+    important_notes: { label: 'Important Notes', icon: 'star' },
+    short_notes: { label: 'Short Notes', icon: 'bookmark' }
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const type = params.get('type') || 'pdf_notes';
+  const meta = CATEGORY_META[type] || CATEGORY_META.pdf_notes;
+
+  document.getElementById('page-title').textContent = meta.label;
+  document.title = meta.label + ' — GenMCQ';
+
+  let allResources = [];
+  let activeSubject = null;
+
+  async function load() {
+    const { data, error } = await sb.from('library_resources').select('*').eq('category', type).order('created_at', { ascending: false });
+    document.getElementById('loading').classList.add('hidden');
+    allResources = data || [];
+
+    if (error || allResources.length === 0) {
+      document.getElementById('empty-state').classList.remove('hidden');
+      return;
+    }
+
+    const subjects = [...new Set(allResources.map(r => r.subject).filter(Boolean))];
+    if (subjects.length > 1) {
+      const filterEl = document.getElementById('subject-filters');
+      filterEl.classList.remove('hidden');
+      filterEl.innerHTML = `<button onclick="filterBySubject(null)" class="chip active shrink-0 px-3 py-1.5 rounded-full text-xs font-medium" data-subject="">সব</button>` +
+        subjects.map(s => `<button onclick="filterBySubject('${s.replace(/'/g,"\\'")}')" class="chip shrink-0 px-3 py-1.5 rounded-full text-xs font-medium">${s}</button>`).join('');
+    }
+
+    renderList();
+  }
+
+  function filterBySubject(subject){
+    activeSubject = subject;
+    document.querySelectorAll('#subject-filters button').forEach(btn => {
+      btn.classList.toggle('active', (subject === null && btn.textContent === 'সব') || btn.textContent === subject);
+    });
+    renderList();
+  }
+
+  function renderList(){
+    const filtered = activeSubject ? allResources.filter(r => r.subject === activeSubject) : allResources;
+    const listEl = document.getElementById('resource-list');
+    listEl.classList.remove('hidden');
+    listEl.innerHTML = filtered.map(r => `
+      <a href="${r.link}" target="_blank" rel="noopener" class="rounded-2xl p-4 flex items-center gap-3" style="background:#fff;">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 icon-badge"><i data-lucide="${meta.icon}" class="w-5 h-5" style="color:#8B6B2A;"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold" style="color:#0E211C;">${r.title}</p>
+          ${r.subject ? `<p class="text-xs" style="color:#8A8266;">${r.subject}</p>` : ''}
+        </div>
+        <i data-lucide="external-link" class="w-4 h-4" style="color:#8A8266;"></i>
+      </a>`).join('');
+    lucide.createIcons();
+  }
+
+  load();
+  lucide.createIcons();
+</script>
+</body>
+</html>

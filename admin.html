@@ -3,578 +3,616 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Admin Panel — নিবন্ধন হাব</title>
+<title>Admin Panel — GenMCQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  body { background:#F4EEDC; }
-  .serif-bn { font-family:'Tiro Bangla', serif; }
-  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
-  .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
-  .btn-gold { background:#C9A24C; color:#0E211C; }
+body { background:#F4EEDC; }
+.serif-bn { font-family:'Tiro Bangla', serif; }
+.sans-bn { font-family:'Hind Siliguri', sans-serif; }
+.num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
+.btn-gold { background:#C9A24C; color:#0E211C; }
 </style>
 </head>
 <body class="sans-bn pb-10">
 
-  <header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
-    <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-    <div class="serif-bn text-lg" style="color:#F4EEDC;">Admin Panel</div>
-  </header>
+<header class="sticky top-0 z-30 flex items-center gap-3 px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+<a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+<div class="serif-bn text-lg" style="color:#F4EEDC;">Admin Panel</div>
+</header>
 
-  <div id="denied" class="hidden mx-5 mt-8 text-center text-sm" style="color:#5B5340;">এই পেজটি শুধু অ্যাডমিনের জন্য।</div>
+<div id="denied" class="hidden mx-5 mt-8 text-center text-sm" style="color:#5B5340;">এই পেজটি শুধু অ্যাডমিনের জন্য।</div>
 
-  <div id="admin-area" class="hidden">
+<div id="admin-area" class="hidden">
 
-    <!-- MAINTENANCE MODE -->
-    <div class="px-5 mt-5">
-      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <i data-lucide="construction" class="w-4 h-4" style="color:#8B6B2A;"></i>
-            <span class="text-sm font-semibold" style="color:#0E211C;">Maintenance Mode</span>
-          </div>
-          <button id="maint-toggle" onclick="toggleMaintenance()" class="w-12 h-7 rounded-full relative transition" style="background:#E4DAB8;">
-            <span id="maint-knob" class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white transition-transform"></span>
-          </button>
-        </div>
-        <p class="text-xs mb-3" style="color:#8A8266;">ON করলে অ্যাডমিন ছাড়া বাকি সবার জন্য সাইট বন্ধ দেখাবে।</p>
+<!-- MAINTENANCE MODE -->
+<div class="px-5 mt-5">
+<div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<i data-lucide="construction" class="w-4 h-4" style="color:#8B6B2A;"></i>
+<span class="text-sm font-semibold" style="color:#0E211C;">Maintenance Mode</span>
+</div>
+<button id="maint-toggle" onclick="toggleMaintenance()" class="w-12 h-7 rounded-full relative transition" style="background:#E4DAB8;">
+<span id="maint-knob" class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<p class="text-xs mb-3" style="color:#8A8266;">ON করলে অ্যাডমিন ছাড়া বাকি সবার জন্য সাইট বন্ধ দেখাবে।</p>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রত্যাশিত ফেরার সময় (ঐচ্ছিক)</label>
+<input id="maint-return" type="text" placeholder="যেমন: আজ রাত ১০টা" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">কাস্টম মেসেজ (ঐচ্ছিক)</label>
+<textarea id="maint-message" rows="2" placeholder="মেইনটেন্যান্স পেজে বাড়তি কোনো বার্তা দেখাতে চাইলে লিখুন" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;"></textarea>
+<button onclick="saveMaintenanceInfo()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">তথ্য সেভ করুন</button>
+<p id="maint-notice" class="hidden text-xs mt-2 text-center"></p>
+</div>
+</div>
 
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রত্যাশিত ফেরার সময় (ঐচ্ছিক)</label>
-        <input id="maint-return" type="text" placeholder="যেমন: আজ রাত ১০টা" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<!-- DONATION MANAGEMENT -->
+<div class="px-5 mt-5">
+<div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+<div class="flex items-center gap-2 mb-3">
+<i data-lucide="heart" class="w-4 h-4" style="color:#D14343;"></i>
+<span class="text-sm font-semibold" style="color:#0E211C;">Donation Management</span>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-4">
+<div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+<p id="don-total" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
+<p class="text-[10px]" style="color:#8A8266;">মোট (verified)</p>
+</div>
+<div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+<p id="don-today" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
+<p class="text-[10px]" style="color:#8A8266;">আজকের</p>
+</div>
+<div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
+<p id="don-month" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
+<p class="text-[10px]" style="color:#8A8266;">এই মাসের</p>
+</div>
+</div>
+<button onclick="exportDonationsCSV()" class="w-full mb-3 py-2 rounded-full text-xs font-semibold" style="border:1px solid #C9A24C; color:#8B6B2A;">CSV Export</button>
+<div id="donations-list" class="flex flex-col gap-2 max-h-96 overflow-y-auto"></div>
+</div>
+</div>
 
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">কাস্টম মেসেজ (ঐচ্ছিক)</label>
-        <textarea id="maint-message" rows="2" placeholder="মেইনটেন্যান্স পেজে বাড়তি কোনো বার্তা দেখাতে চাইলে লিখুন" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;"></textarea>
+<!-- PAYMENT METHODS -->
+<div class="px-5 mt-4">
+<div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+<div class="flex items-center gap-2 mb-3">
+<i data-lucide="wallet" class="w-4 h-4" style="color:#8B6B2A;"></i>
+<span class="text-sm font-semibold" style="color:#0E211C;">Payment Methods</span>
+</div>
+<input id="pm-name" type="text" placeholder="নাম (যেমন: bKash)" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<input id="pm-details" type="text" placeholder="নাম্বার/অ্যাকাউন্ট তথ্য" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">QR কোড (ঐচ্ছিক)</label>
+<input id="pm-qr" type="file" accept="image/*" class="w-full text-xs mb-3">
+<button onclick="addPaymentMethod()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">মেথড যোগ করুন</button>
+<p id="pm-notice" class="hidden text-xs mt-2 text-center"></p>
+<div id="pm-list" class="flex flex-col gap-2 mt-4"></div>
+</div>
+</div>
 
-        <button onclick="saveMaintenanceInfo()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">তথ্য সেভ করুন</button>
-        <p id="maint-notice" class="hidden text-xs mt-2 text-center"></p>
-      </div>
-    </div>
+<!-- ALL USERS -->
+<div class="px-5 mt-5">
+<div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center gap-2">
+<i data-lucide="users" class="w-4 h-4" style="color:#8B6B2A;"></i>
+<span class="text-sm font-semibold" style="color:#0E211C;">সব ইউজার</span>
+</div>
+<span id="user-count" class="text-xs" style="color:#8A8266;"></span>
+</div>
+<button id="see-users-btn" onclick="toggleUserList()" class="w-full py-2 rounded-full text-xs font-semibold mb-1" style="border:1px solid #C9A24C; color:#8B6B2A;">See User</button>
+<div id="user-list-container" class="hidden mt-3">
+<input id="user-search" oninput="renderUsers()" type="text" placeholder="ইমেইল দিয়ে খুঁজুন..." class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<div id="user-list" class="flex flex-col gap-2 max-h-80 overflow-y-auto"></div>
+<p id="user-list-notice" class="hidden text-xs mt-2 text-center" style="color:#8A8266;"></p>
+</div>
+</div>
+</div>
 
-    <!-- DONATION MANAGEMENT -->
-    <div class="px-5 mt-5">
-      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
-        <div class="flex items-center gap-2 mb-3">
-          <i data-lucide="heart" class="w-4 h-4" style="color:#D14343;"></i>
-          <span class="text-sm font-semibold" style="color:#0E211C;">Donation Management</span>
-        </div>
-        <div class="grid grid-cols-3 gap-2 mb-4">
-          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
-            <p id="don-total" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
-            <p class="text-[10px]" style="color:#8A8266;">মোট (verified)</p>
-          </div>
-          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
-            <p id="don-today" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
-            <p class="text-[10px]" style="color:#8A8266;">আজকের</p>
-          </div>
-          <div class="rounded-xl p-2.5 text-center" style="background:#F9F6EC;">
-            <p id="don-month" class="text-sm font-bold" style="color:#0E211C;">৳0</p>
-            <p class="text-[10px]" style="color:#8A8266;">এই মাসের</p>
-          </div>
-        </div>
-        <button onclick="exportDonationsCSV()" class="w-full mb-3 py-2 rounded-full text-xs font-semibold" style="border:1px solid #C9A24C; color:#8B6B2A;">CSV Export</button>
-        <div id="donations-list" class="flex flex-col gap-2 max-h-96 overflow-y-auto"></div>
-      </div>
-    </div>
+<!-- BLOCK USER -->
+<div class="px-5 mt-4">
+<div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+<div class="flex items-center gap-2 mb-3">
+<i data-lucide="shield-x" class="w-4 h-4" style="color:#D14343;"></i>
+<span class="text-sm font-semibold" style="color:#0E211C;">ইউজার ব্লক করুন</span>
+</div>
+<div class="flex gap-2 mb-2">
+<input id="block-email" type="email" placeholder="ইউজারের ইমেইল" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+</div>
+<input id="block-reason" type="text" placeholder="কারণ (ঐচ্ছিক)" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<button onclick="blockUser()" class="w-full py-2.5 rounded-full text-sm font-semibold" style="background:#D14343; color:#fff;">ব্লক করুন</button>
+<p id="block-notice" class="hidden text-xs mt-2 text-center"></p>
+<div id="blocked-list" class="flex flex-col gap-2 mt-4"></div>
+</div>
+</div>
 
-    <!-- PAYMENT METHODS -->
-    <div class="px-5 mt-4">
-      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
-        <div class="flex items-center gap-2 mb-3">
-          <i data-lucide="wallet" class="w-4 h-4" style="color:#8B6B2A;"></i>
-          <span class="text-sm font-semibold" style="color:#0E211C;">Payment Methods</span>
-        </div>
-        <input id="pm-name" type="text" placeholder="নাম (যেমন: bKash)" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
-        <input id="pm-details" type="text" placeholder="নাম্বার/অ্যাকাউন্ট তথ্য" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">QR কোড (ঐচ্ছিক)</label>
-        <input id="pm-qr" type="file" accept="image/*" class="w-full text-xs mb-3">
-        <button onclick="addPaymentMethod()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">মেথড যোগ করুন</button>
-        <p id="pm-notice" class="hidden text-xs mt-2 text-center"></p>
-        <div id="pm-list" class="flex flex-col gap-2 mt-4"></div>
-      </div>
-    </div>
+<!-- LIBRARY RESOURCES -->
+<div class="px-5 mt-4">
+<div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+<div class="flex items-center gap-2 mb-3">
+<i data-lucide="library" class="w-4 h-4" style="color:#8B6B2A;"></i>
+<span class="text-sm font-semibold" style="color:#0E211C;">লাইব্রেরি রিসোর্স</span>
+</div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ক্যাটাগরি</label>
+<select id="lib-category" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<option value="pdf_notes">PDF Notes</option>
+<option value="previous_questions">Previous Questions</option>
+<option value="important_notes">Important Notes</option>
+<option value="short_notes">Short Notes</option>
+</select>
+<input id="lib-title" type="text" placeholder="টাইটেল (যেমন: বাংলা ব্যাকরণ নোট)" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<input id="lib-subject" type="text" placeholder="বিষয়/ট্র্যাক (ঐচ্ছিক, যেমন: বাংলা)" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<input id="lib-link" type="url" placeholder="লিংক (Google Drive ইত্যাদি)" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<button onclick="addLibraryResource()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">রিসোর্স যোগ করুন</button>
+<p id="lib-notice" class="hidden text-xs mt-2 text-center"></p>
+<div id="lib-list" class="flex flex-col gap-2 mt-4 max-h-96 overflow-y-auto"></div>
+</div>
+</div>
 
-    <!-- ALL USERS -->
-    <div class="px-5 mt-5">
-      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <i data-lucide="users" class="w-4 h-4" style="color:#8B6B2A;"></i>
-            <span class="text-sm font-semibold" style="color:#0E211C;">সব ইউজার</span>
-          </div>
-          <span id="user-count" class="text-xs" style="color:#8A8266;"></span>
-        </div>
-        <button id="see-users-btn" onclick="toggleUserList()" class="w-full py-2 rounded-full text-xs font-semibold mb-1" style="border:1px solid #C9A24C; color:#8B6B2A;">See User</button>
-        <div id="user-list-container" class="hidden mt-3">
-          <input id="user-search" oninput="renderUsers()" type="text" placeholder="ইমেইল দিয়ে খুঁজুন..." class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
-          <div id="user-list" class="flex flex-col gap-2 max-h-80 overflow-y-auto"></div>
-          <p id="user-list-notice" class="hidden text-xs mt-2 text-center" style="color:#8A8266;"></p>
-        </div>
-      </div>
-    </div>
+<form id="q-form" onsubmit="submitQuestion(event)" class="px-5 mt-5 flex flex-col gap-3">
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">বিষয়</label>
+<select id="q-subject" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+<option value="">বিষয় বেছে নিন</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">টপিক (ঐচ্ছিক)</label>
+<input id="q-topic" type="text" placeholder="যেমন: সূরা বাকারা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
+</div>
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রশ্ন (বাংলা)</label>
+<textarea id="q-question" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></textarea>
+</div>
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রশ্ন (আরবি) — ঐচ্ছিক</label>
+<textarea id="q-question-ar" dir="rtl" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; font-family:'Traditional Arabic', serif;"></textarea>
+</div>
+<div class="grid grid-cols-1 gap-2">
+<div class="flex items-center gap-2"><input type="radio" name="correct" value="a" class="w-4 h-4"><input id="opt-a" type="text" placeholder="অপশন ক (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-a-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+<div class="flex items-center gap-2"><input type="radio" name="correct" value="b" class="w-4 h-4"><input id="opt-b" type="text" placeholder="অপশন খ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-b-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+<div class="flex items-center gap-2"><input type="radio" name="correct" value="c" class="w-4 h-4"><input id="opt-c" type="text" placeholder="অপশন গ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-c-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+<div class="flex items-center gap-2"><input type="radio" name="correct" value="d" class="w-4 h-4"><input id="opt-d" type="text" placeholder="অপশন ঘ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-d-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
+</div>
+<p class="text-[11px]" style="color:#8A8266;">রেডিও বাটনে ক্লিক করে সঠিক উত্তর নির্বাচন করুন</p>
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ব্যাখ্যা (ঐচ্ছিক)</label>
+<textarea id="q-explanation" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></textarea>
+</div>
+<p id="notice" class="hidden text-xs"></p>
+<button type="submit" id="submit-btn" class="py-3 rounded-full text-sm font-semibold btn-gold">প্রশ্ন যোগ করুন</button>
+</form>
 
-    <!-- BLOCK USER -->
-    <div class="px-5 mt-4">
-      <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
-        <div class="flex items-center gap-2 mb-3">
-          <i data-lucide="shield-x" class="w-4 h-4" style="color:#D14343;"></i>
-          <span class="text-sm font-semibold" style="color:#0E211C;">ইউজার ব্লক করুন</span>
-        </div>
-        <div class="flex gap-2 mb-2">
-          <input id="block-email" type="email" placeholder="ইউজারের ইমেইল" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8;">
-        </div>
-        <input id="block-reason" type="text" placeholder="কারণ (ঐচ্ছিক)" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
-        <button onclick="blockUser()" class="w-full py-2.5 rounded-full text-sm font-semibold" style="background:#D14343; color:#fff;">ব্লক করুন</button>
-        <p id="block-notice" class="hidden text-xs mt-2 text-center"></p>
+<div class="px-5 mt-8">
+<div class="flex items-center justify-between mb-3">
+<h2 class="serif-bn text-base" style="color:#0E211C;">প্রশ্ন কোয়ালিটি রিভিউ</h2>
+<span id="review-count" class="text-xs" style="color:#8A8266;"></span>
+</div>
+<div id="review-list" class="flex flex-col gap-2"></div>
+</div>
 
-        <div id="blocked-list" class="flex flex-col gap-2 mt-4"></div>
-      </div>
-    </div>
+<div class="px-5 mt-8">
+<div class="flex items-center justify-between mb-3">
+<h2 class="serif-bn text-base" style="color:#0E211C;">সাম্প্রতিক প্রশ্নসমূহ</h2>
+<span id="q-count" class="text-xs" style="color:#8A8266;"></span>
+</div>
+<div id="q-list" class="flex flex-col gap-2"></div>
+</div>
 
-    <form id="q-form" onsubmit="submitQuestion(event)" class="px-5 mt-5 flex flex-col gap-3">
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">বিষয়</label>
-        <select id="q-subject" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
-          <option value="">বিষয় বেছে নিন</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">টপিক (ঐচ্ছিক)</label>
-        <input id="q-topic" type="text" placeholder="যেমন: সূরা বাকারা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;">
-      </div>
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রশ্ন (বাংলা)</label>
-        <textarea id="q-question" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></textarea>
-      </div>
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রশ্ন (আরবি) — ঐচ্ছিক</label>
-        <textarea id="q-question-ar" dir="rtl" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8; font-family:'Traditional Arabic', serif;"></textarea>
-      </div>
-
-      <div class="grid grid-cols-1 gap-2">
-        <div class="flex items-center gap-2"><input type="radio" name="correct" value="a" class="w-4 h-4"><input id="opt-a" type="text" placeholder="অপশন ক (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-a-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
-        <div class="flex items-center gap-2"><input type="radio" name="correct" value="b" class="w-4 h-4"><input id="opt-b" type="text" placeholder="অপশন খ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-b-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
-        <div class="flex items-center gap-2"><input type="radio" name="correct" value="c" class="w-4 h-4"><input id="opt-c" type="text" placeholder="অপশন গ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-c-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
-        <div class="flex items-center gap-2"><input type="radio" name="correct" value="d" class="w-4 h-4"><input id="opt-d" type="text" placeholder="অপশন ঘ (বাংলা)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"><input id="opt-d-ar" dir="rtl" type="text" placeholder="আরবি (ঐচ্ছিক)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></div>
-      </div>
-      <p class="text-[11px]" style="color:#8A8266;">রেডিও বাটনে ক্লিক করে সঠিক উত্তর নির্বাচন করুন</p>
-
-      <div>
-        <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ব্যাখ্যা (ঐচ্ছিক)</label>
-        <textarea id="q-explanation" rows="2" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#fff; border:1px solid #E4DAB8;"></textarea>
-      </div>
-
-      <p id="notice" class="hidden text-xs"></p>
-      <button type="submit" id="submit-btn" class="py-3 rounded-full text-sm font-semibold btn-gold">প্রশ্ন যোগ করুন</button>
-    </form>
-
-    <div class="px-5 mt-8">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="serif-bn text-base" style="color:#0E211C;">প্রশ্ন কোয়ালিটি রিভিউ</h2>
-        <span id="review-count" class="text-xs" style="color:#8A8266;"></span>
-      </div>
-      <div id="review-list" class="flex flex-col gap-2"></div>
-    </div>
-
-    <div class="px-5 mt-8">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="serif-bn text-base" style="color:#0E211C;">সাম্প্রতিক প্রশ্নসমূহ</h2>
-        <span id="q-count" class="text-xs" style="color:#8A8266;"></span>
-      </div>
-      <div id="q-list" class="flex flex-col gap-2"></div>
-    </div>
-  </div>
+</div>
 
 <script src="auth.js"></script>
 <script>
-  async function init() {
-    const isAdmin = await nhIsAdmin();
-    if (!isAdmin) {
-      document.getElementById('denied').classList.remove('hidden');
-      return;
-    }
-    document.getElementById('admin-area').classList.remove('hidden');
-    loadSubjects();
-    loadRecent();
-    loadReviewQueue();
-    loadMaintenanceInfo();
-    loadBlockedList();
-    loadUsers();
-    loadDonations();
-    loadPaymentMethods();
+async function init() {
+  const isAdmin = await nhIsAdmin();
+  if (!isAdmin) {
+    document.getElementById('denied').classList.remove('hidden');
+    return;
   }
+  document.getElementById('admin-area').classList.remove('hidden');
+  loadSubjects();
+  loadRecent();
+  loadReviewQueue();
+  loadMaintenanceInfo();
+  loadBlockedList();
+  loadUsers();
+  loadDonations();
+  loadPaymentMethods();
+  loadLibraryResources();
+}
 
-  // ---- প্রশ্ন কোয়ালিটি রিভিউ (৫ বার রিপোর্ট হলে অটো-হাইড হয়ে এখানে আসে) ----
-  async function loadReviewQueue() {
-    const { data } = await supabaseClient.from('questions').select('*').eq('is_hidden', true).order('report_count', { ascending: false });
-    const hidden = data || [];
-    document.getElementById('review-count').textContent = hidden.length ? `${hidden.length}টি রিভিউর অপেক্ষায়` : '';
-    document.getElementById('review-list').innerHTML = hidden.map(q => `
-      <div class="rounded-xl p-3" style="background:#FBF0DC; border:1px solid #E8CE94;">
-        <div class="flex items-center justify-between gap-2 mb-1.5">
-          <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${q.subject}</span>
-          <span class="text-[11px] font-semibold" style="color:#D14343;">${q.report_count || 0}টি রিপোর্ট</span>
-        </div>
-        <p class="text-xs mb-2.5" style="color:#333;">${q.question}</p>
-        <div class="flex gap-2">
-          <button onclick="unhideQuestion('${q.id}')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#2F7A4F; color:#fff;">ঠিক আছে, আনহাইড করুন</button>
-          <button onclick="deleteQuestion('${q.id}')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#D14343; color:#fff;">ডিলিট করুন</button>
-        </div>
-      </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">রিভিউর জন্য কোনো প্রশ্ন নেই ✓</p>`;
-    lucide.createIcons();
-  }
-
-  async function unhideQuestion(id) {
-    await supabaseClient.from('questions').update({ is_hidden: false, report_count: 0 }).eq('id', id);
-    await supabaseClient.from('question_reports').delete().eq('question_id', id);
-    loadReviewQueue();
-  }
-
-  // ---- Donation Management ----
-  let allDonations = [];
-
-  function toBanglaDigits(n){
-    const map = {'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'};
-    return n.toString().split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
-  }
-
-  async function loadDonations() {
-    const { data } = await supabaseClient.from('donations').select('*').order('created_at', { ascending: false });
-    allDonations = data || [];
-
-    const verified = allDonations.filter(d => d.status === 'verified');
-    const total = verified.reduce((s, d) => s + Number(d.amount), 0);
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const today = verified.filter(d => d.created_at.slice(0,10) === todayStr).reduce((s, d) => s + Number(d.amount), 0);
-    const monthStr = new Date().toISOString().slice(0, 7);
-    const month = verified.filter(d => d.created_at.slice(0,7) === monthStr).reduce((s, d) => s + Number(d.amount), 0);
-
-    document.getElementById('don-total').textContent = '৳' + toBanglaDigits(total);
-    document.getElementById('don-today').textContent = '৳' + toBanglaDigits(today);
-    document.getElementById('don-month').textContent = '৳' + toBanglaDigits(month);
-
-    document.getElementById('donations-list').innerHTML = allDonations.map(d => `
-      <div class="rounded-xl p-3" style="background:#F9F6EC;">
-        <div class="flex items-center justify-between gap-2 mb-1">
-          <p class="text-xs font-semibold" style="color:#0E211C;">৳${d.amount} — ${d.donor_name || 'অজানা'}</p>
-          <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:${d.status==='verified'?'#2F7A4F':d.status==='rejected'?'#D14343':'#C9A24C'}; color:#fff;">${d.status}</span>
-        </div>
-        <p class="text-[11px]" style="color:#8A8266;">${d.method || ''} · ${d.transaction_ref || ''} ${d.donor_contact ? '· ' + d.donor_contact : ''}</p>
-        ${d.status === 'pending' ? `
-        <div class="flex gap-2 mt-2">
-          <button onclick="updateDonationStatus(${d.id}, 'verified')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#2F7A4F; color:#fff;">ভেরিফাই</button>
-          <button onclick="updateDonationStatus(${d.id}, 'rejected')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#D14343; color:#fff;">রিজেক্ট</button>
-        </div>` : ''}
-      </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো ডোনেশন নেই</p>`;
-  }
-
-  async function updateDonationStatus(id, status) {
-    await supabaseClient.from('donations').update({ status }).eq('id', id);
-    loadDonations();
-  }
-
-  function exportDonationsCSV() {
-    const rows = [['নাম','যোগাযোগ','অ্যামাউন্ট','মাধ্যম','ট্রানজেকশন রেফ','স্ট্যাটাস','তারিখ']];
-    allDonations.forEach(d => rows.push([d.donor_name||'', d.donor_contact||'', d.amount, d.method||'', d.transaction_ref||'', d.status, d.created_at]));
-    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `donations-${new Date().toISOString().slice(0,10)}.csv`;
-    link.click();
-  }
-
-  // ---- Payment Methods ----
-  async function loadPaymentMethods() {
-    const { data } = await supabaseClient.from('payment_methods').select('*').order('sort_order');
-    document.getElementById('pm-list').innerHTML = (data||[]).map(m => `
-      <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
-        <div class="flex-1 min-w-0">
-          <p class="text-xs font-semibold" style="color:#0E211C;">${m.name}</p>
-          ${m.details ? `<p class="text-[11px]" style="color:#8A8266;">${m.details}</p>` : ''}
-        </div>
-        <button onclick="deletePaymentMethod(${m.id})" style="color:#D14343;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-      </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো পেমেন্ট মাধ্যম যোগ করা নেই</p>`;
-    lucide.createIcons();
-  }
-
-  async function addPaymentMethod() {
-    const name = document.getElementById('pm-name').value.trim();
-    const details = document.getElementById('pm-details').value.trim();
-    const qrFile = document.getElementById('pm-qr').files[0];
-    const notice = document.getElementById('pm-notice');
-
-    if (!name) {
-      notice.textContent = 'নাম দিন।';
-      notice.style.color = '#D14343';
-      notice.classList.remove('hidden');
-      return;
-    }
-
-    let qr_image_url = null;
-    if (qrFile) {
-      const path = `${Date.now()}-${qrFile.name}`;
-      const { error: uploadError } = await supabaseClient.storage.from('payment-qr').upload(path, qrFile, { upsert: true });
-      if (uploadError) {
-        notice.textContent = 'QR ছবি আপলোড ব্যর্থ: ' + uploadError.message;
-        notice.style.color = '#D14343';
-        notice.classList.remove('hidden');
-        return;
-      }
-      const { data: publicUrlData } = supabaseClient.storage.from('payment-qr').getPublicUrl(path);
-      qr_image_url = publicUrlData.publicUrl;
-    }
-
-    const { error } = await supabaseClient.from('payment_methods').insert({ name, details: details || null, qr_image_url });
-    if (error) {
-      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
-      notice.style.color = '#D14343';
-    } else {
-      notice.textContent = 'যোগ হয়েছে ✓';
-      notice.style.color = '#2F7A4F';
-      document.getElementById('pm-name').value = '';
-      document.getElementById('pm-details').value = '';
-      document.getElementById('pm-qr').value = '';
-      loadPaymentMethods();
-    }
-    notice.classList.remove('hidden');
-  }
-
-  async function deletePaymentMethod(id) {
-    if (!confirm('এই পেমেন্ট মাধ্যমটি মুছবেন?')) return;
-    await supabaseClient.from('payment_methods').delete().eq('id', id);
-    loadPaymentMethods();
-  }
-
-  let allUsers = [];
-  let blockedEmailsSet = new Set();
-
-  async function loadUsers() {
-    const notice = document.getElementById('user-list-notice');
-    notice.classList.add('hidden');
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      const res = await fetch('/api/list-users', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${session.access_token}` }
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        notice.textContent = data.error || 'ইউজার লিস্ট আনতে সমস্যা হয়েছে।';
-        notice.classList.remove('hidden');
-        return;
-      }
-      allUsers = data.users || [];
-      document.getElementById('user-count').textContent = `মোট ${allUsers.length} জন`;
-      renderUsers();
-    } catch (e) {
-      notice.textContent = 'সংযোগে সমস্যা: ' + e.message;
-      notice.classList.remove('hidden');
-    }
-  }
-
-  function toggleUserList() {
-    const container = document.getElementById('user-list-container');
-    const btn = document.getElementById('see-users-btn');
-    const isHidden = container.classList.contains('hidden');
-    container.classList.toggle('hidden');
-    btn.textContent = isHidden ? 'Hide Users' : 'See User';
-  }
-
-  function renderUsers() {
-    const q = (document.getElementById('user-search').value || '').trim().toLowerCase();
-    const filtered = allUsers.filter(u => !q || u.email.toLowerCase().includes(q));
-    document.getElementById('user-list').innerHTML = filtered.slice(0, 200).map(u => {
-      const isBlocked = blockedEmailsSet.has(u.email);
-      return `
-      <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
-        <div class="flex-1 min-w-0">
-          <p class="text-xs font-semibold truncate" style="color:#0E211C;">${u.email}</p>
-          ${u.full_name ? `<p class="text-[11px]" style="color:#8A8266;">${u.full_name}</p>` : ''}
-        </div>
-        ${isBlocked
-          ? `<button onclick="unblockUser('${u.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full shrink-0" style="background:#0E211C; color:#E4C97A;">আনব্লক</button>`
-          : `<button onclick="quickBlock('${u.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full shrink-0" style="background:#D14343; color:#fff;">ব্লক</button>`}
-      </div>`;
-    }).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো ইউজার পাওয়া যায়নি</p>`;
-  }
-
-  async function quickBlock(email) {
-    if (!confirm(`${email} কে ব্লক করবেন?`)) return;
-    await supabaseClient.from('blocked_users').upsert({ email });
-    loadBlockedList();
-  }
-
-  async function loadBlockedList() {
-    const { data } = await supabaseClient.from('blocked_users').select('*').order('blocked_at', { ascending: false });
-    blockedEmailsSet = new Set((data||[]).map(b => b.email));
-    document.getElementById('blocked-list').innerHTML = (data||[]).map(b => `
-      <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
-        <div class="flex-1 min-w-0">
-          <p class="text-xs font-semibold truncate" style="color:#0E211C;">${b.email}</p>
-          ${b.reason ? `<p class="text-[11px]" style="color:#8A8266;">${b.reason}</p>` : ''}
-        </div>
-        <button onclick="unblockUser('${b.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:#0E211C; color:#E4C97A;">আনব্লক</button>
-      </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কেউ ব্লক করা নেই</p>`;
-    renderUsers();
-  }
-
-  async function blockUser() {
-    const email = document.getElementById('block-email').value.trim().toLowerCase();
-    const reason = document.getElementById('block-reason').value.trim();
-    const notice = document.getElementById('block-notice');
-    if (!email) {
-      notice.textContent = 'ইমেইল দিন।';
-      notice.style.color = '#D14343';
-      notice.classList.remove('hidden');
-      return;
-    }
-    const { error } = await supabaseClient.from('blocked_users').upsert({ email, reason: reason || null });
-    if (error) {
-      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
-      notice.style.color = '#D14343';
-    } else {
-      notice.textContent = 'ব্লক করা হয়েছে ✓';
-      notice.style.color = '#2F7A4F';
-      document.getElementById('block-email').value = '';
-      document.getElementById('block-reason').value = '';
-      loadBlockedList();
-    }
-    notice.classList.remove('hidden');
-  }
-
-  async function unblockUser(email) {
-    await supabaseClient.from('blocked_users').delete().eq('email', email);
-    loadBlockedList();
-  }
-
-  let maintenanceState = false;
-
-  async function loadMaintenanceInfo() {
-    const { data } = await supabaseClient.from('site_settings').select('*').eq('id', 1).maybeSingle();
-    if (!data) return;
-    maintenanceState = !!data.maintenance_mode;
-    updateToggleUI();
-    document.getElementById('maint-return').value = data.expected_return || '';
-    document.getElementById('maint-message').value = data.maintenance_message || '';
-  }
-
-  function updateToggleUI() {
-    const toggle = document.getElementById('maint-toggle');
-    const knob = document.getElementById('maint-knob');
-    toggle.style.background = maintenanceState ? '#0E211C' : '#E4DAB8';
-    knob.style.transform = maintenanceState ? 'translateX(20px)' : 'translateX(0)';
-  }
-
-  async function toggleMaintenance() {
-    maintenanceState = !maintenanceState;
-    updateToggleUI();
-    const { error } = await supabaseClient.from('site_settings').update({ maintenance_mode: maintenanceState }).eq('id', 1);
-    const notice = document.getElementById('maint-notice');
-    if (error) {
-      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
-      notice.style.color = '#D14343';
-    } else {
-      notice.textContent = maintenanceState ? 'Maintenance Mode চালু হয়েছে ✓' : 'Maintenance Mode বন্ধ হয়েছে ✓';
-      notice.style.color = '#2F7A4F';
-    }
-    notice.classList.remove('hidden');
-  }
-
-  async function saveMaintenanceInfo() {
-    const expected_return = document.getElementById('maint-return').value.trim();
-    const maintenance_message = document.getElementById('maint-message').value.trim();
-    const { error } = await supabaseClient.from('site_settings').update({
-      expected_return: expected_return || null,
-      maintenance_message: maintenance_message || null
-    }).eq('id', 1);
-    const notice = document.getElementById('maint-notice');
-    notice.textContent = error ? 'সমস্যা হয়েছে: ' + error.message : 'তথ্য সেভ হয়েছে ✓';
-    notice.style.color = error ? '#D14343' : '#2F7A4F';
-    notice.classList.remove('hidden');
-  }
-
-  async function loadSubjects() {
-    const { data } = await supabaseClient.from('subjects').select('*').order('sort_order');
-    const sel = document.getElementById('q-subject');
-    sel.innerHTML = '<option value="">বিষয় বেছে নিন</option>' + (data||[]).map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-  }
-
-  async function loadRecent() {
-    const { data, count } = await supabaseClient.from('questions').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(15);
-    document.getElementById('q-count').textContent = `মোট ${count || 0}টি প্রশ্ন`;
-    document.getElementById('q-list').innerHTML = (data||[]).map(q => `
-      <div class="rounded-xl p-3 flex items-start justify-between gap-2" style="background:#fff;">
-        <div class="flex-1 min-w-0">
-          <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${q.subject}</span>
-          <p class="text-xs mt-1 truncate" style="color:#333;">${q.question}</p>
-        </div>
-        <button onclick="deleteQuestion('${q.id}')" style="color:#D14343;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-      </div>`).join('');
-    lucide.createIcons();
-  }
-
-  async function submitQuestion(e) {
-    e.preventDefault();
-    const subject = document.getElementById('q-subject').value.trim();
-    const topic = document.getElementById('q-topic').value.trim();
-    const question = document.getElementById('q-question').value.trim();
-    const questionAr = document.getElementById('q-question-ar').value.trim();
-    const a = document.getElementById('opt-a').value.trim();
-    const b = document.getElementById('opt-b').value.trim();
-    const c = document.getElementById('opt-c').value.trim();
-    const d = document.getElementById('opt-d').value.trim();
-    const aAr = document.getElementById('opt-a-ar').value.trim();
-    const bAr = document.getElementById('opt-b-ar').value.trim();
-    const cAr = document.getElementById('opt-c-ar').value.trim();
-    const dAr = document.getElementById('opt-d-ar').value.trim();
-    const explanation = document.getElementById('q-explanation').value.trim();
-    const correctEl = document.querySelector('input[name="correct"]:checked');
-    const notice = document.getElementById('notice');
-
-    if (!subject || !question || !a || !b || !c || !d || !correctEl) {
-      notice.textContent = 'বিষয়, প্রশ্ন, ৪টা অপশন ও সঠিক উত্তর — সবগুলো দিন।';
-      notice.style.color = '#D14343';
-      notice.classList.remove('hidden');
-      return;
-    }
-
-    const btn = document.getElementById('submit-btn');
-    btn.textContent = 'যোগ হচ্ছে...';
-    const { error } = await supabaseClient.from('questions').insert({
-      subject, topic: topic || null, question,
-      arabic_question: questionAr || null,
-      option_a: a, option_b: b, option_c: c, option_d: d,
-      arabic_option_a: aAr || null, arabic_option_b: bAr || null, arabic_option_c: cAr || null, arabic_option_d: dAr || null,
-      correct: correctEl.value, explanation: explanation || null
-    });
-    btn.textContent = 'প্রশ্ন যোগ করুন';
-
-    if (error) {
-      notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
-      notice.style.color = '#D14343';
-      notice.classList.remove('hidden');
-      return;
-    }
-    notice.textContent = 'প্রশ্ন যোগ হয়েছে ✓';
-    notice.style.color = '#2F7A4F';
-    notice.classList.remove('hidden');
-    document.getElementById('q-form').reset();
-    loadSubjects();
-    loadRecent();
-  }
-
-  async function deleteQuestion(id) {
-    if (!confirm('প্রশ্নটি ডিলিট করবেন?')) return;
-    await supabaseClient.from('questions').delete().eq('id', id);
-    loadRecent();
-    loadReviewQueue();
-  }
-
-  init();
+// ---- প্রশ্ন কোয়ালিটি রিভিউ (৫ বার রিপোর্ট হলে অটো-হাইড হয়ে এখানে আসে) ----
+async function loadReviewQueue() {
+  const { data } = await supabaseClient.from('questions').select('*').eq('is_hidden', true).order('report_count', { ascending: false });
+  const hidden = data || [];
+  document.getElementById('review-count').textContent = hidden.length ? `${hidden.length}টি রিভিউর অপেক্ষায়` : '';
+  document.getElementById('review-list').innerHTML = hidden.map(q => `
+    <div class="rounded-xl p-3" style="background:#FBF0DC; border:1px solid #E8CE94;">
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${q.subject}</span>
+        <span class="text-[11px] font-semibold" style="color:#D14343;">${q.report_count || 0}টি রিপোর্ট</span>
+      </div>
+      <p class="text-xs mb-2.5" style="color:#333;">${q.question}</p>
+      <div class="flex gap-2">
+        <button onclick="unhideQuestion('${q.id}')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#2F7A4F; color:#fff;">ঠিক আছে, আনহাইড করুন</button>
+        <button onclick="deleteQuestion('${q.id}')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#D14343; color:#fff;">ডিলিট করুন</button>
+      </div>
+    </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">রিভিউর জন্য কোনো প্রশ্ন নেই ✓</p>`;
   lucide.createIcons();
+}
+
+async function unhideQuestion(id) {
+  await supabaseClient.from('questions').update({ is_hidden: false, report_count: 0 }).eq('id', id);
+  await supabaseClient.from('question_reports').delete().eq('question_id', id);
+  loadReviewQueue();
+}
+
+// ---- Donation Management ----
+let allDonations = [];
+function toBanglaDigits(n){
+  const map = {'0':'০','1':'১','2':'২','3':'৩','4':'৪','5':'৫','6':'৬','7':'৭','8':'৮','9':'৯'};
+  return n.toString().split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
+}
+async function loadDonations() {
+  const { data } = await supabaseClient.from('donations').select('*').order('created_at', { ascending: false });
+  allDonations = data || [];
+  const verified = allDonations.filter(d => d.status === 'verified');
+  const total = verified.reduce((s, d) => s + Number(d.amount), 0);
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const today = verified.filter(d => d.created_at.slice(0,10) === todayStr).reduce((s, d) => s + Number(d.amount), 0);
+  const monthStr = new Date().toISOString().slice(0, 7);
+  const month = verified.filter(d => d.created_at.slice(0,7) === monthStr).reduce((s, d) => s + Number(d.amount), 0);
+  document.getElementById('don-total').textContent = '৳' + toBanglaDigits(total);
+  document.getElementById('don-today').textContent = '৳' + toBanglaDigits(today);
+  document.getElementById('don-month').textContent = '৳' + toBanglaDigits(month);
+  document.getElementById('donations-list').innerHTML = allDonations.map(d => `
+    <div class="rounded-xl p-3" style="background:#F9F6EC;">
+      <div class="flex items-center justify-between gap-2 mb-1">
+        <p class="text-xs font-semibold" style="color:#0E211C;">৳${d.amount} — ${d.donor_name || 'অজানা'}</p>
+        <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:${d.status==='verified'?'#2F7A4F':d.status==='rejected'?'#D14343':'#C9A24C'}; color:#fff;">${d.status}</span>
+      </div>
+      <p class="text-[11px]" style="color:#8A8266;">${d.method || ''} · ${d.transaction_ref || ''} ${d.donor_contact ? '· ' + d.donor_contact : ''}</p>
+      ${d.status === 'pending' ? `
+      <div class="flex gap-2 mt-2">
+        <button onclick="updateDonationStatus(${d.id}, 'verified')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#2F7A4F; color:#fff;">ভেরিফাই</button>
+        <button onclick="updateDonationStatus(${d.id}, 'rejected')" class="flex-1 py-1.5 rounded-full text-[11px] font-semibold" style="background:#D14343; color:#fff;">রিজেক্ট</button>
+      </div>` : ''}
+    </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো ডোনেশন নেই</p>`;
+}
+async function updateDonationStatus(id, status) {
+  await supabaseClient.from('donations').update({ status }).eq('id', id);
+  loadDonations();
+}
+function exportDonationsCSV() {
+  const rows = [['নাম','যোগাযোগ','অ্যামাউন্ট','মাধ্যম','ট্রানজেকশন রেফ','স্ট্যাটাস','তারিখ']];
+  allDonations.forEach(d => rows.push([d.donor_name||'', d.donor_contact||'', d.amount, d.method||'', d.transaction_ref||'', d.status, d.created_at]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `donations-${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+}
+
+// ---- Payment Methods ----
+async function loadPaymentMethods() {
+  const { data } = await supabaseClient.from('payment_methods').select('*').order('sort_order');
+  document.getElementById('pm-list').innerHTML = (data||[]).map(m => `
+    <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold" style="color:#0E211C;">${m.name}</p>
+        ${m.details ? `<p class="text-[11px]" style="color:#8A8266;">${m.details}</p>` : ''}
+      </div>
+      <button onclick="deletePaymentMethod(${m.id})" style="color:#D14343;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো পেমেন্ট মাধ্যম যোগ করা নেই</p>`;
+  lucide.createIcons();
+}
+async function addPaymentMethod() {
+  const name = document.getElementById('pm-name').value.trim();
+  const details = document.getElementById('pm-details').value.trim();
+  const qrFile = document.getElementById('pm-qr').files[0];
+  const notice = document.getElementById('pm-notice');
+  if (!name) {
+    notice.textContent = 'নাম দিন।';
+    notice.style.color = '#D14343';
+    notice.classList.remove('hidden');
+    return;
+  }
+  let qr_image_url = null;
+  if (qrFile) {
+    const path = `${Date.now()}-${qrFile.name}`;
+    const { error: uploadError } = await supabaseClient.storage.from('payment-qr').upload(path, qrFile, { upsert: true });
+    if (uploadError) {
+      notice.textContent = 'QR ছবি আপলোড ব্যর্থ: ' + uploadError.message;
+      notice.style.color = '#D14343';
+      notice.classList.remove('hidden');
+      return;
+    }
+    const { data: publicUrlData } = supabaseClient.storage.from('payment-qr').getPublicUrl(path);
+    qr_image_url = publicUrlData.publicUrl;
+  }
+  const { error } = await supabaseClient.from('payment_methods').insert({ name, details: details || null, qr_image_url });
+  if (error) {
+    notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+    notice.style.color = '#D14343';
+  } else {
+    notice.textContent = 'যোগ হয়েছে ✓';
+    notice.style.color = '#2F7A4F';
+    document.getElementById('pm-name').value = '';
+    document.getElementById('pm-details').value = '';
+    document.getElementById('pm-qr').value = '';
+    loadPaymentMethods();
+  }
+  notice.classList.remove('hidden');
+}
+async function deletePaymentMethod(id) {
+  if (!confirm('এই পেমেন্ট মাধ্যমটি মুছবেন?')) return;
+  await supabaseClient.from('payment_methods').delete().eq('id', id);
+  loadPaymentMethods();
+}
+
+// ---- Library Resources ----
+const LIB_CATEGORY_LABELS = { pdf_notes: 'PDF Notes', previous_questions: 'Previous Questions', important_notes: 'Important Notes', short_notes: 'Short Notes' };
+async function loadLibraryResources() {
+  const { data } = await supabaseClient.from('library_resources').select('*').order('created_at', { ascending: false });
+  document.getElementById('lib-list').innerHTML = (data||[]).map(r => `
+    <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
+      <div class="flex-1 min-w-0">
+        <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${LIB_CATEGORY_LABELS[r.category] || r.category}</span>
+        <p class="text-xs font-semibold mt-1 truncate" style="color:#0E211C;">${r.title}${r.subject ? ' · ' + r.subject : ''}</p>
+      </div>
+      <button onclick="deleteLibraryResource(${r.id})" style="color:#D14343;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো রিসোর্স যোগ করা নেই</p>`;
+  lucide.createIcons();
+}
+async function addLibraryResource() {
+  const category = document.getElementById('lib-category').value;
+  const title = document.getElementById('lib-title').value.trim();
+  const subject = document.getElementById('lib-subject').value.trim();
+  const link = document.getElementById('lib-link').value.trim();
+  const notice = document.getElementById('lib-notice');
+  if (!title || !link) {
+    notice.textContent = 'টাইটেল ও লিংক দিন।';
+    notice.style.color = '#D14343';
+    notice.classList.remove('hidden');
+    return;
+  }
+  const { error } = await supabaseClient.from('library_resources').insert({ category, title, subject: subject || null, link });
+  if (error) {
+    notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+    notice.style.color = '#D14343';
+  } else {
+    notice.textContent = 'যোগ হয়েছে ✓';
+    notice.style.color = '#2F7A4F';
+    document.getElementById('lib-title').value = '';
+    document.getElementById('lib-subject').value = '';
+    document.getElementById('lib-link').value = '';
+    loadLibraryResources();
+  }
+  notice.classList.remove('hidden');
+}
+async function deleteLibraryResource(id) {
+  if (!confirm('এই রিসোর্সটি মুছবেন?')) return;
+  await supabaseClient.from('library_resources').delete().eq('id', id);
+  loadLibraryResources();
+}
+
+let allUsers = [];
+let blockedEmailsSet = new Set();
+async function loadUsers() {
+  const notice = document.getElementById('user-list-notice');
+  notice.classList.add('hidden');
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const res = await fetch('/api/list-users', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      notice.textContent = data.error || 'ইউজার লিস্ট আনতে সমস্যা হয়েছে।';
+      notice.classList.remove('hidden');
+      return;
+    }
+    allUsers = data.users || [];
+    document.getElementById('user-count').textContent = `মোট ${allUsers.length} জন`;
+    renderUsers();
+  } catch (e) {
+    notice.textContent = 'সংযোগে সমস্যা: ' + e.message;
+    notice.classList.remove('hidden');
+  }
+}
+function toggleUserList() {
+  const container = document.getElementById('user-list-container');
+  const btn = document.getElementById('see-users-btn');
+  const isHidden = container.classList.contains('hidden');
+  container.classList.toggle('hidden');
+  btn.textContent = isHidden ? 'Hide Users' : 'See User';
+}
+function renderUsers() {
+  const q = (document.getElementById('user-search').value || '').trim().toLowerCase();
+  const filtered = allUsers.filter(u => !q || u.email.toLowerCase().includes(q));
+  document.getElementById('user-list').innerHTML = filtered.slice(0, 200).map(u => {
+    const isBlocked = blockedEmailsSet.has(u.email);
+    return `
+    <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold truncate" style="color:#0E211C;">${u.email}</p>
+        ${u.full_name ? `<p class="text-[11px]" style="color:#8A8266;">${u.full_name}</p>` : ''}
+      </div>
+      ${isBlocked
+        ? `<button onclick="unblockUser('${u.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full shrink-0" style="background:#0E211C; color:#E4C97A;">আনব্লক</button>`
+        : `<button onclick="quickBlock('${u.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full shrink-0" style="background:#D14343; color:#fff;">ব্লক</button>`}
+    </div>`;
+  }).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কোনো ইউজার পাওয়া যায়নি</p>`;
+}
+async function quickBlock(email) {
+  if (!confirm(`${email} কে ব্লক করবেন?`)) return;
+  await supabaseClient.from('blocked_users').upsert({ email });
+  loadBlockedList();
+}
+async function loadBlockedList() {
+  const { data } = await supabaseClient.from('blocked_users').select('*').order('blocked_at', { ascending: false });
+  blockedEmailsSet = new Set((data||[]).map(b => b.email));
+  document.getElementById('blocked-list').innerHTML = (data||[]).map(b => `
+    <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background:#F9F6EC;">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold truncate" style="color:#0E211C;">${b.email}</p>
+        ${b.reason ? `<p class="text-[11px]" style="color:#8A8266;">${b.reason}</p>` : ''}
+      </div>
+      <button onclick="unblockUser('${b.email.replace(/'/g,"\\'")}')" class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:#0E211C; color:#E4C97A;">আনব্লক</button>
+    </div>`).join('') || `<p class="text-xs text-center py-2" style="color:#8A8266;">কেউ ব্লক করা নেই</p>`;
+  renderUsers();
+}
+async function blockUser() {
+  const email = document.getElementById('block-email').value.trim().toLowerCase();
+  const reason = document.getElementById('block-reason').value.trim();
+  const notice = document.getElementById('block-notice');
+  if (!email) {
+    notice.textContent = 'ইমেইল দিন।';
+    notice.style.color = '#D14343';
+    notice.classList.remove('hidden');
+    return;
+  }
+  const { error } = await supabaseClient.from('blocked_users').upsert({ email, reason: reason || null });
+  if (error) {
+    notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+    notice.style.color = '#D14343';
+  } else {
+    notice.textContent = 'ব্লক করা হয়েছে ✓';
+    notice.style.color = '#2F7A4F';
+    document.getElementById('block-email').value = '';
+    document.getElementById('block-reason').value = '';
+    loadBlockedList();
+  }
+  notice.classList.remove('hidden');
+}
+async function unblockUser(email) {
+  await supabaseClient.from('blocked_users').delete().eq('email', email);
+  loadBlockedList();
+}
+
+let maintenanceState = false;
+async function loadMaintenanceInfo() {
+  const { data } = await supabaseClient.from('site_settings').select('*').eq('id', 1).maybeSingle();
+  if (!data) return;
+  maintenanceState = !!data.maintenance_mode;
+  updateToggleUI();
+  document.getElementById('maint-return').value = data.expected_return || '';
+  document.getElementById('maint-message').value = data.maintenance_message || '';
+}
+function updateToggleUI() {
+  const toggle = document.getElementById('maint-toggle');
+  const knob = document.getElementById('maint-knob');
+  toggle.style.background = maintenanceState ? '#0E211C' : '#E4DAB8';
+  knob.style.transform = maintenanceState ? 'translateX(20px)' : 'translateX(0)';
+}
+async function toggleMaintenance() {
+  maintenanceState = !maintenanceState;
+  updateToggleUI();
+  const { error } = await supabaseClient.from('site_settings').update({ maintenance_mode: maintenanceState }).eq('id', 1);
+  const notice = document.getElementById('maint-notice');
+  if (error) {
+    notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+    notice.style.color = '#D14343';
+  } else {
+    notice.textContent = maintenanceState ? 'Maintenance Mode চালু হয়েছে ✓' : 'Maintenance Mode বন্ধ হয়েছে ✓';
+    notice.style.color = '#2F7A4F';
+  }
+  notice.classList.remove('hidden');
+}
+async function saveMaintenanceInfo() {
+  const expected_return = document.getElementById('maint-return').value.trim();
+  const maintenance_message = document.getElementById('maint-message').value.trim();
+  const { error } = await supabaseClient.from('site_settings').update({
+    expected_return: expected_return || null,
+    maintenance_message: maintenance_message || null
+  }).eq('id', 1);
+  const notice = document.getElementById('maint-notice');
+  notice.textContent = error ? 'সমস্যা হয়েছে: ' + error.message : 'তথ্য সেভ হয়েছে ✓';
+  notice.style.color = error ? '#D14343' : '#2F7A4F';
+  notice.classList.remove('hidden');
+}
+
+async function loadSubjects() {
+  const { data } = await supabaseClient.from('subjects').select('*').order('sort_order');
+  const sel = document.getElementById('q-subject');
+  sel.innerHTML = '<option value="">বিষয় বেছে নিন</option>' + (data||[]).map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+}
+
+async function loadRecent() {
+  const { data, count } = await supabaseClient.from('questions').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(15);
+  document.getElementById('q-count').textContent = `মোট ${count || 0}টি প্রশ্ন`;
+  document.getElementById('q-list').innerHTML = (data||[]).map(q => `
+    <div class="rounded-xl p-3 flex items-start justify-between gap-2" style="background:#fff;">
+      <div class="flex-1 min-w-0">
+        <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${q.subject}</span>
+        <p class="text-xs mt-1 truncate" style="color:#333;">${q.question}</p>
+      </div>
+      <button onclick="deleteQuestion('${q.id}')" style="color:#D14343;"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>`).join('');
+  lucide.createIcons();
+}
+
+async function submitQuestion(e) {
+  e.preventDefault();
+  const subject = document.getElementById('q-subject').value.trim();
+  const topic = document.getElementById('q-topic').value.trim();
+  const question = document.getElementById('q-question').value.trim();
+  const questionAr = document.getElementById('q-question-ar').value.trim();
+  const a = document.getElementById('opt-a').value.trim();
+  const b = document.getElementById('opt-b').value.trim();
+  const c = document.getElementById('opt-c').value.trim();
+  const d = document.getElementById('opt-d').value.trim();
+  const aAr = document.getElementById('opt-a-ar').value.trim();
+  const bAr = document.getElementById('opt-b-ar').value.trim();
+  const cAr = document.getElementById('opt-c-ar').value.trim();
+  const dAr = document.getElementById('opt-d-ar').value.trim();
+  const explanation = document.getElementById('q-explanation').value.trim();
+  const correctEl = document.querySelector('input[name="correct"]:checked');
+  const notice = document.getElementById('notice');
+  if (!subject || !question || !a || !b || !c || !d || !correctEl) {
+    notice.textContent = 'বিষয়, প্রশ্ন, ৪টা অপশন ও সঠিক উত্তর — সবগুলো দিন।';
+    notice.style.color = '#D14343';
+    notice.classList.remove('hidden');
+    return;
+  }
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'যোগ হচ্ছে...';
+  const { error } = await supabaseClient.from('questions').insert({
+    subject, topic: topic || null, question,
+    arabic_question: questionAr || null,
+    option_a: a, option_b: b, option_c: c, option_d: d,
+    arabic_option_a: aAr || null, arabic_option_b: bAr || null, arabic_option_c: cAr || null, arabic_option_d: dAr || null,
+    correct: correctEl.value, explanation: explanation || null
+  });
+  btn.textContent = 'প্রশ্ন যোগ করুন';
+  if (error) {
+    notice.textContent = 'সমস্যা হয়েছে: ' + error.message;
+    notice.style.color = '#D14343';
+    notice.classList.remove('hidden');
+    return;
+  }
+  notice.textContent = 'প্রশ্ন যোগ হয়েছে ✓';
+  notice.style.color = '#2F7A4F';
+  notice.classList.remove('hidden');
+  document.getElementById('q-form').reset();
+  loadSubjects();
+  loadRecent();
+}
+
+async function deleteQuestion(id) {
+  if (!confirm('প্রশ্নটি ডিলিট করবেন?')) return;
+  await supabaseClient.from('questions').delete().eq('id', id);
+  loadRecent();
+  loadReviewQueue();
+}
+
+init();
+lucide.createIcons();
 </script>
 </body>
 </html>
