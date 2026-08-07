@@ -23,6 +23,7 @@ async function nhSignIn(email, password) {
   return { data, error };
 }
 
+// ---- লগআউট ----
 // ---- Google দিয়ে লগইন/সাইনআপ (দুটোই একই ফাংশন করে) ----
 async function nhSignInWithGoogle() {
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
@@ -34,7 +35,6 @@ async function nhSignInWithGoogle() {
   return { data, error };
 }
 
-// ---- লগআউট ----
 async function nhSignOut() {
   await supabaseClient.auth.signOut();
   window.location.reload();
