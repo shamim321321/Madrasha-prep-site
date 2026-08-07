@@ -10,439 +10,392 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  body { background:#F4EEDC; }
-  .serif-bn { font-family:'Tiro Bangla', serif; }
-  .sans-bn { font-family:'Hind Siliguri', sans-serif; }
-  .num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
-  .btn-gold { background:#C9A24C; color:#0E211C; }
-  .icon-badge { background:rgba(201,162,76,0.12); }
-  .card-grad { background:linear-gradient(135deg,#0E211C 0%,#1B4740 60%,#2E6B5E 100%); }
+body { background:#F4EEDC; }
+.serif-bn { font-family:'Tiro Bangla', serif; }
+.sans-bn { font-family:'Hind Siliguri', sans-serif; }
+.num-bn { font-family:'Noto Sans Bengali', sans-serif; font-weight:700; }
+.btn-gold { background:#C9A24C; color:#0E211C; }
+.icon-badge { background:rgba(201,162,76,0.12); }
+.card-grad { background:linear-gradient(135deg,#0E211C 0%,#1B4740 60%,#2E6B5E 100%); }
 </style>
 </head>
 <body class="sans-bn pb-24">
-
-  <header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
-    <div class="flex items-center gap-3">
-      <a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
-      <div class="serif-bn text-lg" style="color:#F4EEDC;">ড্যাশবোর্ড</div>
-    </div>
-    <button onclick="openDrawer()" style="color:#DCD3B6;">
-      <i data-lucide="menu" class="w-5 h-5"></i>
-    </button>
-  </header>
-
-  <div id="drawer-overlay" onclick="closeDrawer()" class="hidden fixed inset-0 z-40" style="background:rgba(0,0,0,0.55);"></div>
-
-  <aside id="mnav" class="fixed top-0 right-0 h-full w-[80%] max-w-xs z-50 flex flex-col px-5 py-5 transform translate-x-full transition-transform duration-300 ease-out" style="background:#16332B; box-shadow:-10px 0 30px rgba(0,0,0,0.35);">
-    <button onclick="closeDrawer()" class="self-end mb-3 p-1" style="color:#DCD3B6;"><i data-lucide="x" class="w-5 h-5"></i></button>
-
-    <div class="flex items-center gap-3 pb-5 mb-3" style="border-bottom:1px solid rgba(201,162,76,0.2);">
-      <div id="drawer-avatar" class="w-14 h-14 rounded-full flex items-center justify-center shrink-0 overflow-hidden btn-gold">
-        <i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>
-      </div>
-      <div class="min-w-0">
-        <p id="drawer-status" class="text-sm font-semibold truncate" style="color:#F4EEDC;">লগইন করুন</p>
-        <button id="drawer-auth-btn" onclick="window.location.href='index.html'" class="hidden text-xs mt-0.5" style="color:#C9A24C;">প্রবেশ করুন / নিবন্ধন করুন</button>
-      </div>
-    </div>
-
-    <nav class="flex flex-col gap-0.5 text-sm overflow-y-auto" style="color:#DCD3B6;">
-      <a href="practice.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4" style="color:#C9A24C;"></i>Practice</a>
-      <a href="library.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="book-open" class="w-4 h-4" style="color:#C9A24C;"></i>Library</a>
-      <a href="ai.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4" style="color:#C9A24C;"></i>AI</a>
-      <a href="faraidh.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="calculator" class="w-4 h-4" style="color:#C9A24C;"></i>ফারায়েজ ক্যালকুলেটর</a>
-      <a href="contact.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="phone" class="w-4 h-4" style="color:#C9A24C;"></i>যোগাযোগ</a>
-
-      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
-
-      <a href="about.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="info" class="w-4 h-4" style="color:#C9A24C;"></i>আমাদের সম্পর্কে</a>
-      <a href="founder.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="crown" class="w-4 h-4" style="color:#C9A24C;"></i>ফাউন্ডার</a>
-      <a href="mentors.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="users" class="w-4 h-4" style="color:#C9A24C;"></i>মেন্টরগণ</a>
-
-      <div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
-
-      <a href="privacy-policy.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="shield" class="w-4 h-4" style="color:#C9A24C;"></i>গোপনীয়তা নীতি</a>
-      <a href="terms.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="file-text" class="w-4 h-4" style="color:#C9A24C;"></i>শর্তাবলি</a>
-    </nav>
-
-    <button onclick="nhSignOut()" class="mt-auto flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm" style="color:#E08A6C;"><i data-lucide="log-out" class="w-4 h-4"></i>লগআউট</button>
-  </aside>
-
-  <div id="loading-msg" class="text-center text-sm py-10" style="color:#5B5340;">লোড হচ্ছে...</div>
-
-  <div id="page" class="hidden">
-
-    <!-- PROFILE CARD -->
-    <section class="px-4 mt-5">
-      <div class="card-grad rounded-3xl p-5 relative overflow-hidden">
-        <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full" style="background:rgba(201,162,76,0.08);"></div>
-        <div class="flex items-start justify-between relative">
-          <div class="flex-1 min-w-0 pr-3">
-            <h1 id="d-name" class="serif-bn text-xl mb-2.5 leading-snug" style="color:#F4EEDC;">—</h1>
-            <div class="flex flex-col gap-1.5 text-xs" style="color:#CBD9D2;">
-              <div class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-phone">—</span></div>
-              <div class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-email">—</span></div>
-              <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-address">—</span></div>
-              <div class="flex items-center gap-2"><i data-lucide="building-2" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-institution">—</span></div>
-              <div class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-joined">—</span></div>
-            </div>
-          </div>
-          <div class="relative shrink-0">
-            <div id="avatar-preview" class="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden" style="background:#16332B; border:2px solid #C9A24C;">
-              <i data-lucide="user" class="w-8 h-8" style="color:#C9A24C;"></i>
-            </div>
-            <button onclick="document.getElementById('avatar-input').click()" class="absolute bottom-0 right-0 w-7 h-7 rounded-full flex items-center justify-center btn-gold" style="border:2px solid #16332B;">
-              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-            </button>
-            <input id="avatar-input" type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
-          </div>
-        </div>
-      </div>
-      <p id="avatar-status" class="text-xs mt-2 text-center" style="color:#5B5340;"></p>
-    </section>
-
-    <!-- STATS -->
-    <section class="px-4 mt-4 grid grid-cols-3 gap-3">
-      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
-        <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="edit-3" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-        <div id="stat-total-q" class="num-bn text-lg" style="color:#0E211C;">০</div>
-        <div class="text-[11px]" style="color:#5B5340;">মোট অনুশীলন</div>
-      </div>
-      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
-        <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="target" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-        <div id="stat-accuracy" class="num-bn text-lg" style="color:#0E211C;">—</div>
-        <div class="text-[11px]" style="color:#5B5340;">সঠিক উত্তরের হার</div>
-      </div>
-      <div class="rounded-2xl p-3 text-center" style="background:#fff;">
-        <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="flame" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
-        <div id="stat-streak" class="num-bn text-lg" style="color:#0E211C;">—</div>
-        <div class="text-[11px]" style="color:#5B5340;">সেরা স্ট্রিক</div>
-      </div>
-    </section>
-
-    <!-- SUBJECT ACCURACY CHART -->
-    <section id="subject-chart-section" class="px-4 mt-8 hidden">
-      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="bar-chart-3" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক সঠিক উত্তরের হার</h2>
-      <div class="rounded-2xl p-4" style="background:#fff;">
-        <div id="subject-chart" class="flex items-end justify-between gap-2" style="height:110px;"></div>
-      </div>
-    </section>
-
-    <!-- SUBJECT-WISE BREAKDOWN -->
-    <section class="px-4 mt-8">
-      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="trending-up" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক অগ্রগতি</h2>
-      <div id="subject-breakdown-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
-        <p class="text-sm" style="color:#5B5340;">কয়েকটা অনুশীলন সম্পন্ন হলে এখানে বিষয়ভিত্তিক সংখ্যা ও সঠিক উত্তরের হার দেখা যাবে।</p>
-      </div>
-      <div id="subject-breakdown-list" class="hidden rounded-2xl p-4 flex flex-col gap-4" style="background:#fff;"></div>
-    </section>
-
-    <!-- RECENT ACTIVITY -->
-    <section class="px-4 mt-8">
-      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="history" class="w-4 h-4" style="color:#C9A24C;"></i>সাম্প্রতিক অনুশীলন</h2>
-      <div id="recent-activity-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
-        <p class="text-sm mb-3" style="color:#5B5340;">আপনি এখনো কোনো অনুশীলন সম্পন্ন করেননি।</p>
-        <a href="practice.html" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold btn-gold">অনুশীলন শুরু করুন <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
-      </div>
-    </section>
-
-    <!-- BOOKMARKED QUESTIONS -->
-    <section class="px-4 mt-8">
-      <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="star" class="w-4 h-4" style="color:#C9A24C;"></i>বুকমার্ক করা প্রশ্ন</h2>
-      <div id="bookmarks-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
-        <p class="text-sm" style="color:#5B5340;">অনুশীলনের সময় ⭐ বুকমার্ক করা প্রশ্নগুলো এখানে দেখা যাবে।</p>
-      </div>
-      <div id="bookmarks-list" class="hidden flex flex-col gap-2.5"></div>
-    </section>
-
-    <!-- EDIT PROFILE (toggle) -->
-    <section class="px-4 mt-9">
-      <button onclick="toggleEdit()" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold" style="background:#fff; color:#0E211C;">
-        <span class="flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4" style="color:#8B6B2A;"></i>প্রোফাইলের তথ্য পরিবর্তন করুন</span>
-        <i data-lucide="chevron-down" class="w-4 h-4" id="edit-chevron"></i>
-      </button>
-
-      <div id="edit-panel" class="hidden mt-3 rounded-2xl p-4" style="background:#fff;">
-        <form id="profile-form" class="flex flex-col gap-3" onsubmit="handleSave(event)">
-          <div>
-            <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">পূর্ণ নাম</label>
-            <input id="f-name" type="text" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
-          </div>
-          <div>
-            <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">মোবাইল নম্বর</label>
-            <input id="f-phone" type="text" placeholder="01XXXXXXXXX" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
-          </div>
-          <div>
-            <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ঠিকানা</label>
-            <textarea id="f-address" rows="2" placeholder="গ্রাম/এলাকা, উপজেলা, জেলা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;"></textarea>
-          </div>
-          <div>
-            <label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রতিষ্ঠানের নাম</label>
-            <input id="f-institution" type="text" placeholder="যেমন: পালাখাল ছালেহিয়া আলিম মাদ্রাসা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
-          </div>
-
-          <p class="text-xs font-semibold mt-1" style="color:#8B6B2A;">সোশ্যাল মিডিয়া লিংক</p>
-          <div class="flex items-center gap-2">
-            <i data-lucide="facebook" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
-            <input id="f-facebook" type="text" placeholder="ফেসবুক প্রোফাইল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
-          </div>
-          <div class="flex items-center gap-2">
-            <i data-lucide="youtube" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
-            <input id="f-youtube" type="text" placeholder="ইউটিউব চ্যানেল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
-          </div>
-          <div class="flex items-center gap-2">
-            <i data-lucide="message-circle" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
-            <input id="f-whatsapp" type="text" placeholder="হোয়াটসঅ্যাপ নম্বর" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
-          </div>
-
-          <p id="save-notice" class="hidden text-xs"></p>
-          <button type="submit" id="save-btn" class="mt-1 py-3 rounded-full text-sm font-semibold btn-gold">সেভ করুন</button>
-        </form>
-      </div>
-    </section>
-
-    <button onclick="nhSignOut()" class="mx-4 mt-6 mb-8 py-3 rounded-full text-sm font-medium flex items-center justify-center gap-1.5" style="border:1px solid #D14343; color:#D14343; width:calc(100% - 2rem);">
-      <i data-lucide="log-out" class="w-4 h-4"></i> লগআউট
-    </button>
-  </div>
-
-  <nav class="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee; box-shadow:0 -2px 10px rgba(0,0,0,0.06);">
-    <a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
-    <a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
-    <a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
-    <a href="ai.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="sparkles" class="w-5 h-5"></i>AI</a>
-    <a href="profile.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
-  </nav>
-
+<header class="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5" style="background:#0E211C; border-bottom:1px solid rgba(201,162,76,0.25);">
+<div class="flex items-center gap-3">
+<a href="index.html" style="color:#F4EEDC;"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+<div class="serif-bn text-lg" style="color:#F4EEDC;">ড্যাশবোর্ড</div>
+</div>
+<button onclick="openDrawer()" style="color:#DCD3B6;">
+<i data-lucide="menu" class="w-5 h-5"></i>
+</button>
+</header>
+<div id="drawer-overlay" onclick="closeDrawer()" class="hidden fixed inset-0 z-40" style="background:rgba(0,0,0,0.55);"></div>
+<aside id="mnav" class="fixed top-0 right-0 h-full w-[80%] max-w-xs z-50 flex flex-col px-5 py-5 transform translate-x-full transition-transform duration-300 ease-out" style="background:#16332B; box-shadow:-10px 0 30px rgba(0,0,0,0.35);">
+<button onclick="closeDrawer()" class="self-end mb-3 p-1" style="color:#DCD3B6;"><i data-lucide="x" class="w-5 h-5"></i></button>
+<div class="flex items-center gap-3 pb-5 mb-3" style="border-bottom:1px solid rgba(201,162,76,0.2);">
+<div id="drawer-avatar" class="w-14 h-14 rounded-full flex items-center justify-center shrink-0 overflow-hidden btn-gold">
+<i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>
+</div>
+<div class="min-w-0">
+<p id="drawer-status" class="text-sm font-semibold truncate" style="color:#F4EEDC;">লগইন করুন</p>
+<button id="drawer-auth-btn" onclick="window.location.href='index.html'" class="hidden text-xs mt-0.5" style="color:#C9A24C;">প্রবেশ করুন / নিবন্ধন করুন</button>
+</div>
+</div>
+<nav class="flex flex-col gap-0.5 text-sm overflow-y-auto" style="color:#DCD3B6;">
+<a href="practice.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4" style="color:#C9A24C;"></i>Practice</a>
+<a href="library.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="book-open" class="w-4 h-4" style="color:#C9A24C;"></i>Library</a>
+<a href="ai.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4" style="color:#C9A24C;"></i>AI</a>
+<a href="faraidh.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="calculator" class="w-4 h-4" style="color:#C9A24C;"></i>ফারায়েজ ক্যালকুলেটর</a>
+<a href="contact.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="phone" class="w-4 h-4" style="color:#C9A24C;"></i>যোগাযোগ</a>
+<div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+<a href="about.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="info" class="w-4 h-4" style="color:#C9A24C;"></i>আমাদের সম্পর্কে</a>
+<a href="founder.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="crown" class="w-4 h-4" style="color:#C9A24C;"></i>ফাউন্ডার</a>
+<a href="mentors.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="users" class="w-4 h-4" style="color:#C9A24C;"></i>মেন্টরগণ</a>
+<div class="my-2" style="border-top:1px solid rgba(201,162,76,0.15);"></div>
+<a href="privacy-policy.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="shield" class="w-4 h-4" style="color:#C9A24C;"></i>গোপনীয়তা নীতি</a>
+<a href="terms.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="file-text" class="w-4 h-4" style="color:#C9A24C;"></i>শর্তাবলি</a>
+</nav>
+<button onclick="nhSignOut()" class="mt-auto flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm" style="color:#E08A6C;"><i data-lucide="log-out" class="w-4 h-4"></i>লগআউট</button>
+</aside>
+<div id="loading-msg" class="text-center text-sm py-10" style="color:#5B5340;">লোড হচ্ছে...</div>
+<div id="page" class="hidden">
+<!-- PROFILE CARD -->
+<section class="px-4 mt-5">
+<div class="card-grad rounded-3xl p-5 relative overflow-hidden">
+<div class="absolute -right-6 -top-6 w-32 h-32 rounded-full" style="background:rgba(201,162,76,0.08);"></div>
+<div class="flex items-start justify-between relative">
+<div class="flex-1 min-w-0 pr-3">
+<h1 id="d-name" class="serif-bn text-xl mb-2.5 leading-snug" style="color:#F4EEDC;">—</h1>
+<div class="flex flex-col gap-1.5 text-xs" style="color:#CBD9D2;">
+<div class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-phone">—</span></div>
+<div class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-email">—</span></div>
+<div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-address">—</span></div>
+<div class="flex items-center gap-2"><i data-lucide="building-2" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-institution">—</span></div>
+<div class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 shrink-0" style="color:#C9A24C;"></i><span id="d-joined">—</span></div>
+</div>
+</div>
+<div class="relative shrink-0">
+<div id="avatar-preview" class="w-20 h-20 rounded-full flex items-center justify-center overflow-hidden" style="background:#16332B; border:2px solid #C9A24C;">
+<i data-lucide="user" class="w-8 h-8" style="color:#C9A24C;"></i>
+</div>
+<button onclick="document.getElementById('avatar-input').click()" class="absolute bottom-0 right-0 w-7 h-7 rounded-full flex items-center justify-center btn-gold" style="border:2px solid #16332B;">
+<i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+</button>
+<input id="avatar-input" type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
+</div>
+</div>
+</div>
+<p id="avatar-status" class="text-xs mt-2 text-center" style="color:#5B5340;"></p>
+</section>
+<!-- STATS -->
+<section class="px-4 mt-4 grid grid-cols-3 gap-3">
+<div class="rounded-2xl p-3 text-center" style="background:#fff;">
+<div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="edit-3" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
+<div id="stat-total-q" class="num-bn text-lg" style="color:#0E211C;">০</div>
+<div class="text-[11px]" style="color:#5B5340;">মোট অনুশীলন</div>
+</div>
+<div class="rounded-2xl p-3 text-center" style="background:#fff;">
+<div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="target" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
+<div id="stat-accuracy" class="num-bn text-lg" style="color:#0E211C;">—</div>
+<div class="text-[11px]" style="color:#5B5340;">সঠিক উত্তরের হার</div>
+</div>
+<div class="rounded-2xl p-3 text-center" style="background:#fff;">
+<div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="flame" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
+<div id="stat-streak" class="num-bn text-lg" style="color:#0E211C;">—</div>
+<div class="text-[11px]" style="color:#5B5340;">সেরা স্ট্রিক</div>
+</div>
+</section>
+<!-- SUBJECT ACCURACY CHART -->
+<section id="subject-chart-section" class="px-4 mt-8 hidden">
+<h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="bar-chart-3" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক সঠিক উত্তরের হার</h2>
+<div class="rounded-2xl p-4" style="background:#fff;">
+<div id="subject-chart" class="flex items-end justify-between gap-2" style="height:110px;"></div>
+</div>
+</section>
+<!-- SUBJECT-WISE BREAKDOWN -->
+<section class="px-4 mt-8">
+<h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="trending-up" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক অগ্রগতি</h2>
+<div id="subject-breakdown-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
+<p class="text-sm" style="color:#5B5340;">কয়েকটা অনুশীলন সম্পন্ন হলে এখানে বিষয়ভিত্তিক সংখ্যা ও সঠিক উত্তরের হার দেখা যাবে।</p>
+</div>
+<div id="subject-breakdown-list" class="hidden rounded-2xl p-4 flex flex-col gap-4" style="background:#fff;"></div>
+</section>
+<!-- RECENT ACTIVITY -->
+<section class="px-4 mt-8">
+<h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="history" class="w-4 h-4" style="color:#C9A24C;"></i>সাম্প্রতিক অনুশীলন</h2>
+<div id="recent-activity-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
+<p class="text-sm mb-3" style="color:#5B5340;">আপনি এখনো কোনো অনুশীলন সম্পন্ন করেননি।</p>
+<a href="practice.html" class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-semibold btn-gold">অনুশীলন শুরু করুন <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+</div>
+</section>
+<!-- BOOKMARKED QUESTIONS -->
+<section class="px-4 mt-8">
+<h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="star" class="w-4 h-4" style="color:#C9A24C;"></i>বুকমার্ক করা প্রশ্ন</h2>
+<div id="bookmarks-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
+<p class="text-sm" style="color:#5B5340;">অনুশীলনের সময় ⭐ বুকমার্ক করা প্রশ্নগুলো এখানে দেখা যাবে।</p>
+</div>
+<div id="bookmarks-list" class="hidden flex flex-col gap-2.5"></div>
+</section>
+<!-- EDIT PROFILE (toggle) -->
+<section class="px-4 mt-9">
+<button onclick="toggleEdit()" class="w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold" style="background:#fff; color:#0E211C;">
+<span class="flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4" style="color:#8B6B2A;"></i>প্রোফাইলের তথ্য পরিবর্তন করুন</span>
+<i data-lucide="chevron-down" class="w-4 h-4" id="edit-chevron"></i>
+</button>
+<div id="edit-panel" class="hidden mt-3 rounded-2xl p-4" style="background:#fff;">
+<form id="profile-form" class="flex flex-col gap-3" onsubmit="handleSave(event)">
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">পূর্ণ নাম</label>
+<input id="f-name" type="text" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+</div>
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">মোবাইল নম্বর</label>
+<input id="f-phone" type="text" placeholder="01XXXXXXXXX" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+</div>
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">ঠিকানা</label>
+<textarea id="f-address" rows="2" placeholder="গ্রাম/এলাকা, উপজেলা, জেলা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;"></textarea>
+</div>
+<div>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">প্রতিষ্ঠানের নাম</label>
+<input id="f-institution" type="text" placeholder="যেমন: পালাখাল ছালেহিয়া আলিম মাদ্রাসা" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+</div>
+<p class="text-xs font-semibold mt-1" style="color:#8B6B2A;">সোশ্যাল মিডিয়া লিংক</p>
+<div class="flex items-center gap-2">
+<i data-lucide="facebook" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+<input id="f-facebook" type="text" placeholder="ফেসবুক প্রোফাইল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+</div>
+<div class="flex items-center gap-2">
+<i data-lucide="youtube" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+<input id="f-youtube" type="text" placeholder="ইউটিউব চ্যানেল লিংক" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+</div>
+<div class="flex items-center gap-2">
+<i data-lucide="message-circle" class="w-4 h-4 shrink-0" style="color:#5B5340;"></i>
+<input id="f-whatsapp" type="text" placeholder="হোয়াটসঅ্যাপ নম্বর" class="w-full px-4 py-2.5 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8; color:#0E211C;">
+</div>
+<p id="save-notice" class="hidden text-xs"></p>
+<button type="submit" id="save-btn" class="mt-1 py-3 rounded-full text-sm font-semibold btn-gold">সেভ করুন</button>
+</form>
+</div>
+</section>
+<button onclick="nhSignOut()" class="mx-4 mt-6 mb-8 py-3 rounded-full text-sm font-medium flex items-center justify-center gap-1.5" style="border:1px solid #D14343; color:#D14343; width:calc(100% - 2rem);">
+<i data-lucide="log-out" class="w-4 h-4"></i> লগআউট
+</button>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around py-2.5" style="background:#fff; border-top:1px solid #eee; box-shadow:0 -2px 10px rgba(0,0,0,0.06);">
+<a href="index.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="home" class="w-5 h-5"></i>Home</a>
+<a href="library.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="book-open" class="w-5 h-5"></i>Library</a>
+<a href="practice.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="edit-3" class="w-5 h-5"></i>Practice</a>
+<a href="ai.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#8A8266;"><i data-lucide="sparkles" class="w-5 h-5"></i>AI</a>
+<a href="profile.html" class="flex flex-col items-center gap-0.5 text-[10px]" style="color:#0E211C;"><i data-lucide="user" class="w-5 h-5"></i>Profile</a>
+</nav>
 <script src="auth.js"></script>
 <script>
-  let currentUser = null;
-
-  async function init() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session || !session.user) { window.location.href = 'index.html'; return; }
-    currentUser = session.user;
-    const m = currentUser.user_metadata || {};
-
-    document.getElementById('d-name').textContent = m.full_name || currentUser.email;
-    document.getElementById('d-phone').textContent = m.phone_number || 'যোগ করা হয়নি';
-    document.getElementById('d-email').textContent = currentUser.email || '—';
-    document.getElementById('d-address').textContent = m.address || 'যোগ করা হয়নি';
-    document.getElementById('d-institution').textContent = m.institution || 'যোগ করা হয়নি';
-    const joined = new Date(currentUser.created_at);
-    document.getElementById('d-joined').textContent = 'যোগদান: ' + joined.toLocaleDateString('bn-BD-u-nu-latn', { day:'numeric', month:'long', year:'numeric' });
-
-    document.getElementById('f-name').value = m.full_name || '';
-    document.getElementById('f-phone').value = m.phone_number || '';
-    document.getElementById('f-address').value = m.address || '';
-    document.getElementById('f-institution').value = m.institution || '';
-    document.getElementById('f-facebook').value = m.facebook || '';
-    document.getElementById('f-youtube').value = m.youtube || '';
-    document.getElementById('f-whatsapp').value = m.whatsapp || '';
-
-    if (m.avatar_url) {
-      document.getElementById('avatar-preview').innerHTML = `<img src="${m.avatar_url}" class="w-full h-full object-cover">`;
-    }
-
-    document.getElementById('loading-msg').classList.add('hidden');
-    document.getElementById('page').classList.remove('hidden');
-    syncDrawerProfile();
-    loadStats();
-    loadBookmarks();
-    lucide.createIcons();
-  }
-
-  async function loadBookmarks(){
-    const { data, error } = await supabaseClient
-      .from('question_bookmarks')
-      .select('id, question_id, questions(id, subject, question)')
-      .eq('user_id', currentUser.id)
-      .order('created_at', { ascending: false });
-    const valid = (!error && data) ? data.filter(b => b.questions) : [];
-    const emptyEl = document.getElementById('bookmarks-empty');
-    const list = document.getElementById('bookmarks-list');
-    if (valid.length === 0) {
-      emptyEl.classList.remove('hidden');
-      list.classList.add('hidden');
-      return;
-    }
-    emptyEl.classList.add('hidden');
-    list.classList.remove('hidden');
-    list.innerHTML = valid.map(b => `
-      <div class="rounded-2xl p-3.5 flex items-start justify-between gap-2" style="background:#fff;">
-        <div class="flex-1 min-w-0">
-          <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${b.questions.subject}</span>
-          <p class="text-xs mt-1.5" style="color:#333;">${b.questions.question}</p>
-        </div>
-        <button onclick="removeBookmark('${b.question_id}')" class="shrink-0" style="color:#C9A24C;"><i data-lucide="star" style="fill:#C9A24C;" class="w-4 h-4"></i></button>
-      </div>`).join('');
-    lucide.createIcons();
-  }
-
-  async function removeBookmark(questionId){
-    await supabaseClient.from('question_bookmarks').delete().eq('question_id', questionId).eq('user_id', currentUser.id);
-    loadBookmarks();
-  }
-
-  async function loadStats(){
-    const { data, error } = await supabaseClient
-      .from('quiz_attempts')
-      .select('subject,total_questions,correct_count,created_at')
-      .eq('user_id', currentUser.id);
-
-    if (error || !data || data.length === 0) return;
-
-    let totalQ = 0, totalCorrect = 0;
-    const bySubject = {};
-    data.forEach(r => {
-      totalQ += r.total_questions;
-      totalCorrect += r.correct_count;
-      bySubject[r.subject] = bySubject[r.subject] || { total: 0, correct: 0 };
-      bySubject[r.subject].total += r.total_questions;
-      bySubject[r.subject].correct += r.correct_count;
-    });
-
-    document.getElementById('stat-total-q').textContent = totalQ.toLocaleString('bn-BD');
-    const overallAcc = totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0;
-    document.getElementById('stat-accuracy').textContent = overallAcc + '%';
-
-    const days = [...new Set(data.map(r => new Date(r.created_at).toISOString().slice(0, 10)))].sort();
-    let bestStreak = days.length ? 1 : 0, cur = 1;
-    for (let i = 1; i < days.length; i++) {
-      const diffDays = (new Date(days[i]) - new Date(days[i - 1])) / 86400000;
-      cur = diffDays === 1 ? cur + 1 : 1;
-      bestStreak = Math.max(bestStreak, cur);
-    }
-    document.getElementById('stat-streak').textContent = bestStreak;
-
-    const subjects = Object.entries(bySubject).map(([name, s]) => ({
-      name, total: s.total, correct: s.correct,
-      pct: s.total ? Math.round((s.correct / s.total) * 100) : 0
-    })).sort((a, b) => a.pct - b.pct);
-
-    const barColor = p => p >= 70 ? '#2F7A4F' : p >= 40 ? '#C9A24C' : '#D14343';
-
-    document.getElementById('subject-breakdown-empty').classList.add('hidden');
-    const list = document.getElementById('subject-breakdown-list');
-    list.classList.remove('hidden');
-    list.innerHTML = subjects.map(s => `
-      <div>
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-sm font-medium" style="color:#0E211C;">${s.name}</span>
-          <span class="text-xs" style="color:#5B5340;">${s.correct}/${s.total} সঠিক · ${s.pct}%</span>
-        </div>
-        <div class="w-full h-2 rounded-full" style="background:#F0EAD6;">
-          <div class="h-2 rounded-full" style="width:${s.pct}%; background:${barColor(s.pct)};"></div>
-        </div>
-      </div>
-    `).join('');
-
-    document.getElementById('subject-chart-section').classList.remove('hidden');
-    document.getElementById('subject-chart').innerHTML = subjects.map(s => `
-      <div class="flex flex-col items-center gap-1.5" style="flex:1; min-width:0;">
-        <span class="text-[10px] font-semibold" style="color:#0E211C;">${s.pct}%</span>
-        <div class="w-full rounded-t-md" style="height:${Math.max(s.pct, 4)}px; max-height:100px; background:${barColor(s.pct)};"></div>
-        <span class="text-[9px] text-center leading-tight w-full truncate" style="color:#5B5340;" title="${s.name}">${s.name}</span>
-      </div>
-    `).join('');
-
-    const recent = [...data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
-    if (recent.length > 0) {
-      document.getElementById('recent-activity-empty').outerHTML = `
-        <div class="rounded-2xl p-4 flex flex-col gap-3" style="background:#fff;">
-          ${recent.map(r => {
-            const pct = r.total_questions ? Math.round((r.correct_count / r.total_questions) * 100) : 0;
-            const dateStr = new Date(r.created_at).toLocaleDateString('bn-BD-u-nu-latn', { day: 'numeric', month: 'short' });
-            return `
-            <div class="flex items-center justify-between">
-              <div class="min-w-0">
-                <p class="text-sm font-medium truncate" style="color:#0E211C;">${r.subject}</p>
-                <p class="text-[11px]" style="color:#8A8266;">${dateStr}</p>
-              </div>
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0" style="background:${barColor(pct)}22; color:${barColor(pct)};">${r.correct_count}/${r.total_questions} · ${pct}%</span>
-            </div>`;
-          }).join('')}
-        </div>`;
-    }
-    lucide.createIcons();
-  }
-
-  function openDrawer(){
-    document.getElementById('mnav').classList.remove('translate-x-full');
-    document.getElementById('drawer-overlay').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeDrawer(){
-    document.getElementById('mnav').classList.add('translate-x-full');
-    document.getElementById('drawer-overlay').classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-  function syncDrawerProfile(){
-    const status = document.getElementById('drawer-status');
-    const authBtn = document.getElementById('drawer-auth-btn');
-    const avatar = document.getElementById('drawer-avatar');
-    if (currentUser) {
-      const m = currentUser.user_metadata || {};
-      status.textContent = m.full_name || currentUser.email;
-      authBtn.classList.add('hidden');
-      avatar.innerHTML = m.avatar_url ? `<img src="${m.avatar_url}" class="w-full h-full object-cover">` : '<i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>';
-    } else {
-      status.textContent = 'লগইন করুন';
-      authBtn.classList.remove('hidden');
-      avatar.innerHTML = '<i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>';
-    }
-    lucide.createIcons();
-  }
-
-  function toggleEdit(){
-    const panel = document.getElementById('edit-panel');
-    const chevron = document.getElementById('edit-chevron');
-    panel.classList.toggle('hidden');
-    chevron.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-  }
-
-  async function handleAvatarChange(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const status = document.getElementById('avatar-status');
-    status.textContent = 'আপলোড হচ্ছে...';
-    const { error, avatarUrl } = await nhUploadAvatar(file, currentUser.id);
-    if (error) { status.textContent = 'আপলোড ব্যর্থ: ' + error.message; return; }
-    document.getElementById('avatar-preview').innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover">`;
-    status.textContent = 'ছবি আপডেট হয়েছে ✓';
-  }
-
-  async function handleSave(e) {
-    e.preventDefault();
-    const btn = document.getElementById('save-btn');
-    const notice = document.getElementById('save-notice');
-    btn.textContent = 'সেভ হচ্ছে...';
-    const { error } = await nhUpdateProfile({
-      full_name: document.getElementById('f-name').value.trim(),
-      phone_number: document.getElementById('f-phone').value.trim(),
-      address: document.getElementById('f-address').value.trim(),
-      institution: document.getElementById('f-institution').value.trim(),
-      facebook: document.getElementById('f-facebook').value.trim(),
-      youtube: document.getElementById('f-youtube').value.trim(),
-      whatsapp: document.getElementById('f-whatsapp').value.trim()
-    });
-    btn.textContent = 'সেভ করুন';
-    notice.classList.remove('hidden');
-    if (error) {
-      notice.style.color = '#D14343';
-      notice.textContent = 'সেভ করতে সমস্যা হয়েছে: ' + error.message;
-    } else {
-      notice.style.color = '#2F7A4F';
-      notice.textContent = 'সফলভাবে সেভ হয়েছে ✓';
-      document.getElementById('d-name').textContent = document.getElementById('f-name').value.trim() || currentUser.email;
-      document.getElementById('d-phone').textContent = document.getElementById('f-phone').value.trim() || 'যোগ করা হয়নি';
-      document.getElementById('d-address').textContent = document.getElementById('f-address').value.trim() || 'যোগ করা হয়নি';
-      document.getElementById('d-institution').textContent = document.getElementById('f-institution').value.trim() || 'যোগ করা হয়নি';
-    }
-  }
-
-  init();
-  lucide.createIcons();
+let currentUser = null;
+async function init() {
+const { data: { session } } = await supabaseClient.auth.getSession();
+if (!session || !session.user) { window.location.href = 'index.html?auth=1'; return; }
+currentUser = session.user;
+const m = currentUser.user_metadata || {};
+document.getElementById('d-name').textContent = m.full_name || currentUser.email;
+document.getElementById('d-phone').textContent = m.phone_number || 'যোগ করা হয়নি';
+document.getElementById('d-email').textContent = currentUser.email || '—';
+document.getElementById('d-address').textContent = m.address || 'যোগ করা হয়নি';
+document.getElementById('d-institution').textContent = m.institution || 'যোগ করা হয়নি';
+const joined = new Date(currentUser.created_at);
+document.getElementById('d-joined').textContent = 'যোগদান: ' + joined.toLocaleDateString('bn-BD-u-nu-latn', { day:'numeric', month:'long', year:'numeric' });
+document.getElementById('f-name').value = m.full_name || '';
+document.getElementById('f-phone').value = m.phone_number || '';
+document.getElementById('f-address').value = m.address || '';
+document.getElementById('f-institution').value = m.institution || '';
+document.getElementById('f-facebook').value = m.facebook || '';
+document.getElementById('f-youtube').value = m.youtube || '';
+document.getElementById('f-whatsapp').value = m.whatsapp || '';
+if (m.avatar_url) {
+document.getElementById('avatar-preview').innerHTML = `<img src="${m.avatar_url}" class="w-full h-full object-cover">`;
+}
+document.getElementById('loading-msg').classList.add('hidden');
+document.getElementById('page').classList.remove('hidden');
+syncDrawerProfile();
+loadStats();
+loadBookmarks();
+lucide.createIcons();
+}
+async function loadBookmarks(){
+const { data, error } = await supabaseClient
+.from('question_bookmarks')
+.select('id, question_id, questions(id, subject, question)')
+.eq('user_id', currentUser.id)
+.order('created_at', { ascending: false });
+const valid = (!error && data) ? data.filter(b => b.questions) : [];
+const emptyEl = document.getElementById('bookmarks-empty');
+const list = document.getElementById('bookmarks-list');
+if (valid.length === 0) {
+emptyEl.classList.remove('hidden');
+list.classList.add('hidden');
+return;
+}
+emptyEl.classList.add('hidden');
+list.classList.remove('hidden');
+list.innerHTML = valid.map(b => `
+<div class="rounded-2xl p-3.5 flex items-start justify-between gap-2" style="background:#fff;">
+<div class="flex-1 min-w-0">
+<span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#0E211C; color:#E4C97A;">${b.questions.subject}</span>
+<p class="text-xs mt-1.5" style="color:#333;">${b.questions.question}</p>
+</div>
+<button onclick="removeBookmark('${b.question_id}')" class="shrink-0" style="color:#C9A24C;"><i data-lucide="star" style="fill:#C9A24C;" class="w-4 h-4"></i></button>
+</div>`).join('');
+lucide.createIcons();
+}
+async function removeBookmark(questionId){
+await supabaseClient.from('question_bookmarks').delete().eq('question_id', questionId).eq('user_id', currentUser.id);
+loadBookmarks();
+}
+async function loadStats(){
+const { data, error } = await supabaseClient
+.from('quiz_attempts')
+.select('subject,total_questions,correct_count,created_at')
+.eq('user_id', currentUser.id);
+if (error || !data || data.length === 0) return;
+let totalQ = 0, totalCorrect = 0;
+const bySubject = {};
+data.forEach(r => {
+totalQ += r.total_questions;
+totalCorrect += r.correct_count;
+bySubject[r.subject] = bySubject[r.subject] || { total: 0, correct: 0 };
+bySubject[r.subject].total += r.total_questions;
+bySubject[r.subject].correct += r.correct_count;
+});
+document.getElementById('stat-total-q').textContent = totalQ.toLocaleString('bn-BD');
+const overallAcc = totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0;
+document.getElementById('stat-accuracy').textContent = overallAcc + '%';
+const days = [...new Set(data.map(r => new Date(r.created_at).toISOString().slice(0, 10)))].sort();
+let bestStreak = days.length ? 1 : 0, cur = 1;
+for (let i = 1; i < days.length; i++) {
+const diffDays = (new Date(days[i]) - new Date(days[i - 1])) / 86400000;
+cur = diffDays === 1 ? cur + 1 : 1;
+bestStreak = Math.max(bestStreak, cur);
+}
+document.getElementById('stat-streak').textContent = bestStreak;
+const subjects = Object.entries(bySubject).map(([name, s]) => ({
+name, total: s.total, correct: s.correct,
+pct: s.total ? Math.round((s.correct / s.total) * 100) : 0
+})).sort((a, b) => a.pct - b.pct);
+const barColor = p => p >= 70 ? '#2F7A4F' : p >= 40 ? '#C9A24C' : '#D14343';
+document.getElementById('subject-breakdown-empty').classList.add('hidden');
+const list = document.getElementById('subject-breakdown-list');
+list.classList.remove('hidden');
+list.innerHTML = subjects.map(s => `
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<span class="text-sm font-medium" style="color:#0E211C;">${s.name}</span>
+<span class="text-xs" style="color:#5B5340;">${s.correct}/${s.total} সঠিক · ${s.pct}%</span>
+</div>
+<div class="w-full h-2 rounded-full" style="background:#F0EAD6;">
+<div class="h-2 rounded-full" style="width:${s.pct}%; background:${barColor(s.pct)};"></div>
+</div>
+</div>
+`).join('');
+document.getElementById('subject-chart-section').classList.remove('hidden');
+document.getElementById('subject-chart').innerHTML = subjects.map(s => `
+<div class="flex flex-col items-center gap-1.5" style="flex:1; min-width:0;">
+<span class="text-[10px] font-semibold" style="color:#0E211C;">${s.pct}%</span>
+<div class="w-full rounded-t-md" style="height:${Math.max(s.pct, 4)}px; max-height:100px; background:${barColor(s.pct)};"></div>
+<span class="text-[9px] text-center leading-tight w-full truncate" style="color:#5B5340;" title="${s.name}">${s.name}</span>
+</div>
+`).join('');
+const recent = [...data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+if (recent.length > 0) {
+document.getElementById('recent-activity-empty').outerHTML = `
+<div class="rounded-2xl p-4 flex flex-col gap-3" style="background:#fff;">
+${recent.map(r => {
+const pct = r.total_questions ? Math.round((r.correct_count / r.total_questions) * 100) : 0;
+const dateStr = new Date(r.created_at).toLocaleDateString('bn-BD-u-nu-latn', { day: 'numeric', month: 'short' });
+return `
+<div class="flex items-center justify-between">
+<div class="min-w-0">
+<p class="text-sm font-medium truncate" style="color:#0E211C;">${r.subject}</p>
+<p class="text-[11px]" style="color:#8A8266;">${dateStr}</p>
+</div>
+<span class="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0" style="background:${barColor(pct)}22; color:${barColor(pct)};">${r.correct_count}/${r.total_questions} · ${pct}%</span>
+</div>`;
+}).join('')}
+</div>`;
+}
+lucide.createIcons();
+}
+function openDrawer(){
+document.getElementById('mnav').classList.remove('translate-x-full');
+document.getElementById('drawer-overlay').classList.remove('hidden');
+document.body.style.overflow = 'hidden';
+}
+function closeDrawer(){
+document.getElementById('mnav').classList.add('translate-x-full');
+document.getElementById('drawer-overlay').classList.add('hidden');
+document.body.style.overflow = '';
+}
+function syncDrawerProfile(){
+const status = document.getElementById('drawer-status');
+const authBtn = document.getElementById('drawer-auth-btn');
+const avatar = document.getElementById('drawer-avatar');
+if (currentUser) {
+const m = currentUser.user_metadata || {};
+status.textContent = m.full_name || currentUser.email;
+authBtn.classList.add('hidden');
+avatar.innerHTML = m.avatar_url ? `<img src="${m.avatar_url}" class="w-full h-full object-cover">` : '<i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>';
+} else {
+status.textContent = 'লগইন করুন';
+authBtn.classList.remove('hidden');
+avatar.innerHTML = '<i data-lucide="user" class="w-6 h-6" style="color:#0E211C;"></i>';
+}
+lucide.createIcons();
+}
+function toggleEdit(){
+const panel = document.getElementById('edit-panel');
+const chevron = document.getElementById('edit-chevron');
+panel.classList.toggle('hidden');
+chevron.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+async function handleAvatarChange(e) {
+const file = e.target.files[0];
+if (!file) return;
+const status = document.getElementById('avatar-status');
+status.textContent = 'আপলোড হচ্ছে...';
+const { error, avatarUrl } = await nhUploadAvatar(file, currentUser.id);
+if (error) { status.textContent = 'আপলোড ব্যর্থ: ' + error.message; return; }
+document.getElementById('avatar-preview').innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover">`;
+status.textContent = 'ছবি আপডেট হয়েছে ✓';
+}
+async function handleSave(e) {
+e.preventDefault();
+const btn = document.getElementById('save-btn');
+const notice = document.getElementById('save-notice');
+btn.textContent = 'সেভ হচ্ছে...';
+const { error } = await nhUpdateProfile({
+full_name: document.getElementById('f-name').value.trim(),
+phone_number: document.getElementById('f-phone').value.trim(),
+address: document.getElementById('f-address').value.trim(),
+institution: document.getElementById('f-institution').value.trim(),
+facebook: document.getElementById('f-facebook').value.trim(),
+youtube: document.getElementById('f-youtube').value.trim(),
+whatsapp: document.getElementById('f-whatsapp').value.trim()
+});
+btn.textContent = 'সেভ করুন';
+notice.classList.remove('hidden');
+if (error) {
+notice.style.color = '#D14343';
+notice.textContent = 'সেভ করতে সমস্যা হয়েছে: ' + error.message;
+} else {
+notice.style.color = '#2F7A4F';
+notice.textContent = 'সফলভাবে সেভ হয়েছে ✓';
+document.getElementById('d-name').textContent = document.getElementById('f-name').value.trim() || currentUser.email;
+document.getElementById('d-phone').textContent = document.getElementById('f-phone').value.trim() || 'যোগ করা হয়নি';
+document.getElementById('d-address').textContent = document.getElementById('f-address').value.trim() || 'যোগ করা হয়নি';
+document.getElementById('d-institution').textContent = document.getElementById('f-institution').value.trim() || 'যোগ করা হয়নি';
+}
+}
+init();
+lucide.createIcons();
 </script>
 </body>
 </html>
