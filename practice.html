@@ -127,6 +127,11 @@ body { background:#F4EEDC; }
 <i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-3 animate-spin" style="color:#C9A24C;"></i>
 <p class="text-sm" style="color:#5B5340;">AI প্রশ্ন তৈরি করছে, একটু অপেক্ষা করুন...</p>
 </div>
+<!-- DB LOADING -->
+<div id="db-loading" class="hidden px-5 mt-16 text-center">
+<i data-lucide="loader-2" class="w-8 h-8 mx-auto mb-3 animate-spin" style="color:#C9A24C;"></i>
+<p class="text-sm" style="color:#5B5340;">প্রশ্ন লোড হচ্ছে...</p>
+</div>
 <!-- CATEGORY PICKER (আরবী রিলেটেড / জেনারেল) -->
 <div id="category-picker" class="hidden px-5 mt-6">
 <h2 class="serif-bn text-lg mb-4" style="color:#0E211C;">কোন ধরনের বিষয়?</h2>
@@ -292,7 +297,7 @@ btn.style.background = '#0E211C'; btn.style.color = '#F4EEDC'; btn.style.border 
 selectedAIDifficulty = btn.dataset.difficulty;
 });
 });
-function showEl(id){ document.querySelectorAll('#mode-select,#category-picker,#subject-picker,#count-picker,#quiz-area,#result-area,#no-questions,#ai-picker,#ai-loading').forEach(e=>e.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+function showEl(id){ document.querySelectorAll('#mode-select,#category-picker,#subject-picker,#count-picker,#quiz-area,#result-area,#no-questions,#ai-picker,#ai-loading,#db-loading').forEach(e=>e.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 function goBack(){
 const authRequired = document.getElementById('auth-required');
 if (authRequired && !authRequired.classList.contains('hidden')) { window.location.href = 'index.html'; return; }
@@ -424,12 +429,27 @@ showEl('ai-picker');
 }
 }
 async function startQuiz(count){
-let query = sb.from('questions').select('*');
-if (selectedSubject) query = query.eq('subject', selectedSubject);
-const { data, error } = await query;
-if (error || !data || data.length === 0) { showEl('no-questions'); return; }
-const shuffled = data.sort(() => Math.random() - 0.5);
-quizQuestions = shuffled.slice(0, count);
+showEl('db-loading');
+try {
+const { data: { session } } = await sb.auth.getSession();
+if (!session) { alert('সেশনের মেয়াদ শেষ হয়ে গেছে, আবার লগইন করুন।'); showEl('mode-select'); return; }
+const res = await fetch('/api/get-practice-questions', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': 'Bearer ' + session.access_token
+},
+body: JSON.stringify({ subject: selectedSubject || null, count })
+});
+const data = await res.json();
+if (!res.ok) {
+if (res.status === 429) { alert(data.error || 'আজকের অনুশীলনের সীমা শেষ হয়ে গেছে।'); }
+else { alert('প্রশ্ন আনতে সমস্যা হয়েছে: ' + (data.error || 'অজানা এরর')); }
+showEl('count-picker');
+return;
+}
+if (!data.questions || data.questions.length === 0) { showEl('no-questions'); return; }
+quizQuestions = data.questions;
 currentIndex = 0;
 score = 0;
 wrongCount = 0;
@@ -438,6 +458,10 @@ subjectStats = {};
 showEl('quiz-area');
 startQuizTimer(quizQuestions.length);
 renderQuestion();
+} catch (err) {
+alert('সংযোগে সমস্যা হয়েছে: ' + err.message);
+showEl('count-picker');
+}
 }
 function startQuizTimer(numQuestions){
 clearInterval(timerInterval);
