@@ -106,7 +106,7 @@ const ranked = Object.values(byUser)
 .map(u => {
 const wrong = u.total - u.correct;
 const points = Math.max(0, u.correct - wrong * 0.25);
-const accuracy = u.total ? Math.round((u.correct / u.total) * 100) : 0;
+const accuracy = u.total ? Math.round((points / u.total) * 100) : 0;
 return { ...u, accuracy, points: Math.round(points * 100) / 100 };
 })
 .sort((a, b) => b.points - a.points)
