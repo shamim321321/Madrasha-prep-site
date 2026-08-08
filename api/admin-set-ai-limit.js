@@ -56,14 +56,14 @@ module.exports = async (req, res) => {
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
   const email = (body?.email || '').toString().trim().toLowerCase();
-  const feature = ['practice', 'learn'].includes(body?.feature) ? body.feature : null;
+  const feature = ['practice', 'learn', 'db_practice'].includes(body?.feature) ? body.feature : null;
   const note = (body?.note || '').toString().trim().slice(0, 200) || null;
   // dailyLimit: সংখ্যা হলে সেই লিমিট, null/blank পাঠালে override মুছে ফেলা হবে (গ্লোবাল ডিফল্টে ফিরে যাবে)
   const hasLimit = body?.dailyLimit !== null && body?.dailyLimit !== undefined && body?.dailyLimit !== '';
   const dailyLimit = hasLimit ? Math.max(0, parseInt(body.dailyLimit)) : null;
 
   if (!email || !feature) {
-    res.status(400).json({ error: 'email ও feature (practice/learn) দেওয়া বাধ্যতামূলক।' });
+    res.status(400).json({ error: 'email ও feature (practice/learn/db_practice) দেওয়া বাধ্যতামূলক।' });
     return;
   }
 
