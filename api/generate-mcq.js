@@ -72,62 +72,38 @@ module.exports = async (req, res) => {
   }
 
   // ============================================
-  // ধাপ ৩: DB-first — আগে থেকে থাকা প্রশ্ন থেকে যতটা সম্ভব সার্ভ করা
-  // ============================================
-  let dbQuestions = [];
-  try {
-    dbQuestions = isRandom
-      ? await fetchRandomFromDB(supabaseUrl, supabaseKey, subjectName, count)
-      : await fetchByTopicFromDB(supabaseUrl, supabaseKey, subjectName, topic, count);
-  } catch (e) {
-    dbQuestions = []; // DB চেক ব্যর্থ হলেও AI জেনারেশনে চলে যাওয়া (fail-open)
-  }
-
-  const shortfall = count - dbQuestions.length;
-
-  // সম্পূর্ণ DB থেকেই মিটে গেলে — Gemini কল লাগবে না, লিমিটও কাটা হবে না
-  if (shortfall <= 0) {
-    res.status(200).json({
-      questions: dbQuestions.slice(0, count).map(toClientShape),
-      saved: 0,
-      dbError: null,
-      source: 'db'
-    });
-    return;
-  }
-
-  // ============================================
-  // ধাপ ৪: ঘাটতি Gemini দিয়ে টপ-আপ জেনারেট করা
+  // ধাপ ৩: এই subject/topic-এ DB-তে যা যা প্রশ্ন আগে থেকে আছে তার একটা নমুনা নেওয়া,
+  // যাতে Gemini-কে prompt-এই বলে দেওয়া যায় কোনগুলো এড়িয়ে সম্পূর্ণ নতুন প্রশ্ন বানাতে হবে
   // ============================================
   const effectiveTopicForPrompt = isRandom ? subjectName : topic;
+  const existingQuestions = await fetchExistingQuestionTexts(
+    supabaseUrl, supabaseKey, subjectName, isRandom ? null : topic
+  );
+
   const aiResult = await generateViaGemini({
-    apiKey, subjectName, topic: effectiveTopicForPrompt, count: shortfall, lang, difficulty
+    apiKey, subjectName, topic: effectiveTopicForPrompt, count, lang, difficulty, existingQuestions
   });
 
   if (aiResult.error) {
-    // DB থেকে কিছু পাওয়া গেলে অন্তত সেটা দেখানো, নাহলে এরর
-    if (dbQuestions.length > 0) {
-      res.status(200).json({ questions: dbQuestions.map(toClientShape), saved: 0, dbError: null, source: 'db-partial' });
-    } else {
-      res.status(502).json({ error: aiResult.error });
-    }
+    res.status(502).json({ error: aiResult.error });
     return;
   }
 
-  // AI-জেনারেটেড প্রশ্ন Supabase-এ সেভ করা (প্রশ্ন ব্যাংক বাড়ানো)
-  const { saved, dbError } = await saveGeneratedQuestions(
+  // AI-জেনারেটেড প্রশ্ন Supabase-এ সেভ করা — prompt-এ এড়াতে বলা সত্ত্বেও যদি কাকতালীয়ভাবে
+  // কোনোটা আগের কোনো প্রশ্নের সাথে ~৮০%+ মিলে যায়, সেটা একটা ব্যাকআপ সেফটি-চেক হিসেবে সেভ হবে না
+  const { saved, skippedDuplicates, dbError } = await saveGeneratedQuestions(
     supabaseUrl, supabaseKey, aiResult.questions, subjectName, effectiveTopicForPrompt, lang
   );
 
-  // Gemini কল সফল হয়েছে — কাউন্ট বাড়ানো (শুধু dailyLimit সেট থাকলে, তবে future analytics-এর জন্য সবসময় লগ রাখা)
+  // Gemini কল সফল হয়েছে — কাউন্ট বাড়ানো
   await incrementUsage(supabaseUrl, supabaseKey, user.id, 'practice');
 
-  const combined = [...dbQuestions, ...aiResult.questions];
   res.status(200).json({
-    questions: combined.map(toClientShape),
+    questions: aiResult.questions.map(toClientShape),
     saved,
+    skippedDuplicates,
     dbError,
-    source: dbQuestions.length > 0 ? 'mixed' : 'ai'
+    source: 'ai'
   });
 };
 
@@ -246,37 +222,39 @@ async function incrementUsage(supabaseUrl, supabaseKey, userId, feature) {
   }
 }
 
-async function fetchRandomFromDB(supabaseUrl, supabaseKey, subjectName, count) {
-  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` };
-  const res = await fetch(
-    `${supabaseUrl}/rest/v1/questions?subject=eq.${encodeURIComponent(subjectName)}&select=*&limit=300`,
-    { headers }
-  );
-  const rows = await res.json().catch(() => []);
-  if (!Array.isArray(rows)) return [];
-  const shuffled = rows.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
-}
-
-async function fetchByTopicFromDB(supabaseUrl, supabaseKey, subjectName, topic, count) {
-  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` };
-  const res = await fetch(
-    `${supabaseUrl}/rest/v1/questions?subject=eq.${encodeURIComponent(subjectName)}&topic=ilike.*${encodeURIComponent(topic)}*&select=*&limit=300`,
-    { headers }
-  );
-  const rows = await res.json().catch(() => []);
-  if (!Array.isArray(rows)) return [];
-  const shuffled = rows.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+async function isDuplicateQuestion(supabaseUrl, supabaseKey, subjectName, questionText) {
+  try {
+    const res = await fetch(`${supabaseUrl}/rest/v1/rpc/is_similar_question`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`
+      },
+      body: JSON.stringify({ p_subject: subjectName, p_question: questionText, p_threshold: 0.8 })
+    });
+    if (!res.ok) return false; // চেক ব্যর্থ হলেও সেভ করাই ভালো (fail-open, প্রশ্নব্যাংক বাড়তে থাকুক)
+    const isDup = await res.json();
+    return isDup === true;
+  } catch (e) {
+    return false;
+  }
 }
 
 async function saveGeneratedQuestions(supabaseUrl, supabaseKey, questions, subjectName, topic, lang) {
   let saved = 0;
+  let skippedDuplicates = 0;
   let dbError = null;
   try {
-    const rows = questions
-      .filter((q) => q && q.question && q.option_a && q.option_b && q.option_c && q.option_d && q.correct)
-      .map((q) => ({
+    const validQuestions = questions.filter(
+      (q) => q && q.question && q.option_a && q.option_b && q.option_c && q.option_d && q.correct
+    );
+
+    const rows = [];
+    for (const q of validQuestions) {
+      const isDup = await isDuplicateQuestion(supabaseUrl, supabaseKey, subjectName, q.question);
+      if (isDup) { skippedDuplicates++; continue; }
+      rows.push({
         subject: subjectName,
         topic: topic,
         question: q.question,
@@ -290,7 +268,8 @@ async function saveGeneratedQuestions(supabaseUrl, supabaseKey, questions, subje
         language: lang,
         source: 'ai',
         status: 'pending'
-      }));
+      });
+    }
 
     if (rows.length > 0) {
       const insertRes = await fetch(`${supabaseUrl}/rest/v1/questions`, {
@@ -314,10 +293,28 @@ async function saveGeneratedQuestions(supabaseUrl, supabaseKey, questions, subje
   } catch (dbErr) {
     dbError = dbErr.message;
   }
-  return { saved, dbError };
+  return { saved, skippedDuplicates, dbError };
 }
 
-async function generateViaGemini({ apiKey, subjectName, topic, count, lang, difficulty }) {
+async function fetchExistingQuestionTexts(supabaseUrl, supabaseKey, subjectName, topic) {
+  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` };
+  try {
+    const topicFilter = topic ? `&topic=ilike.*${encodeURIComponent(topic)}*` : '';
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/questions?subject=eq.${encodeURIComponent(subjectName)}${topicFilter}&select=question&limit=250`,
+      { headers }
+    );
+    const rows = await res.json().catch(() => []);
+    if (!Array.isArray(rows) || rows.length === 0) return [];
+    // ৫০টার একটা র‍্যান্ডম নমুনা — pool যত বড়ই হোক (৫০,০০০+), prompt-এ পুরোটা পাঠানো সম্ভব না
+    const shuffled = rows.map(r => r.question).filter(Boolean).sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 50);
+  } catch (e) {
+    return []; // ব্যর্থ হলেও জেনারেশন থেমে থাকবে না (fail-open)
+  }
+}
+
+async function generateViaGemini({ apiKey, subjectName, topic, count, lang, difficulty, existingQuestions = [] }) {
   const subject = `${subjectName} — ${topic}`;
 
   const difficultyGuide = {
@@ -338,10 +335,19 @@ async function generateViaGemini({ apiKey, subjectName, topic, count, lang, diff
     }
   };
 
+  const avoidBlock = existingQuestions.length === 0 ? '' : (
+    lang === 'ar'
+      ? `\nالأسئلة التالية موجودة بالفعل في قاعدة البيانات لهذا الموضوع — لا تكرر أياً منها أو أي سؤال مشابه لها في المعنى، أنشئ أسئلة جديدة تماماً تغطي جوانب أخرى من الموضوع:\n${existingQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}\n`
+      : lang === 'en'
+      ? `\nThe following questions already exist in the database for this subject — do NOT repeat any of them or create questions with the same meaning; generate completely new questions covering other aspects of the topic:\n${existingQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}\n`
+      : `\nনিচের প্রশ্নগুলো এই বিষয়ে ইতিমধ্যে ডাটাবেইজে আছে — এগুলোর কোনোটাই বা এগুলোর সাথে অর্থে মিলে যায় এমন কোনো প্রশ্ন তৈরি কোরো না; এই টপিকের অন্যান্য দিক নিয়ে সম্পূর্ণ নতুন প্রশ্ন তৈরি করো:\n${existingQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')}\n`
+  );
+
   const prompt = lang === 'ar'
     ? `أنت خبير في إعداد أسئلة الاختيار من متعدد لامتحان تعيين مدرسي مدرسة (NTRCA) في بنغلاديش.
 الموضوع: "${subject}"
 مستوى الصعوبة: ${difficulty === 'easy' ? 'سهل' : difficulty === 'medium' ? 'متوسط' : 'صعب'} — ${difficultyGuide[difficulty].ar}
+${avoidBlock}
 أنشئ بالضبط ${count} سؤال اختيار من متعدد بمستوى جيد باللغة العربية الفصحى حول هذا الموضوع. لكل سؤال أربعة خيارات، إجابة صحيحة واحدة فقط، وشرح مختصر.
 
 أرجع فقط مصفوفة JSON بالتنسيق التالي أدناه، دون أي نص إضافي أو علامات markdown. حقل "explanation" يجب أن يكون باللغة العربية، وحقل "explanation_bn" هو نفس الشرح لكن مترجم إلى اللغة البنغالية:
@@ -362,6 +368,7 @@ async function generateViaGemini({ apiKey, subjectName, topic, count, lang, diff
     ? `You are an expert question setter preparing MCQs for Bangladesh's NTRCA (madrasha teacher registration) exam candidates.
 Subject/Topic: "${subject}"
 Difficulty Level: ${difficulty === 'easy' ? 'Easy' : difficulty === 'medium' ? 'Moderate' : 'Hard'} — ${difficultyGuide[difficulty].en}
+${avoidBlock}
 Create exactly ${count} good-quality multiple choice questions in English on this subject. Each question must have 4 options, exactly one correct answer, and a short explanation.
 
 Return ONLY a JSON array in the exact format below, with no extra text or markdown code fences. The "explanation_bn" field should be the same explanation translated into Bengali:
@@ -381,6 +388,7 @@ The "correct" field must contain only one letter: a, b, c, or d.`
     : `তুমি বাংলাদেশের NTRCA মাদ্রাসা শিক্ষক নিবন্ধন পরীক্ষার প্রস্তুতির জন্য একজন অভিজ্ঞ প্রশ্নকর্তা।
 বিষয়/টপিক: "${subject}"
 কঠিনতার মাত্রা: ${difficulty === 'easy' ? 'সহজ' : difficulty === 'medium' ? 'মাঝারি' : 'কঠিন'} — ${difficultyGuide[difficulty].bn}
+${avoidBlock}
 এই বিষয়ে ঠিক ${count}টি মানসম্মত বহুনির্বাচনী প্রশ্ন (MCQ) বাংলায় তৈরি করো। প্রতিটি প্রশ্নে ৪টি অপশন থাকবে, একটাই সঠিক উত্তর, এবং একটা সংক্ষিপ্ত ব্যাখ্যা থাকবে।
 
 শুধুমাত্র নিচের ফরম্যাটে একটা JSON array রিটার্ন করো, অন্য কোনো লেখা, ব্যাখ্যা বা মার্কডাউন কোড ফেন্স ছাড়া:
