@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>অনুশীলন — নিবন্ধন হাব</title>
+<title>অনুশীলন — GenMCQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -54,7 +54,7 @@ body { background:#F4EEDC; }
 <a href="privacy-policy.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="shield" class="w-4 h-4" style="color:#C9A24C;"></i>গোপনীয়তা নীতি</a>
 <a href="terms.html" class="flex items-center gap-3 px-2 py-2.5 rounded-lg"><i data-lucide="file-text" class="w-4 h-4" style="color:#C9A24C;"></i>শর্তাবলি</a>
 </nav>
-<p class="mt-auto pt-4 text-[11px] text-center" style="color:#6E8078;">© নিবন্ধন হাব</p>
+<p class="mt-auto pt-4 text-[11px] text-center" style="color:#6E8078;">© GenMCQ</p>
 </aside>
 <!-- AUTH REQUIRED SCREEN -->
 <div id="auth-required" class="hidden px-5 mt-16 text-center">
@@ -279,6 +279,8 @@ selectedAIDifficulty = btn.dataset.difficulty;
 });
 function showEl(id){ document.querySelectorAll('#mode-select,#category-picker,#subject-picker,#count-picker,#quiz-area,#result-area,#no-questions,#ai-picker,#ai-loading').forEach(e=>e.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 function goBack(){
+const authRequired = document.getElementById('auth-required');
+if (authRequired && !authRequired.classList.contains('hidden')) { window.location.href = 'index.html'; return; }
 if (!document.getElementById('mode-select').classList.contains('hidden')) { window.location.href = 'index.html'; }
 else { showEl('mode-select'); }
 }
@@ -575,11 +577,15 @@ async function saveAttempt(){
 try {
 const { data: { session } } = await sb.auth.getSession();
 if (!session || !session.user) return;
+const displayName = session.user.user_metadata?.full_name || session.user.email;
+const avatarUrl = session.user.user_metadata?.avatar_url || null;
 const rows = Object.entries(subjectStats).map(([subject, s]) => ({
 user_id: session.user.id,
 subject: subject,
 total_questions: s.total,
-correct_count: s.correct
+correct_count: s.correct,
+display_name: displayName,
+avatar_url: avatarUrl
 }));
 if (rows.length === 0) return;
 await sb.from('quiz_attempts').insert(rows);
