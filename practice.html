@@ -332,9 +332,9 @@ wrap.innerHTML = subjectsData.map(s => `
 <i data-lucide="chevron-right" class="w-4 h-4" style="color:#8A8266;"></i>
 </button>`).join('');
 } else {
-const { data: questionsData } = await sb.from('questions').select('subject');
+const { data: countsData } = await sb.from('subject_question_counts').select('*');
 const counts = {};
-(questionsData||[]).forEach(q => { counts[q.subject] = (counts[q.subject]||0) + 1; });
+(countsData||[]).forEach(row => { counts[row.subject] = row.cnt; });
 wrap.innerHTML = subjectsData.map(s => {
 const count = counts[s.name] || 0;
 const disabled = count === 0;
