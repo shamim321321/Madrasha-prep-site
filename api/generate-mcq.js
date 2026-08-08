@@ -1,4 +1,9 @@
 // Vercel Serverless Function — এই ফাইলটা সার্ভারে চলে, GEMINI_API_KEY কখনো ব্রাউজারে যায় না।
+// টপিক "__random__" হলে DB-first (subject-ম্যাচ, র‍্যান্ডম) থেকে সার্ভ করা হয়;
+// কাস্টম টপিক হলে DB-তে ilike ম্যাচ চেষ্টা করা হয়; দুই ক্ষেত্রেই ঘাটতি Gemini দিয়ে টপ-আপ হয়।
+// শুধু আসল Gemini কল হলেই (partial/full) দৈনিক ai_usage কাউন্ট বাড়বে।
+
+const RANDOM_TOPIC = '__random__';
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -12,14 +17,23 @@ module.exports = async (req, res) => {
     return;
   }
 
+  const supabaseUrl = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    res.status(500).json({ error: 'সার্ভারে SUPABASE_URL/SUPABASE_SERVICE_KEY সেট করা নেই।' });
+    return;
+  }
+
   let body = req.body;
   if (typeof body === 'string') {
     try { body = JSON.parse(body); } catch (e) { body = {}; }
   }
   // subjectName: ড্রপডাউন থেকে আসা বাধ্যতামূলক সাবজেক্ট (questions.subject কলামে টেক্সট হিসেবে সেভ হয়)
-  // topic: ইউজারের ফ্রি-টেক্সট টপিক
+  // topic: ইউজারের ফ্রি-টেক্সট টপিক, অথবা RANDOM_TOPIC ('__random__')
   const subjectName = (body?.subjectName || '').toString().trim().slice(0, 100);
-  const topic = (body?.topic || '').toString().trim().slice(0, 200);
+  const rawTopic = (body?.topic || '').toString().trim().slice(0, 200);
+  const isRandom = rawTopic === RANDOM_TOPIC;
+  const topic = isRandom ? '' : rawTopic;
   const count = Math.min(30, Math.max(1, parseInt(body?.count) || 10));
   const lang = ['ar', 'en'].includes(body?.lang) ? body.lang : 'bn';
   const difficulty = ['easy', 'medium', 'hard'].includes(body?.difficulty) ? body.difficulty : 'easy';
@@ -28,15 +42,284 @@ module.exports = async (req, res) => {
     res.status(400).json({ error: 'সাবজেক্ট নির্বাচন করা বাধ্যতামূলক।' });
     return;
   }
-  if (!topic) {
+  if (!isRandom && !topic) {
     res.status(400).json({ error: 'টপিক লিখুন।' });
     return;
   }
 
-  // প্রম্পটে "বিষয়" হিসেবে সাবজেক্ট + টপিক একসাথে ব্যবহার হবে
+  // ============================================
+  // ধাপ ১: ইউজার শনাক্তকরণ (Supabase access token verify)
+  // ============================================
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'] || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  const user = await getUserFromToken(token, supabaseUrl, supabaseKey);
+  if (!user) {
+    res.status(401).json({ error: 'লগইন সেশন যাচাই করা যায়নি, আবার লগইন করুন।' });
+    return;
+  }
+
+  // ============================================
+  // ধাপ ২: দৈনিক লিমিট চেক (admin panel-controlled)
+  // ============================================
+  const dailyLimit = await getEffectiveLimit(supabaseUrl, supabaseKey, user.id, 'practice');
+  let currentUsage = 0;
+  if (dailyLimit !== null) {
+    currentUsage = await getTodayUsage(supabaseUrl, supabaseKey, user.id, 'practice');
+    if (currentUsage >= dailyLimit) {
+      res.status(429).json({ error: `আজকের জন্য AI Practice ব্যবহারের সীমা (${dailyLimit}) শেষ হয়ে গেছে। কাল আবার চেষ্টা করুন।` });
+      return;
+    }
+  }
+
+  // ============================================
+  // ধাপ ৩: DB-first — আগে থেকে থাকা প্রশ্ন থেকে যতটা সম্ভব সার্ভ করা
+  // ============================================
+  let dbQuestions = [];
+  try {
+    dbQuestions = isRandom
+      ? await fetchRandomFromDB(supabaseUrl, supabaseKey, subjectName, count)
+      : await fetchByTopicFromDB(supabaseUrl, supabaseKey, subjectName, topic, count);
+  } catch (e) {
+    dbQuestions = []; // DB চেক ব্যর্থ হলেও AI জেনারেশনে চলে যাওয়া (fail-open)
+  }
+
+  const shortfall = count - dbQuestions.length;
+
+  // সম্পূর্ণ DB থেকেই মিটে গেলে — Gemini কল লাগবে না, লিমিটও কাটা হবে না
+  if (shortfall <= 0) {
+    res.status(200).json({
+      questions: dbQuestions.slice(0, count).map(toClientShape),
+      saved: 0,
+      dbError: null,
+      source: 'db'
+    });
+    return;
+  }
+
+  // ============================================
+  // ধাপ ৪: ঘাটতি Gemini দিয়ে টপ-আপ জেনারেট করা
+  // ============================================
+  const effectiveTopicForPrompt = isRandom ? subjectName : topic;
+  const aiResult = await generateViaGemini({
+    apiKey, subjectName, topic: effectiveTopicForPrompt, count: shortfall, lang, difficulty
+  });
+
+  if (aiResult.error) {
+    // DB থেকে কিছু পাওয়া গেলে অন্তত সেটা দেখানো, নাহলে এরর
+    if (dbQuestions.length > 0) {
+      res.status(200).json({ questions: dbQuestions.map(toClientShape), saved: 0, dbError: null, source: 'db-partial' });
+    } else {
+      res.status(502).json({ error: aiResult.error });
+    }
+    return;
+  }
+
+  // AI-জেনারেটেড প্রশ্ন Supabase-এ সেভ করা (প্রশ্ন ব্যাংক বাড়ানো)
+  const { saved, dbError } = await saveGeneratedQuestions(
+    supabaseUrl, supabaseKey, aiResult.questions, subjectName, effectiveTopicForPrompt, lang
+  );
+
+  // Gemini কল সফল হয়েছে — কাউন্ট বাড়ানো (শুধু dailyLimit সেট থাকলে, তবে future analytics-এর জন্য সবসময় লগ রাখা)
+  await incrementUsage(supabaseUrl, supabaseKey, user.id, 'practice');
+
+  const combined = [...dbQuestions, ...aiResult.questions];
+  res.status(200).json({
+    questions: combined.map(toClientShape),
+    saved,
+    dbError,
+    source: dbQuestions.length > 0 ? 'mixed' : 'ai'
+  });
+};
+
+// ================================================================
+// সহায়ক ফাংশনসমূহ
+// ================================================================
+
+function toClientShape(q) {
+  // DB রো ও AI রো — দুটোই একই শেপে ফ্রন্টএন্ডে যাবে
+  return {
+    question: q.question,
+    option_a: q.option_a,
+    option_b: q.option_b,
+    option_c: q.option_c,
+    option_d: q.option_d,
+    correct: q.correct,
+    explanation: q.explanation || null,
+    explanation_bn: q.explanation_bn || null
+  };
+}
+
+async function getUserFromToken(token, supabaseUrl, apiKey) {
+  if (!token) return null;
+  try {
+    const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
+      headers: { Authorization: `Bearer ${token}`, apikey: apiKey }
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data && data.id ? data : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function getEffectiveLimit(supabaseUrl, supabaseKey, userId, feature) {
+  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` };
+  // পার-ইউজার override আগে চেক করা
+  try {
+    const ures = await fetch(
+      `${supabaseUrl}/rest/v1/user_ai_limits?user_id=eq.${userId}&feature=eq.${feature}&select=daily_limit`,
+      { headers }
+    );
+    const urows = await ures.json().catch(() => []);
+    if (Array.isArray(urows) && urows.length > 0 && urows[0].daily_limit !== null && urows[0].daily_limit !== undefined) {
+      return urows[0].daily_limit;
+    }
+  } catch (e) { /* ignore, fall through to global default */ }
+
+  // গ্লোবাল ডিফল্ট (site_settings)
+  try {
+    const col = feature === 'learn' ? 'ai_learn_daily_limit' : 'ai_practice_daily_limit';
+    const sres = await fetch(`${supabaseUrl}/rest/v1/site_settings?id=eq.1&select=${col}`, { headers });
+    const srows = await sres.json().catch(() => []);
+    if (Array.isArray(srows) && srows.length > 0) {
+      const val = srows[0][col];
+      return (val === null || val === undefined) ? null : val;
+    }
+  } catch (e) { /* ignore */ }
+
+  return null; // কিছু না পেলে unlimited ধরে নেওয়া (fail-open)
+}
+
+async function getTodayUsage(supabaseUrl, supabaseKey, userId, feature) {
+  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` };
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/ai_usage?user_id=eq.${userId}&usage_date=eq.${today}&feature=eq.${feature}&select=count`,
+      { headers }
+    );
+    const rows = await res.json().catch(() => []);
+    return Array.isArray(rows) && rows.length > 0 ? (rows[0].count || 0) : 0;
+  } catch (e) {
+    return 0; // fail-open
+  }
+}
+
+async function incrementUsage(supabaseUrl, supabaseKey, userId, feature) {
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    await fetch(`${supabaseUrl}/rest/v1/ai_usage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        Prefer: 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify([{ user_id: userId, usage_date: today, feature, count: 1 }])
+    });
+    // উপরের merge-duplicates শুধু ইনসার্ট/রিপ্লেস করে, +1 করে না — তাই না থাকলে insert, থাকলে নিচের update দিয়ে +1
+    const getRes = await fetch(
+      `${supabaseUrl}/rest/v1/ai_usage?user_id=eq.${userId}&usage_date=eq.${today}&feature=eq.${feature}&select=count`,
+      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+    );
+    const rows = await getRes.json().catch(() => []);
+    if (Array.isArray(rows) && rows.length > 0) {
+      const newCount = (rows[0].count || 1);
+      await fetch(
+        `${supabaseUrl}/rest/v1/ai_usage?user_id=eq.${userId}&usage_date=eq.${today}&feature=eq.${feature}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+            Prefer: 'return=minimal'
+          },
+          body: JSON.stringify({ count: newCount >= 1 ? newCount : 1, updated_at: new Date().toISOString() })
+        }
+      );
+    }
+  } catch (e) {
+    // usage লগ ব্যর্থ হলেও ইউজারের রেসপন্স আটকানো হবে না
+  }
+}
+
+async function fetchRandomFromDB(supabaseUrl, supabaseKey, subjectName, count) {
+  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` };
+  const res = await fetch(
+    `${supabaseUrl}/rest/v1/questions?subject=eq.${encodeURIComponent(subjectName)}&select=*&limit=300`,
+    { headers }
+  );
+  const rows = await res.json().catch(() => []);
+  if (!Array.isArray(rows)) return [];
+  const shuffled = rows.sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+async function fetchByTopicFromDB(supabaseUrl, supabaseKey, subjectName, topic, count) {
+  const headers = { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` };
+  const res = await fetch(
+    `${supabaseUrl}/rest/v1/questions?subject=eq.${encodeURIComponent(subjectName)}&topic=ilike.*${encodeURIComponent(topic)}*&select=*&limit=300`,
+    { headers }
+  );
+  const rows = await res.json().catch(() => []);
+  if (!Array.isArray(rows)) return [];
+  const shuffled = rows.sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+async function saveGeneratedQuestions(supabaseUrl, supabaseKey, questions, subjectName, topic, lang) {
+  let saved = 0;
+  let dbError = null;
+  try {
+    const rows = questions
+      .filter((q) => q && q.question && q.option_a && q.option_b && q.option_c && q.option_d && q.correct)
+      .map((q) => ({
+        subject: subjectName,
+        topic: topic,
+        question: q.question,
+        option_a: q.option_a,
+        option_b: q.option_b,
+        option_c: q.option_c,
+        option_d: q.option_d,
+        correct: q.correct.toString().toLowerCase().slice(0, 1),
+        explanation: q.explanation || null,
+        explanation_bn: q.explanation_bn || null,
+        language: lang,
+        source: 'ai',
+        status: 'pending'
+      }));
+
+    if (rows.length > 0) {
+      const insertRes = await fetch(`${supabaseUrl}/rest/v1/questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+          Prefer: 'return=minimal'
+        },
+        body: JSON.stringify(rows)
+      });
+
+      if (insertRes.ok) {
+        saved = rows.length;
+      } else {
+        const errData = await insertRes.json().catch(() => ({}));
+        dbError = errData?.message || `Supabase insert ব্যর্থ (status ${insertRes.status})`;
+      }
+    }
+  } catch (dbErr) {
+    dbError = dbErr.message;
+  }
+  return { saved, dbError };
+}
+
+async function generateViaGemini({ apiKey, subjectName, topic, count, lang, difficulty }) {
   const subject = `${subjectName} — ${topic}`;
 
-  // Difficulty guidance
   const difficultyGuide = {
     easy: {
       ar: 'أسئلة سهلة وواضحة — الحقائق الأساسية، المفاهيم المباشرة',
@@ -58,7 +341,7 @@ module.exports = async (req, res) => {
   const prompt = lang === 'ar'
     ? `أنت خبير في إعداد أسئلة الاختيار من متعدد لامتحان تعيين مدرسي مدرسة (NTRCA) في بنغلاديش.
 الموضوع: "${subject}"
-مستوى الصعوبة: ${difficultyGuide.easy.ar === difficultyGuide[difficulty].ar ? 'سهل' : difficulty === 'medium' ? 'متوسط' : 'صعب'} — ${difficultyGuide[difficulty].ar}
+مستوى الصعوبة: ${difficulty === 'easy' ? 'سهل' : difficulty === 'medium' ? 'متوسط' : 'صعب'} — ${difficultyGuide[difficulty].ar}
 أنشئ بالضبط ${count} سؤال اختيار من متعدد بمستوى جيد باللغة العربية الفصحى حول هذا الموضوع. لكل سؤال أربعة خيارات، إجابة صحيحة واحدة فقط، وشرح مختصر.
 
 أرجع فقط مصفوفة JSON بالتنسيق التالي أدناه، دون أي نص إضافي أو علامات markdown. حقل "explanation" يجب أن يكون باللغة العربية، وحقل "explanation_bn" هو نفس الشرح لكن مترجم إلى اللغة البنغالية:
@@ -114,11 +397,9 @@ The "correct" field must contain only one letter: a, b, c, or d.`
 ]
 "correct" ফিল্ডে শুধু a, b, c অথবা d এর একটা অক্ষর থাকবে।`;
 
-  // মডেল ওভারলোডেড (503/"high demand") হলে এই ক্রমে চেষ্টা করা হবে
   const MODELS = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.6-flash'];
   const MAX_ATTEMPTS_PER_MODEL = 2;
   const RETRY_DELAY_MS = 1200;
-
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   async function callGemini(model) {
@@ -138,7 +419,6 @@ The "correct" field must contain only one letter: a, b, c, or d.`
   }
 
   function isOverloaded(result) {
-    // 503 বা "high demand"/"overloaded" জাতীয় মেসেজ হলে retry/fallback যোগ্য বলে ধরা হবে
     if (result.status === 503) return true;
     const msg = (result.data?.error?.message || '').toLowerCase();
     return msg.includes('high demand') || msg.includes('overload');
@@ -152,27 +432,15 @@ The "correct" field must contain only one letter: a, b, c, or d.`
     for (const model of MODELS) {
       for (let attempt = 1; attempt <= MAX_ATTEMPTS_PER_MODEL; attempt++) {
         result = await callGemini(model);
-
         if (result.ok) break outer;
-
         lastError = result.data?.error?.message || 'অজানা এরর';
-
-        if (isOverloaded(result)) {
-          // ওভারলোডেড হলে সামান্য অপেক্ষা করে হয় আবার একই মডেলে, নয়তো পরের মডেলে চেষ্টা
-          await sleep(RETRY_DELAY_MS);
-          continue;
-        }
-
-        // অন্য ধরনের এরর (যেমন ৪০০/৪০১) হলে retry করে লাভ নেই, সরাসরি বের হয়ে যাওয়া
+        if (isOverloaded(result)) { await sleep(RETRY_DELAY_MS); continue; }
         break outer;
       }
     }
 
     if (!result || !result.ok) {
-      res.status(502).json({
-        error: 'Gemini API এরর: ' + (lastError || 'সব মডেলে চেষ্টা করার পরও ব্যর্থ হয়েছে। একটু পর আবার চেষ্টা করুন।')
-      });
-      return;
+      return { error: 'Gemini API এরর: ' + (lastError || 'সব মডেলে চেষ্টা করার পরও ব্যর্থ হয়েছে। একটু পর আবার চেষ্টা করুন।') };
     }
 
     const { data } = result;
@@ -182,73 +450,15 @@ The "correct" field must contain only one letter: a, b, c, or d.`
       const cleaned = text.replace(/```json|```/g, '').trim();
       questions = JSON.parse(cleaned);
     } catch (e) {
-      res.status(502).json({ error: 'AI-এর উত্তর পার্স করা যায়নি।' });
-      return;
+      return { error: 'AI-এর উত্তর পার্স করা যায়নি।' };
     }
 
     if (!Array.isArray(questions) || questions.length === 0) {
-      res.status(502).json({ error: 'কোনো প্রশ্ন তৈরি হয়নি, আবার চেষ্টা করুন।' });
-      return;
+      return { error: 'কোনো প্রশ্ন তৈরি হয়নি, আবার চেষ্টা করুন।' };
     }
 
-    // ============================================
-    // Supabase-এ প্রশ্নগুলো সেভ করা (প্রশ্ন ব্যাংক)
-    // ব্যর্থ হলেও ইউজারকে জেনারেট হওয়া প্রশ্ন দেখানো বন্ধ হবে না
-    // ============================================
-    let saved = 0;
-    let dbError = null;
-
-    const supabaseUrl = (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
-    const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
-
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const rows = questions
-          .filter((q) => q && q.question && q.option_a && q.option_b && q.option_c && q.option_d && q.correct)
-          .map((q) => ({
-            subject: subjectName,
-            topic: topic,
-            question: q.question,
-            option_a: q.option_a,
-            option_b: q.option_b,
-            option_c: q.option_c,
-            option_d: q.option_d,
-            correct: q.correct.toString().toLowerCase().slice(0, 1),
-            explanation: q.explanation || null,
-            explanation_bn: q.explanation_bn || null,
-            language: lang,
-            source: 'ai',
-            status: 'pending'
-          }));
-
-        if (rows.length > 0) {
-          const insertRes = await fetch(`${supabaseUrl}/rest/v1/questions`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify(rows)
-          });
-
-          if (insertRes.ok) {
-            saved = rows.length;
-          } else {
-            const errData = await insertRes.json().catch(() => ({}));
-            dbError = errData?.message || `Supabase insert ব্যর্থ (status ${insertRes.status})`;
-          }
-        }
-      } catch (dbErr) {
-        dbError = dbErr.message;
-      }
-    } else {
-      dbError = 'SUPABASE_URL/SUPABASE_SERVICE_KEY সেট করা নেই, প্রশ্ন সেভ হয়নি।';
-    }
-
-    res.status(200).json({ questions, saved, dbError });
+    return { questions };
   } catch (err) {
-    res.status(500).json({ error: 'সার্ভার এরর: ' + err.message });
+    return { error: 'সার্ভার এরর: ' + err.message };
   }
-};
+}
