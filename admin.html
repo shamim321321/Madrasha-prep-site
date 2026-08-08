@@ -50,6 +50,37 @@ body { background:#F4EEDC; }
 </div>
 </div>
 
+<!-- AI USAGE LIMITS -->
+<div class="px-5 mt-5">
+<div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
+<div class="flex items-center gap-2 mb-3">
+<i data-lucide="sparkles" class="w-4 h-4" style="color:#8B6B2A;"></i>
+<span class="text-sm font-semibold" style="color:#0E211C;">AI দৈনিক ব্যবহার সীমা</span>
+</div>
+<p class="text-xs mb-3" style="color:#8A8266;">ফাঁকা রাখলে (unlimited) — কোনো সীমা থাকবে না। সংখ্যা দিলে প্রতি ইউজার দিনে ততবার AI ব্যবহার করতে পারবে।</p>
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">AI Practice দৈনিক সীমা</label>
+<input id="ai-limit-practice" type="number" min="0" placeholder="খালি = unlimited" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<label class="block text-xs font-medium mb-1.5" style="color:#5B5340;">AI Learn দৈনিক সীমা</label>
+<input id="ai-limit-learn" type="number" min="0" placeholder="খালি = unlimited" class="w-full px-3 py-2 rounded-lg text-sm mb-3" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<button onclick="saveAILimits()" class="w-full py-2.5 rounded-full text-sm font-semibold btn-gold">সীমা সেভ করুন</button>
+<p id="ai-limit-notice" class="hidden text-xs mt-2 text-center"></p>
+
+<div class="mt-4 pt-4" style="border-top:1px solid #EFE7CC;">
+<p class="text-xs font-semibold mb-2" style="color:#5B5340;">নির্দিষ্ট ইউজারের জন্য কাস্টম সীমা (যেমন: paid ইউজার)</p>
+<input id="ai-limit-user-email" type="email" placeholder="ইউজারের ইমেইল" class="w-full px-3 py-2 rounded-lg text-sm mb-2" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<div class="flex gap-2 mb-2">
+<select id="ai-limit-user-feature" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+<option value="practice">AI Practice</option>
+<option value="learn">AI Learn</option>
+</select>
+<input id="ai-limit-user-value" type="number" min="0" placeholder="সীমা (খালি=মুছে দিন)" class="flex-1 px-3 py-2 rounded-lg text-sm" style="background:#F9F6EC; border:1px solid #E4DAB8;">
+</div>
+<button onclick="setUserAILimit()" class="w-full py-2.5 rounded-full text-sm font-semibold" style="background:#0E211C; color:#E4C97A;">এই ইউজারের জন্য সেট করুন</button>
+<p id="ai-limit-user-notice" class="hidden text-xs mt-2 text-center"></p>
+</div>
+</div>
+</div>
+
 <!-- DONATION MANAGEMENT -->
 <div class="px-5 mt-5">
 <div class="rounded-2xl p-4" style="background:#fff; border:1px solid rgba(201,162,76,0.25);">
@@ -217,6 +248,7 @@ async function init() {
   loadRecent();
   loadReviewQueue();
   loadMaintenanceInfo();
+  loadAILimits();
   loadBlockedList();
   loadUsers();
   loadDonations();
@@ -535,6 +567,50 @@ async function saveMaintenanceInfo() {
   notice.textContent = error ? 'সমস্যা হয়েছে: ' + error.message : 'তথ্য সেভ হয়েছে ✓';
   notice.style.color = error ? '#D14343' : '#2F7A4F';
   notice.classList.remove('hidden');
+}
+
+async function loadAILimits() {
+  const { data } = await supabaseClient.from('site_settings').select('ai_practice_daily_limit, ai_learn_daily_limit').eq('id', 1).maybeSingle();
+  if (!data) return;
+  document.getElementById('ai-limit-practice').value = (data.ai_practice_daily_limit === null || data.ai_practice_daily_limit === undefined) ? '' : data.ai_practice_daily_limit;
+  document.getElementById('ai-limit-learn').value = (data.ai_learn_daily_limit === null || data.ai_learn_daily_limit === undefined) ? '' : data.ai_learn_daily_limit;
+}
+async function saveAILimits() {
+  const notice = document.getElementById('ai-limit-notice');
+  const pVal = document.getElementById('ai-limit-practice').value;
+  const lVal = document.getElementById('ai-limit-learn').value;
+  const { error } = await supabaseClient.from('site_settings').update({
+    ai_practice_daily_limit: pVal === '' ? null : parseInt(pVal),
+    ai_learn_daily_limit: lVal === '' ? null : parseInt(lVal)
+  }).eq('id', 1);
+  notice.textContent = error ? 'সমস্যা হয়েছে: ' + error.message : 'সীমা সেভ হয়েছে ✓';
+  notice.style.color = error ? '#D14343' : '#2F7A4F';
+  notice.classList.remove('hidden');
+}
+async function setUserAILimit() {
+  const notice = document.getElementById('ai-limit-user-notice');
+  notice.classList.add('hidden');
+  const email = document.getElementById('ai-limit-user-email').value.trim();
+  const feature = document.getElementById('ai-limit-user-feature').value;
+  const valRaw = document.getElementById('ai-limit-user-value').value;
+  if (!email) { notice.textContent = 'ইমেইল লিখুন।'; notice.style.color = '#D14343'; notice.classList.remove('hidden'); return; }
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const res = await fetch('/api/admin-set-ai-limit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ email, feature, dailyLimit: valRaw === '' ? null : parseInt(valRaw) })
+    });
+    const data = await res.json();
+    notice.textContent = res.ok ? (data.message || 'সেভ হয়েছে ✓') : (data.error || 'সমস্যা হয়েছে');
+    notice.style.color = res.ok ? '#2F7A4F' : '#D14343';
+    notice.classList.remove('hidden');
+    if (res.ok) { document.getElementById('ai-limit-user-value').value = ''; }
+  } catch (e) {
+    notice.textContent = 'সংযোগে সমস্যা: ' + e.message;
+    notice.style.color = '#D14343';
+    notice.classList.remove('hidden');
+  }
 }
 
 async function loadSubjects() {

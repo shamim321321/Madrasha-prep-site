@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   body { background:#F4EEDC; }
   .serif-bn { font-family:'Tiro Bangla', serif; }
@@ -127,6 +128,10 @@
     document.body.style.overflow = '';
   }
 
+  const SUPABASE_URL = "https://laujqfawcirnwsmvhaif.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_rlZV0JZUFH7NdmR_-Oz7Dg_97OQxMpv";
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
   let selectedLearnLang = 'bn';
   let lastTopic = '';
   document.querySelectorAll('.learn-lang-btn').forEach(btn => {
@@ -158,16 +163,28 @@
     lastTopic = topic;
     showLearnEl('learn-loading');
     try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        showLearnEl('learn-form');
+        errEl.textContent = 'সেশনের মেয়াদ শেষ হয়ে গেছে, আবার লগইন করুন।';
+        errEl.classList.remove('hidden');
+        return;
+      }
       const res = await fetch('/api/generate-explanation', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + session.access_token
+        },
         body: JSON.stringify({ topic, lang: selectedLearnLang })
       });
       const data = await res.json();
       if (!res.ok || !data.explanation) {
         document.getElementById('learn-topic').value = topic;
         showLearnEl('learn-form');
-        errEl.textContent = 'ব্যাখ্যা তৈরি করতে সমস্যা হয়েছে: ' + (data.error || 'অজানা এরর');
+        errEl.textContent = res.status === 429
+          ? (data.error || 'আজকের AI Learn সীমা শেষ হয়ে গেছে।')
+          : 'ব্যাখ্যা তৈরি করতে সমস্যা হয়েছে: ' + (data.error || 'অজানা এরর');
         errEl.classList.remove('hidden');
         return;
       }

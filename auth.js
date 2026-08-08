@@ -104,6 +104,12 @@ async function nhUploadAvatar(file, userId) {
   return { data, error, avatarUrl };
 }
 
+// ---- বর্তমান সেশনের access token বের করা (AI এন্ডপয়েন্টে Authorization হেডারে পাঠাতে) ----
+async function nhGetAccessToken() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  return session?.access_token || null;
+}
+
 // ---- বর্তমান ইউজার অ্যাডমিন/এডিটর কিনা চেক করা (admins টেবিল দেখে) ----
 async function nhIsAdmin() {
   const { data: { session } } = await supabaseClient.auth.getSession();
