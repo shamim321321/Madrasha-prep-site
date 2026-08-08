@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ড্যাশবোর্ড — নিবন্ধন হাব</title>
+<title>ড্যাশবোর্ড — GenMCQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -97,7 +97,7 @@ body { background:#F4EEDC; }
 <div class="rounded-2xl p-3 text-center" style="background:#fff;">
 <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="target" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
 <div id="stat-accuracy" class="num-bn text-lg" style="color:#0E211C;">—</div>
-<div class="text-[11px]" style="color:#5B5340;">সঠিক উত্তরের হার</div>
+<div class="text-[11px]" style="color:#5B5340;">গড় (কাটমার্কসহ)</div>
 </div>
 <div class="rounded-2xl p-3 text-center" style="background:#fff;">
 <div class="w-9 h-9 mx-auto mb-1.5 rounded-full flex items-center justify-center icon-badge"><i data-lucide="flame" class="w-4 h-4" style="color:#8B6B2A;"></i></div>
@@ -107,7 +107,7 @@ body { background:#F4EEDC; }
 </section>
 <!-- SUBJECT ACCURACY CHART -->
 <section id="subject-chart-section" class="px-4 mt-8 hidden">
-<h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="bar-chart-3" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক সঠিক উত্তরের হার</h2>
+<h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="bar-chart-3" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক গড় (কাটমার্কসহ)</h2>
 <div class="rounded-2xl p-4" style="background:#fff;">
 <div id="subject-chart" class="flex items-end justify-between gap-2" style="height:110px;"></div>
 </div>
@@ -116,7 +116,7 @@ body { background:#F4EEDC; }
 <section class="px-4 mt-8">
 <h2 class="serif-bn text-lg mb-3 flex items-center gap-2" style="color:#0E211C;"><i data-lucide="trending-up" class="w-4 h-4" style="color:#C9A24C;"></i>বিষয়ভিত্তিক অগ্রগতি</h2>
 <div id="subject-breakdown-empty" class="rounded-2xl p-5 text-center" style="background:#fff;">
-<p class="text-sm" style="color:#5B5340;">কয়েকটা অনুশীলন সম্পন্ন হলে এখানে বিষয়ভিত্তিক সংখ্যা ও সঠিক উত্তরের হার দেখা যাবে।</p>
+<p class="text-sm" style="color:#5B5340;">কয়েকটা অনুশীলন সম্পন্ন হলে এখানে বিষয়ভিত্তিক সংখ্যা ও গড় দেখা যাবে।</p>
 </div>
 <div id="subject-breakdown-list" class="hidden rounded-2xl p-4 flex flex-col gap-4" style="background:#fff;"></div>
 </section>
@@ -251,6 +251,15 @@ async function removeBookmark(questionId){
 await supabaseClient.from('question_bookmarks').delete().eq('question_id', questionId).eq('user_id', currentUser.id);
 loadBookmarks();
 }
+
+// কাটমার্কসহ গড় (ভুল প্রতি -০.২৫), সবখানে একই নিয়মে ব্যবহারের জন্য একটা কমন ফাংশন
+function calcPct(total, correct){
+if (!total) return 0;
+const wrong = total - correct;
+const points = Math.max(0, correct - wrong * 0.25);
+return Math.round((points / total) * 100);
+}
+
 async function loadStats(){
 const { data, error } = await supabaseClient
 .from('quiz_attempts')
@@ -267,7 +276,7 @@ bySubject[r.subject].total += r.total_questions;
 bySubject[r.subject].correct += r.correct_count;
 });
 document.getElementById('stat-total-q').textContent = totalQ.toLocaleString('bn-BD');
-const overallAcc = totalQ ? Math.round((totalCorrect / totalQ) * 100) : 0;
+const overallAcc = calcPct(totalQ, totalCorrect);
 document.getElementById('stat-accuracy').textContent = overallAcc + '%';
 const days = [...new Set(data.map(r => new Date(r.created_at).toISOString().slice(0, 10)))].sort();
 let bestStreak = days.length ? 1 : 0, cur = 1;
@@ -279,7 +288,7 @@ bestStreak = Math.max(bestStreak, cur);
 document.getElementById('stat-streak').textContent = bestStreak;
 const subjects = Object.entries(bySubject).map(([name, s]) => ({
 name, total: s.total, correct: s.correct,
-pct: s.total ? Math.round((s.correct / s.total) * 100) : 0
+pct: calcPct(s.total, s.correct)
 })).sort((a, b) => a.pct - b.pct);
 const barColor = p => p >= 70 ? '#2F7A4F' : p >= 40 ? '#C9A24C' : '#D14343';
 document.getElementById('subject-breakdown-empty').classList.add('hidden');
@@ -289,7 +298,7 @@ list.innerHTML = subjects.map(s => `
 <div>
 <div class="flex items-center justify-between mb-1.5">
 <span class="text-sm font-medium" style="color:#0E211C;">${s.name}</span>
-<span class="text-xs" style="color:#5B5340;">${s.correct}/${s.total} সঠিক · ${s.pct}%</span>
+<span class="text-xs" style="color:#5B5340;">${s.correct}/${s.total} সঠিক · গড় ${s.pct}%</span>
 </div>
 <div class="w-full h-2 rounded-full" style="background:#F0EAD6;">
 <div class="h-2 rounded-full" style="width:${s.pct}%; background:${barColor(s.pct)};"></div>
@@ -309,7 +318,7 @@ if (recent.length > 0) {
 document.getElementById('recent-activity-empty').outerHTML = `
 <div class="rounded-2xl p-4 flex flex-col gap-3" style="background:#fff;">
 ${recent.map(r => {
-const pct = r.total_questions ? Math.round((r.correct_count / r.total_questions) * 100) : 0;
+const pct = calcPct(r.total_questions, r.correct_count);
 const dateStr = new Date(r.created_at).toLocaleDateString('bn-BD-u-nu-latn', { day: 'numeric', month: 'short' });
 return `
 <div class="flex items-center justify-between">
@@ -317,7 +326,7 @@ return `
 <p class="text-sm font-medium truncate" style="color:#0E211C;">${r.subject}</p>
 <p class="text-[11px]" style="color:#8A8266;">${dateStr}</p>
 </div>
-<span class="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0" style="background:${barColor(pct)}22; color:${barColor(pct)};">${r.correct_count}/${r.total_questions} · ${pct}%</span>
+<span class="text-xs font-semibold px-2.5 py-1 rounded-full shrink-0" style="background:${barColor(pct)}22; color:${barColor(pct)};">${r.correct_count}/${r.total_questions} · গড় ${pct}%</span>
 </div>`;
 }).join('')}
 </div>`;
